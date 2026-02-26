@@ -1,0 +1,207 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ==========================================
+// ENUMS (Les choix fixes)
+// ==========================================
+
+enum RoleUtilisateur {
+  ADMIN
+  ETUDIANT
+}
+
+enum StatutUtilisateur {
+  ACTIF
+  BLOQUE
+}
+
+enum StatutEmprunt {
+  EN_COURS
+  EN_RETARD
+  EN_ATTENTE_RETOUR
+  RETOURNE
+}
+
+enum TypeRecompense {
+  PROLONGATION // Ex: Prolongation de 7 jours
+  PROTECTION // Ex: éviter une pénalité de points
+  PREMIUM // Ex: ajouter la quantité du livre emprunté à 5 au lieu de 3 
+  BONUS //Ex: ajouter les une livre supplémentaire à l'emprunt
+  REACTIVATION // Ex: réactiver un compte bloqué par une sanction
+}
+
+enum TypeMouvementPoints {
+  GAIN_EMPRUNT
+  PERTE_RETARD
+  ACHAT_BOUTIQUE
+  SANCTION_ADMIN
+}
+
+// ==========================================
+// MODÈLES (TABLES DE LA BASE DE DONNÉES)
+// ==========================================
+
+model Utilisateur {
+  id           Int               @id @default(autoincrement())
+  nom          String
+  email        String            @unique
+  motDePasse   String
+  role         RoleUtilisateur   @default(ETUDIANT)
+  statut       StatutUtilisateur @default(ACTIF)
+  dateCreation DateTime          @default(now())
+
+  // Champs spécifiques à l'Étudiant (Gamification)
+  niveau        Int? @default(1)
+  xp            Int? @default(0)
+  pointsActuels Int? @default(0)
+
+  // Relations
+  emprunts         Emprunt[]
+  historiquePoints HistoriquePoints[]
+  bonusPossedes    BonusPossede[]
+  sanctions        Sanction[]
+  badgesObtenus    BadgeEtudiant[]
+
+  // Relation One-to-One avec la Liste de Souhaits
+  listeSouhaits ListeSouhaits?
+}
+
+model Livre {
+  id        Int    @id @default(autoincrement())
+  titre     String
+  auteur    String
+  isbn      String @unique
+  stock     Int    @default(3)
+  categorie String
+
+  // Relations
+  emprunts       Emprunt[]
+  listesSouhaits ListeSouhaits[] // Un livre peut être dans plusieurs wishlists
+}
+model ListeSouhaits {
+  id Int @id @default(autoincrement())
+
+  // Relations
+  utilisateurId Int         @unique // Un étudiant a une seule wishlist
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
+
+  livres Livre[] // Une wishlist contient plusieurs livres (Relation Many-to-Many implicite)
+}
+
+model Emprunt {
+  id           Int           @id @default(autoincrement())
+  dateEmprunt  DateTime      @default(now())
+  dateEcheance DateTime
+  dateRetour   DateTime? // Vide (null) tant que le livre n'est pas retourné
+  statut       StatutEmprunt @default(EN_COURS)
+
+  // Relations
+  utilisateurId Int
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
+
+  livreId Int
+  livre   Livre @relation(fields: [livreId], references: [id])
+
+  // Relation One-to-One (Un bonus comme un Joker peut être appliqué à un emprunt)
+  bonusApplique BonusPossede?
+}
+
+// ==========================================
+// GAMIFICATION & BOUTIQUE
+// ==========================================
+
+model HistoriquePoints {
+  id            Int                 @id @default(autoincrement())
+  montant       Int // Ex: +10 ou -15
+  dateMouvement DateTime            @default(now())
+  type          TypeMouvementPoints
+  description   String // Ex: "Retour à l'heure", "Retard de 2 jours"
+
+  // Relations
+  utilisateurId Int
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
+}
+
+model Recompense {
+  id                 Int            @id @default(autoincrement())
+  nom                String
+  description        String
+  cout               Int // Prix en points
+  type               TypeRecompense
+  dureeValiditeJours Int? // Ex: 30 jours pour Carte Gold
+
+  // Relations
+  bonusPossedes BonusPossede[]
+}
+
+model BonusPossede {
+  id              Int       @id @default(autoincrement())
+  dateAchat       DateTime  @default(now())
+  estConsomme     Boolean   @default(false)
+  dateUtilisation DateTime?
+  dateExpiration  DateTime?
+
+  // Relations
+  utilisateurId Int
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
+
+  recompenseId Int
+  recompense   Recompense @relation(fields: [recompenseId], references: [id])
+
+  // Lien avec l'emprunt (si c'est un Joker utilisé)
+  empruntId Int?     @unique
+  emprunt   Emprunt? @relation(fields: [empruntId], references: [id])
+}
+
+model Badge {
+  id          Int    @id @default(autoincrement())
+  nom         String
+  description String
+  conditionXP Int // Nombre d'XP requis pour débloquer ce badge
+
+  // Relations
+  etudiants BadgeEtudiant[]
+}
+
+model BadgeEtudiant {
+  id            Int      @id @default(autoincrement())
+  dateObtention DateTime @default(now())
+
+  // Relations
+  utilisateurId Int
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
+
+  badgeId Int
+  badge   Badge @relation(fields: [badgeId], references: [id])
+}
+
+// ==========================================
+// EXTRAS (Sanctions & Wishlist)
+// ==========================================
+
+model Sanction {
+  id             Int      @id @default(autoincrement())
+  raison         String
+  penalitePoints Int
+  dureeBlocage   Int // En jours (ex: bloqué pour 7 jours)
+  dateCreation   DateTime @default(now())
+
+  // Relations
+  utilisateurId Int
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
+}
+
+
