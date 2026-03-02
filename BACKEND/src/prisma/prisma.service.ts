@@ -1,26 +1,27 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePrismaDto } from './dto/create-prisma.dto';
-import { UpdatePrismaDto } from './dto/update-prisma.dto';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 
 @Injectable()
-export class PrismaService {
-  create(createPrismaDto: CreatePrismaDto) {
-    return 'This action adds a new prisma';
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+  
+  constructor() {
+    const adapter = new PrismaMariaDb({
+      host: process.env.DATABASE_HOST || 'localhost',
+      port: parseInt(process.env.DATABASE_PORT || '3306'),
+      user: process.env.DATABASE_USER || 'root',
+      password: process.env.DATABASE_PASSWORD || '',
+      database: process.env.DATABASE_NAME || 'bibliotech',
+    });
+
+    super({ adapter });
   }
 
-  findAll() {
-    return `This action returns all prisma`;
+  async onModuleInit() {
+    await this.$connect();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} prisma`;
-  }
-
-  update(id: number, updatePrismaDto: UpdatePrismaDto) {
-    return `This action updates a #${id} prisma`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} prisma`;
+  async onModuleDestroy() {
+    await this.$disconnect();
   }
 }
