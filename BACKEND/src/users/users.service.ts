@@ -12,6 +12,10 @@ export class UsersService {
 
 
   findAll() {
+    //
+    // if(users.role!== "ADMIN") {
+    //   throw new BadRequestException("you don't have the right to access this resource")
+    // }
     const users= this.prisma.utilisateur.findMany(
       {
         select: {
@@ -83,8 +87,30 @@ export class UsersService {
     return user ;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+
+    //  if(user.role!=="ADMIN" && user.id!==id ){
+    //   throw new BadRequestException("you don't have the right to access this resource")
+    // }
+    const user =await this.prisma.utilisateur.findUnique({
+      where:{
+        id:id
+      }
+    })
+   
+
+    if(!user){
+      throw new BadRequestException("utilisateur not found")
+    }
+    const updatedUser=  await this.prisma.utilisateur.update({
+      where:{
+        id:id,
+      },
+      data: {
+        ...updateUserDto
+      }
+    })
+    return updateUserDto
   }
 
   remove(id: number) {
