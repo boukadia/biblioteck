@@ -12,10 +12,6 @@ export class UsersService {
 
 
   findAll() {
-    // if (user.role!=="ADMIN") {
-    //   throw BadRequestException("admin required");
-    // }
-    
     const users= this.prisma.utilisateur.findMany()
     return  users;
   }
