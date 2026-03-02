@@ -68,20 +68,22 @@ export class UsersService {
   }
 
   async findOne(id: number) {
+
     const user= await this.prisma.utilisateur.findFirst({
       where: {
         id:id
       },
       select: {
-        id:true,
-        nom:true,
-        email:true,
-        statut:true,
-        role:true,
-        xp:true,
-        niveau:true,
-        pointsActuels:true
-
+        id: true,
+        nom: true,
+        email: true,
+        statut: true,
+        role: true,
+        xp: true,
+        niveau: true,
+        pointsActuels: true,
+        badgesObtenus: { include: { badge: true } },
+        emprunts: true,
       }
     })
     return user ;
