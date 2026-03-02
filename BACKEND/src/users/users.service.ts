@@ -12,7 +12,20 @@ export class UsersService {
 
 
   findAll() {
-    const users= this.prisma.utilisateur.findMany()
+    const users= this.prisma.utilisateur.findMany(
+      {
+        select: {
+          id:true,
+          nom:true,
+          email:true,
+          statut:true,
+          role:true,
+          xp:true,
+          niveau:true,
+          pointsActuels:true
+        }
+      }
+    )
     return  users;
   }
   async changeStatus(id: number) {
@@ -50,8 +63,24 @@ export class UsersService {
   }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    const user= await this.prisma.utilisateur.findFirst({
+      where: {
+        id:id
+      },
+      select: {
+        id:true,
+        nom:true,
+        email:true,
+        statut:true,
+        role:true,
+        xp:true,
+        niveau:true,
+        pointsActuels:true
+
+      }
+    })
+    return user ;
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
