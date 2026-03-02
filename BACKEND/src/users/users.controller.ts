@@ -7,12 +7,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // @Post()
-  // create(@Body() createUserDto: CreateUserDto) {
-  //   return this.usersService.create(createUserDto);
-  // }
-
-  @Get()
+  
+  @Get('')
   findAll() {
     return this.usersService.findAll();
   }
@@ -23,7 +19,7 @@ export class UsersController {
   }
 
   @Patch(':id')
-  changeStatus(@Param('id') id: string) {
+  changeStatus(@Param('id') id: number) {
     return this.usersService.changeStatus(+id);
   }
   @Put(':id')
