@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -90,7 +90,7 @@ export class UsersService {
   async update(id: number, updateUserDto: UpdateUserDto) {
 
     //  if(user.role!=="ADMIN" && user.id!==id ){
-    //   throw new BadRequestException("you don't have the right to access this resource")
+      // throw new NotFoundException("you don't have the right to access this resource")
     // }
     const user =await this.prisma.utilisateur.findUnique({
       where:{
@@ -113,7 +113,23 @@ export class UsersService {
     return updateUserDto
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    // if(user.role!=="ADMIN"){
+    //   throw new NotFoundException("you don't have the right to access this resource")
+    // }
+    const user= await this.prisma.utilisateur.findFirst({where:{
+      id:id
+    }})
+    if(!user){
+      throw new BadRequestException(
+        "user not found"
+      )
+    }
+    await this.prisma.utilisateur.delete({
+      where: {
+        id:id
+      }
+    })
+    return user;
   }
 }
