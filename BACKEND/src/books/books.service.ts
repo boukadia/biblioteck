@@ -30,8 +30,9 @@ export class BooksService {
     
   }
 
-  findAll() {
-    return `This action returns all books`;
+  async findAll() {
+    return await this.prisma.livre.findMany()
+
   }
 
   findOne(id: number) {

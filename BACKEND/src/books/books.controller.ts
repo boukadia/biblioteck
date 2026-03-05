@@ -9,6 +9,10 @@ export class BooksController {
     @Post('')
     create( @Body() data: CreateBookDto){
         return this.bookService.create(data)
+    }
+    @Get('')
+    findAll(){
+        return this.bookService.findAll()
 
     }
   
