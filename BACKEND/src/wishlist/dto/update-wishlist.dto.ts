@@ -1,4 +1,9 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateWishlistDto } from './create-wishlist.dto';
+import { IsArray, IsInt, IsOptional, IsPositive } from 'class-validator';
 
-export class UpdateWishlistDto extends PartialType(CreateWishlistDto) {}
+export class UpdateWishlistDto {
+    @IsOptional()
+    @IsArray()
+    @IsInt({ each: true })
+    @IsPositive({ each: true })
+    livreIds?: number[];
+}
