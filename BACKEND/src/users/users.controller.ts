@@ -25,8 +25,8 @@ export class UsersController {
   }
 
   @Patch(':id')
-  changeStatus(@Param('id') id: number) {
-    return this.usersService.changeStatus(+id);
+  changeStatus(@Param('id') id: number,@Request() req: any) {
+    return this.usersService.changeStatus(+id,req.user);
   }
   @Put(':id')
   update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, ForbiddenException, Search } from '@nestjs/common';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { RoleUtilisateur } from '@prisma/client';
@@ -13,9 +13,7 @@ export class BooksService {
     if (user.role !== RoleUtilisateur.ADMIN) {
       throw new ForbiddenException("Vous n'avez pas le droit d'ajouter un livre");
     }
-    console.log('====================================');
-    console.log('user',user);
-    console.log('====================================');
+   
     const existingBook = await this.prisma.livre.findUnique({
       where: { isbn: data.isbn }
     });
@@ -127,5 +125,41 @@ export class BooksService {
     });
 
     return { message: `Livre "${book.titre}" supprimé avec succès` };
+  }
+
+  async recherche(mots:string){
+    if(!mots || !mots.trim()){
+       throw new BadRequestException("Le terme de recherche ne peut pas être vide")
+    }
+  const books =await this.prisma.livre.findMany({
+    where:{
+      OR:[
+        {
+          titre:{
+            contains:mots.trim(),
+          }
+
+        },
+        {
+          auteur:{
+            contains:mots.trim(),
+          }
+        }
+      ]
+
+    },
+    include:{
+      category:true
+    },
+    orderBy:[
+      {titre:'asc'},
+      {auteur:'asc'}
+    ]
+  });
+   return {
+    mots,
+    totalResults: books.length,
+    books
+  };
   }
 }
