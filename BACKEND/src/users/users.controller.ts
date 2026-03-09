@@ -1,7 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Request, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+  @UseGuards(JwtAuthGuard,RolesGuard)
 
 @Controller('users')
 export class UsersController {
@@ -9,6 +14,7 @@ export class UsersController {
 
   
   @Get('')
+  @Roles('ADMIN')
   findAll() {
     return this.usersService.findAll();
   }
@@ -19,8 +25,8 @@ export class UsersController {
   }
 
   @Patch(':id')
-  changeStatus(@Param('id') id: number) {
-    return this.usersService.changeStatus(+id);
+  changeStatus(@Param('id') id: number,@Request() req: any) {
+    return this.usersService.changeStatus(+id,req.user);
   }
   @Put(':id')
   update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
@@ -28,7 +34,13 @@ export class UsersController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  @Roles("ADMIN")
+  remove(@Param('id') id: string,@Request() req : any) {
+    return this.usersService.remove(+id,req.user);
+  }
+
+  @Patch(':id/changePassword')
+  changePaassword(@Param('id') id:number, @Body() password:ChangePasswordDto, @Request() req: any ){
+    return this.usersService.changePaassword(password ,+id, req.user)
   }
 }
