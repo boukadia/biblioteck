@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseGuards, Request, Query } from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
@@ -6,13 +6,13 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('books')
 export class BooksController {
     constructor(private readonly bookService : BooksService){}
 
     @Post('')
-    // @Roles('ADMIN')
+    @Roles('ADMIN')
     create(@Body() data: CreateBookDto, @Request() req){
         return this.bookService.create(data, req.user)
     }
@@ -20,6 +20,11 @@ export class BooksController {
     @Get('')
     findAll(){
         return this.bookService.findAll()
+    }
+
+    @Get('recherche')
+    recherche(@Query('q') mots:string){
+        return this.bookService.recherche(mots)
     }
     
     @Get(':id')

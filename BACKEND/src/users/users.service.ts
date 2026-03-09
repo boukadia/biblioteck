@@ -1,10 +1,10 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { log } from 'node:console';
 import { Prisma } from 'src/prisma/entities/prisma.entity';
-import { StatutUtilisateur } from '@prisma/client';
+import { RoleUtilisateur, StatutUtilisateur } from '@prisma/client';
 import * as bcrypt from 'bcrypt'
 
 @Injectable()
@@ -33,13 +33,17 @@ export class UsersService {
     )
     return users;
   }
-  async changeStatus(id: number) {
-    const user = await this.prisma.utilisateur.findUnique({
+  async changeStatus(id: number, user) {
+    if (user.role !== RoleUtilisateur.ADMIN) {
+      throw new ForbiddenException("you don't have the right to access this resource")
+    }
+
+    const checkedUser = await this.prisma.utilisateur.findUnique({
       where: {
         id: id
       }
     })
-    if (!user) {
+    if (!checkedUser) {
       throw new BadRequestException("user not found")
     }
     if (user.statut === StatutUtilisateur.ACTIF) {
@@ -118,8 +122,8 @@ export class UsersService {
     return updateUserDto
   }
 
-  async remove(id: number,user) {
-    if(user.role!=="ADMIN"){
+  async remove(id: number, user) {
+    if (user.role !== "ADMIN") {
       throw new NotFoundException("you don't have the right to access this resource")
     }
     const checkUser = await this.prisma.utilisateur.findFirst({
@@ -177,7 +181,7 @@ export class UsersService {
 
       // Supprimer les emprunts terminés (RETOURNE)
       await prisma.emprunt.deleteMany({
-        where: { 
+        where: {
           utilisateurId: id,
           statut: 'RETOURNE'
         }
@@ -201,7 +205,7 @@ export class UsersService {
     if (!checkUser) {
       throw new BadRequestException('user not found')
     }
-    if(user.id!==id){
+    if (user.id !== id) {
       throw new BadRequestException('you don\'t have the right to access this resource')
     }
     const hashedPassword = await bcrypt.hash(password.motDePasse, 10)
@@ -217,7 +221,7 @@ export class UsersService {
 
 
     const { motDePasse, ...safeUser } = updatedUser;
-  
+
     return safeUser
   }
 }
