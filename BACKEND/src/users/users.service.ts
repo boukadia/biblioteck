@@ -1,14 +1,15 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { log } from 'node:console';
 import { Prisma } from 'src/prisma/entities/prisma.entity';
-import { StatutUtilisateur } from '@prisma/client';
+import { RoleUtilisateur, StatutUtilisateur } from '@prisma/client';
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class UsersService {
-  constructor (private readonly prisma: PrismaService){}
+  constructor(private readonly prisma: PrismaService) { }
 
 
   findAll() {
@@ -16,62 +17,68 @@ export class UsersService {
     // if(users.role!== "ADMIN") {
     //   throw new BadRequestException("you don't have the right to access this resource")
     // }
-    const users= this.prisma.utilisateur.findMany(
+    const users = this.prisma.utilisateur.findMany(
       {
         select: {
-          id:true,
-          nom:true,
-          email:true,
-          statut:true,
-          role:true,
-          xp:true,
-          niveau:true,
-          pointsActuels:true
+          id: true,
+          nom: true,
+          email: true,
+          statut: true,
+          role: true,
+          xp: true,
+          niveau: true,
+          pointsActuels: true
         }
       }
     )
-    return  users;
+    return users;
   }
-  async changeStatus(id: number) {
-    const user =await this.prisma.utilisateur.findUnique({where:{
-      id:id
-    }})
-    if (!user) {
-    throw new BadRequestException("user not found")
+  async changeStatus(id: number, user) {
+    if (user.role !== RoleUtilisateur.ADMIN) {
+      throw new ForbiddenException("you don't have the right to access this resource")
     }
-   if (user.statut=== StatutUtilisateur.ACTIF) {
-    const updatedUser=await this.prisma.utilisateur.update({
-      where:{
+
+    const checkedUser = await this.prisma.utilisateur.findUnique({
+      where: {
         id: id
-      },
-      data: {
-        statut:'BLOQUE',
       }
     })
-     return updatedUser
+    if (!checkedUser) {
+      throw new BadRequestException("user not found")
+    }
+    if (user.statut === StatutUtilisateur.ACTIF) {
+      const updatedUser = await this.prisma.utilisateur.update({
+        where: {
+          id: id
+        },
+        data: {
+          statut: 'BLOQUE',
+        }
+      })
+      return updatedUser
     }
     else {
-      const updatedUser=await this.prisma.utilisateur.update({
-        where:{
-          id:id
+      const updatedUser = await this.prisma.utilisateur.update({
+        where: {
+          id: id
         },
-        data:{
-          statut:'ACTIF'
+        data: {
+          statut: 'ACTIF'
         },
 
       })
       return updatedUser
-      
 
-   
-  }
+
+
+    }
   }
 
   async findOne(id: number) {
 
-    const user= await this.prisma.utilisateur.findFirst({
+    const user = await this.prisma.utilisateur.findFirst({
       where: {
-        id:id
+        id: id
       },
       select: {
         id: true,
@@ -86,27 +93,27 @@ export class UsersService {
         emprunts: true,
       }
     })
-    return user ;
+    return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
 
     //  if(user.role!=="ADMIN" && user.id!==id ){
-      // throw new NotFoundException("you don't have the right to access this resource")
+    // throw new NotFoundException("you don't have the right to access this resource")
     // }
-    const user =await this.prisma.utilisateur.findUnique({
-      where:{
-        id:id
+    const user = await this.prisma.utilisateur.findUnique({
+      where: {
+        id: id
       }
     })
-   
 
-    if(!user){
+
+    if (!user) {
       throw new BadRequestException("utilisateur not found")
     }
-    const updatedUser=  await this.prisma.utilisateur.update({
-      where:{
-        id:id,
+    const updatedUser = await this.prisma.utilisateur.update({
+      where: {
+        id: id,
       },
       data: {
         ...updateUserDto
@@ -115,23 +122,106 @@ export class UsersService {
     return updateUserDto
   }
 
-  async remove(id: number) {
-    // if(user.role!=="ADMIN"){
-    //   throw new NotFoundException("you don't have the right to access this resource")
-    // }
-    const user= await this.prisma.utilisateur.findFirst({where:{
-      id:id
-    }})
-    if(!user){
-      throw new BadRequestException(
-        "user not found"
-      )
+  async remove(id: number, user) {
+    if (user.role !== "ADMIN") {
+      throw new NotFoundException("you don't have the right to access this resource")
     }
-    await this.prisma.utilisateur.delete({
+    const checkUser = await this.prisma.utilisateur.findFirst({
       where: {
-        id:id
+        id: id
+      },
+      include: {
+        emprunts: {
+          where: {
+            statut: {
+              in: ['EN_COURS', 'EN_RETARD', 'EN_ATTENTE_RETOUR']
+            }
+          }
+        }
       }
     })
-    return user;
+
+    if (!checkUser) {
+      throw new BadRequestException("user not found")
+    }
+
+    // Vérifier s'il y a des emprunts actifs
+    if (user.emprunts.length > 0) {
+      throw new BadRequestException(
+        `Cannot delete user: ${user.emprunts.length} active loan(s) found. Please return all books first.`
+      )
+    }
+
+    // Supprimer toutes les données liées avant de supprimer l'utilisateur
+    await this.prisma.$transaction(async (prisma) => {
+      // Supprimer l'historique des points
+      await prisma.historiquePoints.deleteMany({
+        where: { utilisateurId: id }
+      })
+
+      // Supprimer les bonus possédés
+      await prisma.bonusPossede.deleteMany({
+        where: { utilisateurId: id }
+      })
+
+      // Supprimer les badges obtenus
+      await prisma.badgeEtudiant.deleteMany({
+        where: { utilisateurId: id }
+      })
+
+      // Supprimer les sanctions
+      await prisma.sanction.deleteMany({
+        where: { utilisateurId: id }
+      })
+
+      // Supprimer la liste de souhaits
+      await prisma.listeSouhaits.deleteMany({
+        where: { utilisateurId: id }
+      })
+
+      // Supprimer les emprunts terminés (RETOURNE)
+      await prisma.emprunt.deleteMany({
+        where: {
+          utilisateurId: id,
+          statut: 'RETOURNE'
+        }
+      })
+
+      // Enfin, supprimer l'utilisateur
+      await prisma.utilisateur.delete({
+        where: { id: id }
+      })
+    })
+
+    return { message: "User successfully deleted", user };
+  }
+
+  async changePaassword(password, id, user) {
+    const checkUser = await this.prisma.utilisateur.findFirst({
+      where: {
+        id: id
+      }
+    })
+    if (!checkUser) {
+      throw new BadRequestException('user not found')
+    }
+    if (user.id !== id) {
+      throw new BadRequestException('you don\'t have the right to access this resource')
+    }
+    const hashedPassword = await bcrypt.hash(password.motDePasse, 10)
+    const updatedUser = await this.prisma.utilisateur.update({
+      where: {
+        id: id
+      },
+      data: {
+        motDePasse: hashedPassword
+      }
+    })
+
+
+
+    const { motDePasse, ...safeUser } = updatedUser;
+
+    return safeUser
   }
 }

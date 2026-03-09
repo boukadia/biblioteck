@@ -1,14 +1,14 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ShopService } from './shop.service';
-import { CreateShopDto } from './dto/create-shop.dto';
-import { UpdateShopDto } from './dto/update-shop.dto';
+import { UpdateRecompenseDto } from './dto/update-shop.dto';
+import { CreateRecompenseDto } from './dto/create-shop.dto';
 
 @Controller('shop')
 export class ShopController {
   constructor(private readonly shopService: ShopService) {}
 
   @Post()
-  create(@Body() createShopDto: CreateShopDto) {
+  create(@Body() createShopDto: CreateRecompenseDto) {
     return this.shopService.create(createShopDto);
   }
 
@@ -23,7 +23,7 @@ export class ShopController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateShopDto: UpdateShopDto) {
+  update(@Param('id') id: string, @Body() updateShopDto: UpdateRecompenseDto) {
     return this.shopService.update(+id, updateShopDto);
   }
 

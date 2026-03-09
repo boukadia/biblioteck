@@ -76,6 +76,19 @@ model Utilisateur {
   // Relation One-to-One avec la Liste de Souhaits
   listeSouhaits ListeSouhaits?
 }
+model RegleSanction {
+  id              Int      @id @default(autoincrement())
+  nomRegle        String   @unique // ex: "Livre Perdu", "Retard 1 semaine"
+  description     String?
+  penalitePoints  Int      // Points à déduire
+  dureeBlocage    Int      // Nombre de jours de blocage (0 si pas de blocage)
+}
+model Category {
+  id Int @id @default(autoincrement())
+  name String 
+  description String
+  livres Livre[]
+}
 
 model Livre {
   id        Int    @id @default(autoincrement())
@@ -83,7 +96,9 @@ model Livre {
   auteur    String
   isbn      String @unique
   stock     Int    @default(3)
-  categorie String
+  categoryId Int
+  category Category @relation(fields: [categoryId],references: [id])
+  
 
   // Relations
   emprunts       Emprunt[]
