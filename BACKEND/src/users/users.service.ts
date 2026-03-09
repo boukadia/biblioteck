@@ -118,26 +118,78 @@ export class UsersService {
     return updateUserDto
   }
 
-  async remove(id: number) {
-    // if(user.role!=="ADMIN"){
-    //   throw new NotFoundException("you don't have the right to access this resource")
-    // }
-    const user = await this.prisma.utilisateur.findFirst({
+  async remove(id: number,user) {
+    if(user.role!=="ADMIN"){
+      throw new NotFoundException("you don't have the right to access this resource")
+    }
+    const checkUser = await this.prisma.utilisateur.findFirst({
       where: {
         id: id
+      },
+      include: {
+        emprunts: {
+          where: {
+            statut: {
+              in: ['EN_COURS', 'EN_RETARD', 'EN_ATTENTE_RETOUR']
+            }
+          }
+        }
       }
     })
-    if (!user) {
+
+    if (!checkUser) {
+      throw new BadRequestException("user not found")
+    }
+
+    // Vérifier s'il y a des emprunts actifs
+    if (user.emprunts.length > 0) {
       throw new BadRequestException(
-        "user not found"
+        `Cannot delete user: ${user.emprunts.length} active loan(s) found. Please return all books first.`
       )
     }
-    await this.prisma.utilisateur.delete({
-      where: {
-        id: id
-      }
+
+    // Supprimer toutes les données liées avant de supprimer l'utilisateur
+    await this.prisma.$transaction(async (prisma) => {
+      // Supprimer l'historique des points
+      await prisma.historiquePoints.deleteMany({
+        where: { utilisateurId: id }
+      })
+
+      // Supprimer les bonus possédés
+      await prisma.bonusPossede.deleteMany({
+        where: { utilisateurId: id }
+      })
+
+      // Supprimer les badges obtenus
+      await prisma.badgeEtudiant.deleteMany({
+        where: { utilisateurId: id }
+      })
+
+      // Supprimer les sanctions
+      await prisma.sanction.deleteMany({
+        where: { utilisateurId: id }
+      })
+
+      // Supprimer la liste de souhaits
+      await prisma.listeSouhaits.deleteMany({
+        where: { utilisateurId: id }
+      })
+
+      // Supprimer les emprunts terminés (RETOURNE)
+      await prisma.emprunt.deleteMany({
+        where: { 
+          utilisateurId: id,
+          statut: 'RETOURNE'
+        }
+      })
+
+      // Enfin, supprimer l'utilisateur
+      await prisma.utilisateur.delete({
+        where: { id: id }
+      })
     })
-    return user;
+
+    return { message: "User successfully deleted", user };
   }
 
   async changePaassword(password, id, user) {
