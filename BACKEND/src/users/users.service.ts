@@ -5,10 +5,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { log } from 'node:console';
 import { Prisma } from 'src/prisma/entities/prisma.entity';
 import { StatutUtilisateur } from '@prisma/client';
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class UsersService {
-  constructor (private readonly prisma: PrismaService){}
+  constructor(private readonly prisma: PrismaService) { }
 
 
   findAll() {
@@ -16,62 +17,64 @@ export class UsersService {
     // if(users.role!== "ADMIN") {
     //   throw new BadRequestException("you don't have the right to access this resource")
     // }
-    const users= this.prisma.utilisateur.findMany(
+    const users = this.prisma.utilisateur.findMany(
       {
         select: {
-          id:true,
-          nom:true,
-          email:true,
-          statut:true,
-          role:true,
-          xp:true,
-          niveau:true,
-          pointsActuels:true
+          id: true,
+          nom: true,
+          email: true,
+          statut: true,
+          role: true,
+          xp: true,
+          niveau: true,
+          pointsActuels: true
         }
       }
     )
-    return  users;
+    return users;
   }
   async changeStatus(id: number) {
-    const user =await this.prisma.utilisateur.findUnique({where:{
-      id:id
-    }})
-    if (!user) {
-    throw new BadRequestException("user not found")
-    }
-   if (user.statut=== StatutUtilisateur.ACTIF) {
-    const updatedUser=await this.prisma.utilisateur.update({
-      where:{
+    const user = await this.prisma.utilisateur.findUnique({
+      where: {
         id: id
-      },
-      data: {
-        statut:'BLOQUE',
       }
     })
-     return updatedUser
+    if (!user) {
+      throw new BadRequestException("user not found")
+    }
+    if (user.statut === StatutUtilisateur.ACTIF) {
+      const updatedUser = await this.prisma.utilisateur.update({
+        where: {
+          id: id
+        },
+        data: {
+          statut: 'BLOQUE',
+        }
+      })
+      return updatedUser
     }
     else {
-      const updatedUser=await this.prisma.utilisateur.update({
-        where:{
-          id:id
+      const updatedUser = await this.prisma.utilisateur.update({
+        where: {
+          id: id
         },
-        data:{
-          statut:'ACTIF'
+        data: {
+          statut: 'ACTIF'
         },
 
       })
       return updatedUser
-      
 
-   
-  }
+
+
+    }
   }
 
   async findOne(id: number) {
 
-    const user= await this.prisma.utilisateur.findFirst({
+    const user = await this.prisma.utilisateur.findFirst({
       where: {
-        id:id
+        id: id
       },
       select: {
         id: true,
@@ -86,27 +89,27 @@ export class UsersService {
         emprunts: true,
       }
     })
-    return user ;
+    return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
 
     //  if(user.role!=="ADMIN" && user.id!==id ){
-      // throw new NotFoundException("you don't have the right to access this resource")
+    // throw new NotFoundException("you don't have the right to access this resource")
     // }
-    const user =await this.prisma.utilisateur.findUnique({
-      where:{
-        id:id
+    const user = await this.prisma.utilisateur.findUnique({
+      where: {
+        id: id
       }
     })
-   
 
-    if(!user){
+
+    if (!user) {
       throw new BadRequestException("utilisateur not found")
     }
-    const updatedUser=  await this.prisma.utilisateur.update({
-      where:{
-        id:id,
+    const updatedUser = await this.prisma.utilisateur.update({
+      where: {
+        id: id,
       },
       data: {
         ...updateUserDto
@@ -119,19 +122,50 @@ export class UsersService {
     // if(user.role!=="ADMIN"){
     //   throw new NotFoundException("you don't have the right to access this resource")
     // }
-    const user= await this.prisma.utilisateur.findFirst({where:{
-      id:id
-    }})
-    if(!user){
+    const user = await this.prisma.utilisateur.findFirst({
+      where: {
+        id: id
+      }
+    })
+    if (!user) {
       throw new BadRequestException(
         "user not found"
       )
     }
     await this.prisma.utilisateur.delete({
       where: {
-        id:id
+        id: id
       }
     })
     return user;
+  }
+
+  async changePaassword(password, id, user) {
+    const checkUser = await this.prisma.utilisateur.findFirst({
+      where: {
+        id: id
+      }
+    })
+    if (!checkUser) {
+      throw new BadRequestException('user not found')
+    }
+    if(user.id!==id){
+      throw new BadRequestException('you don\'t have the right to access this resource')
+    }
+    const hashedPassword = await bcrypt.hash(password.motDePasse, 10)
+    const updatedUser = await this.prisma.utilisateur.update({
+      where: {
+        id: id
+      },
+      data: {
+        motDePasse: hashedPassword
+      }
+    })
+
+
+
+    const { motDePasse, ...safeUser } = updatedUser;
+  
+    return safeUser
   }
 }

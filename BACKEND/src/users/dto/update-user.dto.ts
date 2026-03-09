@@ -20,18 +20,18 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
     @IsEnum(StatutUtilisateur)
     statut?: StatutUtilisateur;
 
-    @IsOptional()
-    @IsInt()
-    @Min(1)
-    niveau?: number;
+    // @IsOptional()
+    // @IsInt()
+    // @Min(1)
+    // niveau?: number;
 
-    @IsOptional()
-    @IsInt()
-    @Min(0)
-    xp?: number;
+    // @IsOptional()
+    // @IsInt()
+    // @Min(0)
+    // xp?: number;
 
-    @IsOptional()
-    @IsInt()
-    @Min(0)
-    pointsActuels?: number;
+    // @IsOptional()
+    // @IsInt()
+    // @Min(0)
+    // pointsActuels?: number;
 }

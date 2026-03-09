@@ -27,6 +27,7 @@ export class CreateBookDto {
     stock?: number;
 
     @IsNotEmpty()
-    @IsString()
-    categorie: string;
+    @IsInt()
+    @IsPositive()
+    categoryId: number;
 }
