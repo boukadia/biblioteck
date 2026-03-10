@@ -1,15 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, Request } from '@nestjs/common';
 import { BadgesService } from './badges.service';
 import { CreateBadgeDto } from './dto/create-badge.dto';
 import { UpdateBadgeDto } from './dto/update-badge.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
+@UseGuards(JwtAuthGuard,RolesGuard)
 @Controller('badges')
 export class BadgesController {
   constructor(private readonly badgesService: BadgesService) {}
 
   @Post()
-  create(@Body() createBadgeDto: CreateBadgeDto) {
-    return this.badgesService.create(createBadgeDto);
+  @Roles("ADMIN")
+  create(@Body() createBadgeDto: CreateBadgeDto,@Request() req : any) {
+    return this.badgesService.create(createBadgeDto,req.user);
   }
 
   @Get()
@@ -18,17 +23,20 @@ export class BadgesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.badgesService.findOne(+id);
+  @Roles("ADMIN")
+  findOne(@Param('id') id: string,@Request() req: any) {
+    return this.badgesService.findOne(+id,req.user);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBadgeDto: UpdateBadgeDto) {
-    return this.badgesService.update(+id, updateBadgeDto);
+  @Put(':id')
+  @Roles("ADMIN")
+  update(@Param('id') id: string, @Body() updateBadgeDto: UpdateBadgeDto,@Request() req: any) {
+    return this.badgesService.update(+id, updateBadgeDto,req.user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.badgesService.remove(+id);
+  @Roles("ADMIN")
+  remove(@Param('id') id: string,@Request() req: any) {
+    return this.badgesService.remove(+id,req.user);
   }
 }
