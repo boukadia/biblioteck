@@ -1,26 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { CreateSanctionDto } from './dto/create-sanction.dto';
 import { UpdateSanctionDto } from './dto/update-sanction.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class SanctionsService {
-  create(createSanctionDto: CreateSanctionDto) {
-    return 'This action adds a new sanction';
+  constructor(private readonly prisma: PrismaService){}
+  create(data: CreateSanctionDto,user) {
+    
+    return 
   }
 
-  findAll() {
-    return `This action returns all sanctions`;
+  findAll(user) {
+    return 
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} sanction`;
+  findOne(id: number,user) {
+    return 
   }
 
-  update(id: number, updateSanctionDto: UpdateSanctionDto) {
-    return `This action updates a #${id} sanction`;
+  update(id: number, data: UpdateSanctionDto,user) {
+    return 
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} sanction`;
+  remove(id: number,user) {
+    return 
   }
 }
