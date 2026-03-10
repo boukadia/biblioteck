@@ -40,6 +40,9 @@ export class CategoriesService {
         id:id
       }
     })
+    if (!category) {
+      throw new BadRequestException("cette categorie n'esiste pas")
+    }
     return category ;
   }
 
@@ -47,6 +50,7 @@ export class CategoriesService {
     if (user.role!==RoleUtilisateur.ADMIN) {
       throw new BadRequestException("Vous n'avez pas le droit du modifier une categorie")
     }
+    
     const category=await this.prisma.category.findUnique({
       where: {
         id: id
@@ -69,6 +73,14 @@ export class CategoriesService {
   async remove(id: number,user) {
      if (user.role!==RoleUtilisateur.ADMIN) {
       throw new BadRequestException("Vous n'avez pas le droit du modifier une categorie")
+    }
+     const category= await this.prisma.category.findFirst({
+      where:{
+        id:id
+      }
+    })
+    if (!category) {
+      throw new BadRequestException("cette categorie n'esiste pas")
     }
     const categorie= await this.prisma.category.delete({
       where:{
