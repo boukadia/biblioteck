@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { StatutEmprunt } from '@prisma/client';
 
-export class CreateBorrowDto {
+export class CreateEmpruntDto {
     @IsNotEmpty()
     @IsInt()
     @IsPositive()
