@@ -41,7 +41,7 @@ export class CategoriesService {
       }
     })
     if (!category) {
-      throw new BadRequestException("cette categorie n'esiste pas")
+      throw new BadRequestException("cette categorie n'existe pas")
     }
     return category ;
   }
@@ -57,7 +57,7 @@ export class CategoriesService {
       }
     })
     if (!category) {
-      throw new BadRequestException("ce category n'exste pas")
+      throw new BadRequestException("cet category n'existe pas")
     }
     const categorie = await this.prisma.category.update({
       where: {
@@ -80,7 +80,7 @@ export class CategoriesService {
       }
     })
     if (!category) {
-      throw new BadRequestException("cette categorie n'esiste pas")
+      throw new BadRequestException("cette categorie n'existe pas")
     }
     const categorie= await this.prisma.category.delete({
       where:{
