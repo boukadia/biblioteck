@@ -13,9 +13,10 @@ import { ActivitesModule } from './activites/activites.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { EmpruntsModule } from './emprunts/emprunts.module';
 import { CategoriesModule } from './categories/categories.module';
+import { RegleSanctionsModule } from './regle-sanctions/regle-sanctions.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, BooksModule, ShopModule, BadgesModule, SanctionsModule, WishlistModule, NotesModule, ActivitesModule, PrismaModule, EmpruntsModule, CategoriesModule],
+  imports: [AuthModule, UsersModule, BooksModule, ShopModule, BadgesModule, SanctionsModule, WishlistModule, NotesModule, ActivitesModule, PrismaModule, EmpruntsModule, CategoriesModule, RegleSanctionsModule],
   controllers: [AppController],
   providers: [AppService],
 })
