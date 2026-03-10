@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -41,7 +41,7 @@ export class CategoriesService {
       }
     })
     if (!category) {
-      throw new BadRequestException("cette categorie n'existe pas")
+      throw new NotFoundException("ce category n'existe pas")
     }
     return category ;
   }
@@ -57,7 +57,7 @@ export class CategoriesService {
       }
     })
     if (!category) {
-      throw new BadRequestException("cet category n'existe pas")
+      throw new NotFoundException("ce category n'exste pas")
     }
     const categorie = await this.prisma.category.update({
       where: {
@@ -74,19 +74,15 @@ export class CategoriesService {
      if (user.role!==RoleUtilisateur.ADMIN) {
       throw new BadRequestException("Vous n'avez pas le droit du modifier une categorie")
     }
-     const category= await this.prisma.category.findFirst({
-      where:{
-        id:id
-      }
-    })
-    if (!category) {
-      throw new BadRequestException("cette categorie n'existe pas")
-    }
+    
     const categorie= await this.prisma.category.delete({
       where:{
         id: id
       }
     });
+    if (!categorie) {
+      throw new NotFoundException("ce category n'existe pas")
+    }
     return categorie;
   }
 }
