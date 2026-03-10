@@ -1,26 +1,87 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateBadgeDto } from './dto/create-badge.dto';
 import { UpdateBadgeDto } from './dto/update-badge.dto';
+import { RoleUtilisateur } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class BadgesService {
-  create(createBadgeDto: CreateBadgeDto) {
-    return 'This action adds a new badge';
+    constructor(private readonly prisma: PrismaService){}
+  async create(data: CreateBadgeDto,user) {
+    if (user.role!==RoleUtilisateur.ADMIN) {
+        throw new BadRequestException("Vous n'avez pas le droit d'ajouter un Badge")
+    }
+    
+    const badge= await this.prisma.badge.findFirst({
+      where : {nom: data.nom}
+    })
+    if (badge) {
+        throw new BadRequestException("ce badge est exist choisir un autre nom")
+    }
+    
+    return await this.prisma.badge.create({data});
   }
 
-  findAll() {
-    return `This action returns all badges`;
+  async findAll() {
+    return await this.prisma.badge.findMany() ;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} badge`;
+  async findOne(id: number,user) {
+    if (user.role!==RoleUtilisateur.ADMIN) {
+        throw new BadRequestException("Vous n'avez pas le droit d'ajouter un Badge")
+    }
+    const badge =await this.prisma.badge.findUnique({
+      where:{
+        id: id
+      }
+    })
+     if (!badge) {
+       throw new BadRequestException("ce badge n'est exist pas")
+    }
+    return badge ;
   }
 
-  update(id: number, updateBadgeDto: UpdateBadgeDto) {
-    return `This action updates a #${id} badge`;
+  async  update(id: number, data: UpdateBadgeDto,user) {
+    if (user.role!==RoleUtilisateur.ADMIN) {
+        throw new BadRequestException("Vous n'avez pas le droit d'ajouter un Badge")
+    }
+    const badge =await this.prisma.badge.findUnique({
+      where:{
+        id: id
+      }
+    })
+    if (!badge) {
+       throw new BadRequestException("ce badge n'est exist pas")
+    }
+    const updatedBadge= await this.prisma.badge.update({
+      where: {id:id},
+      data:{
+        ...data
+      }
+    })
+    
+    return updatedBadge ;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} badge`;
+  async remove(id: number,user) {
+    if (user.role!==RoleUtilisateur.ADMIN) {
+        throw new BadRequestException("Vous n'avez pas le droit d'ajouter un Badge")
+    }
+     const badge =await this.prisma.badge.findUnique({
+      where:{
+        id: id
+      }
+    })
+
+    if (!badge) {
+       throw new BadRequestException("ce badge n'est exist pas")
+    }
+    const deletedBadge= await this.prisma.badge.delete({
+      where:{
+        id:id
+      }
+    })
+     
+    return deletedBadge ;
   }
 }
