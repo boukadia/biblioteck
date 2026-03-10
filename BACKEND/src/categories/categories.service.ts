@@ -50,6 +50,7 @@ export class CategoriesService {
     if (user.role!==RoleUtilisateur.ADMIN) {
       throw new BadRequestException("Vous n'avez pas le droit du modifier une categorie")
     }
+    
     const category=await this.prisma.category.findUnique({
       where: {
         id: id
