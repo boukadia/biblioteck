@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBadgeDto } from './dto/create-badge.dto';
 import { UpdateBadgeDto } from './dto/update-badge.dto';
 import { RoleUtilisateur } from '@prisma/client';
@@ -36,7 +36,7 @@ export class BadgesService {
       }
     })
      if (!badge) {
-       throw new BadRequestException("ce badge n'est exist pas")
+       throw new NotFoundException("ce badge n'est exist pas")
     }
     return badge ;
   }
@@ -51,7 +51,7 @@ export class BadgesService {
       }
     })
     if (!badge) {
-       throw new BadRequestException("ce badge n'est exist pas")
+       throw new NotFoundException("ce badge n'est exist pas")
     }
     const updatedBadge= await this.prisma.badge.update({
       where: {id:id},
@@ -74,7 +74,7 @@ export class BadgesService {
     })
 
     if (!badge) {
-       throw new BadRequestException("ce badge n'est exist pas")
+       throw new NotFoundException("ce badge n'est exist pas")
     }
     const deletedBadge= await this.prisma.badge.delete({
       where:{

@@ -1,29 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateSanctionDto } from './dto/create-sanction.dto';
 import { UpdateSanctionDto } from './dto/update-sanction.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { RoleUtilisateur } from '@prisma/client';
 
 @Injectable()
 export class SanctionsService {
   constructor(private readonly prisma: PrismaService){}
-  create(data: CreateSanctionDto,user) {
+  async create(data: CreateSanctionDto,user) {
+    if(user.role!==RoleUtilisateur.ADMIN){
+      throw new BadRequestException("vous n'avais pas le droit du creer la sanction")
+    }
+    const sanction= await this.prisma.sanction.findFirst({
+      where: {
+        
+      }
+    })
     
     return 
   }
 
-  findAll(user) {
+  async findAll(user) {
     return 
   }
 
-  findOne(id: number,user) {
+  async findOne(id: number,user) {
     return 
   }
 
-  update(id: number, data: UpdateSanctionDto,user) {
+  async update(id: number, data: UpdateSanctionDto,user) {
     return 
   }
 
-  remove(id: number,user) {
+  async remove(id: number,user) {
     return 
   }
 }
