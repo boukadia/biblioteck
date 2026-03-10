@@ -47,6 +47,14 @@ export class CategoriesService {
     if (user.role!==RoleUtilisateur.ADMIN) {
       throw new BadRequestException("Vous n'avez pas le droit du modifier une categorie")
     }
+    const category=await this.prisma.category.findUnique({
+      where: {
+        id: id
+      }
+    })
+    if (!category) {
+      throw new BadRequestException("ce category n'exste pas")
+    }
     const categorie = await this.prisma.category.update({
       where: {
         id:id
