@@ -1,34 +1,43 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, Put, UseGuards } from '@nestjs/common';
 import { SanctionsService } from './sanctions.service';
 import { CreateSanctionDto } from './dto/create-sanction.dto';
 import { UpdateSanctionDto } from './dto/update-sanction.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
+@UseGuards(JwtAuthGuard,RolesGuard)
 @Controller('sanctions')
 export class SanctionsController {
   constructor(private readonly sanctionsService: SanctionsService) {}
 
   @Post()
-  create(@Body() createSanctionDto: CreateSanctionDto) {
-    return this.sanctionsService.create(createSanctionDto);
+  @Roles("ADMIN")
+  create(@Body() data: CreateSanctionDto, @Request() req : any) {
+    return this.sanctionsService.create(data,req.user);
   }
 
   @Get()
-  findAll() {
-    return this.sanctionsService.findAll();
+  @Roles("ADMIN")
+  findAll(@Request() req : any) {
+    return this.sanctionsService.findAll(req.user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: number) {
-    return this.sanctionsService.findOne(+id);
+  @Roles("ADMIN")
+  findOne(@Param('id') id: number,@Request() req : any) {
+    return this.sanctionsService.findOne(+id,req.user);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSanctionDto: UpdateSanctionDto) {
-    return this.sanctionsService.update(+id, updateSanctionDto);
+  @Put(':id')
+  @Roles("ADMIN")
+  update(@Param('id') id: string, @Body() updateSanctionDto: UpdateSanctionDto,@Request() req : any) {
+    return this.sanctionsService.update(+id, updateSanctionDto,req.user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.sanctionsService.remove(+id);
+  @Roles("ADMIN")
+  remove(@Param('id') id: string,@Request() req : any) {
+    return this.sanctionsService.remove(+id,req.user);
   }
 }
