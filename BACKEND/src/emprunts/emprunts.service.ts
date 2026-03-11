@@ -1,11 +1,48 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEmpruntDto } from './dto/create-emprunt.dto';
 import { UpdateEmpruntDto } from './dto/update-emprunt.dto';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class EmpruntsService {
-  create(createEmpruntDto: CreateEmpruntDto) {
-    return 'This action adds a new emprunt';
+  constructor(private readonly prisma:PrismaService) { }
+  async emprunterLivre(data: CreateEmpruntDto,user: any) {
+    const livre=await this.prisma.livre.findUnique({
+      where: {
+        id:data.livreId
+      }
+    })
+    if (!livre) {
+      throw new NotFoundException("Le livre demandé n'existe pas.");
+    }
+    if (livre.stock<=0) {
+      throw new BadRequestException("Ce livre est en rupture de stock.");
+    }
+   
+   const dernierSanction= await this.prisma.sanction.findFirst({
+    where:{
+      utilisateurId:user.userId
+    },
+    orderBy:{
+      dateCreation:"desc"
+    } 
+   })
+   if (dernierSanction && dernierSanction.dureeBlocage>0) {
+    const dateFinBlocage=new Date(dernierSanction.dateCreation)
+    dateFinBlocage.setDate(dateFinBlocage.getDate() + dernierSanction.dureeBlocage)
+    if(new Date() <dateFinBlocage){
+      throw new ForbiddenException(`Vous êtes bloqué jusqu'au ${dateFinBlocage.toLocaleDateString()} suite à une sanction.`);
+    }
+   }
+   const empruntesEnCours= await this.prisma.emprunt.count({
+    where:{
+      utilisateurId:user.userId,
+      dateRetour:null
+    }
+   })
+   
+return 1
+
   }
 
   findAll() {
