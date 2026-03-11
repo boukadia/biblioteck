@@ -9,14 +9,14 @@ import { BadgesModule } from './badges/badges.module';
 import { SanctionsModule } from './sanctions/sanctions.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { NotesModule } from './notes/notes.module';
-import { ActivitesModule } from './activites/activites.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { EmpruntsModule } from './emprunts/emprunts.module';
 import { CategoriesModule } from './categories/categories.module';
 import { RegleSanctionsModule } from './regle-sanctions/regle-sanctions.module';
+import { HistoriquesModule } from './historiques/historiques.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, BooksModule, ShopModule, BadgesModule, SanctionsModule, WishlistModule, NotesModule, ActivitesModule, PrismaModule, EmpruntsModule, CategoriesModule, RegleSanctionsModule],
+  imports: [AuthModule, UsersModule, BooksModule, ShopModule, BadgesModule, SanctionsModule, WishlistModule, NotesModule, PrismaModule, EmpruntsModule, CategoriesModule, RegleSanctionsModule, HistoriquesModule],
   controllers: [AppController],
   providers: [AppService],
 })
