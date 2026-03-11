@@ -1,38 +1,72 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateSanctionDto } from './dto/create-sanction.dto';
-import { UpdateSanctionDto } from './dto/update-sanction.dto';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RoleUtilisateur } from '@prisma/client';
+import { RoleUtilisateur, TypeMouvementPoints } from '@prisma/client';
+import { AppliquerSanctionDto } from './dto/appliquerSanction.dto';
 
 @Injectable()
 export class SanctionsService {
   constructor(private readonly prisma: PrismaService){}
-  async create(data: CreateSanctionDto,user) {
+  async appliquerSanction(data: AppliquerSanctionDto,user) {
     if(user.role!==RoleUtilisateur.ADMIN){
-      throw new BadRequestException("vous n'avais pas le droit du creer la sanction")
+      throw new UnauthorizedException("vous n'avais pas le droit du creer la sanction")
     }
-    const sanction= await this.prisma.sanction.findFirst({
-      where: {
-        
+    const etudiant= await this.prisma.utilisateur.findUnique({
+      where:{
+        id:data.utilisateurId
       }
     })
+    if (!etudiant) {
+      throw new BadRequestException("l'etudiant n'a pas été trouvé")
+    }
+    if(etudiant.role !== RoleUtilisateur.ETUDIANT){
+      throw new BadRequestException("l'utilisateur n'est pas un etudiant")
+    }
+    const regle= await this.prisma.regleSanction.findUnique({
+      where:{
+        id:data.regleId
+      }
+    })
+    if (!regle) {
+      throw new BadRequestException("la regle n'a pas été trouvé")
+    }
     
-    return 
+    
+
+
+    return this.prisma.$transaction(async(tx)=>{
+       const nouvelleSanction= await tx.sanction.create({
+      data:{
+        dureeBlocage:regle.dureeBlocage,
+        penalitePoints:regle.penalitePoints,
+        raison:regle.description || "",
+        utilisateurId:etudiant.id
+        }
+    })
+    const nouveauxPoints = Math.max(0, (etudiant.pointsActuels??0) - regle.penalitePoints);
+      await tx.utilisateur.update({
+      where:{
+        id:data.utilisateurId,
+      },
+      data :{
+        pointsActuels:nouveauxPoints,
+        }
+      });
+
+      await tx.historiquePoints.create({
+        data: {
+          utilisateurId: etudiant.id,
+          montant: -regle.penalitePoints,
+          type: TypeMouvementPoints.SANCTION_ADMIN,
+          description: `Sanction appliquée : ${regle.nomRegle}`,
+        }
+      });
+
+      return {
+        message: "Sanction appliquée avec succès.",
+        sanction: nouvelleSanction,
+        nouveauxPointsUtilisateur: nouveauxPoints
+      };
+    });
   }
 
-  async findAll(user) {
-    return 
-  }
-
-  async findOne(id: number,user) {
-    return 
-  }
-
-  async update(id: number, data: UpdateSanctionDto,user) {
-    return 
-  }
-
-  async remove(id: number,user) {
-    return 
-  }
 }
