@@ -1,15 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards } from '@nestjs/common';
 import { EmpruntsService } from './emprunts.service';
 import { CreateEmpruntDto } from './dto/create-emprunt.dto';
 import { UpdateEmpruntDto } from './dto/update-emprunt.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
+
+@UseGuards(JwtAuthGuard,RolesGuard)
 @Controller('emprunts')
 export class EmpruntsController {
   constructor(private readonly empruntsService: EmpruntsService) {}
 
   @Post()
-  create(@Body() createEmpruntDto: CreateEmpruntDto) {
-    return this.empruntsService.create(createEmpruntDto);
+  create(@Body() createEmpruntDto: CreateEmpruntDto,@Request() req: any) {
+    return this.empruntsService.emprunterLivre(createEmpruntDto,req.user);
   }
 
   @Get()
