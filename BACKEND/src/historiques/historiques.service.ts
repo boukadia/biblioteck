@@ -6,7 +6,7 @@ import { RoleUtilisateur } from '@prisma/client';
 export class HistoriquesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(user: any) {
+  async findAll(user) {
     if (user.role === RoleUtilisateur.ADMIN) {
       return this.prisma.historiquePoints.findMany({
         orderBy: { dateMouvement: 'desc' },
@@ -17,7 +17,7 @@ export class HistoriquesService {
     }
 
     return this.prisma.historiquePoints.findMany({
-      where: { utilisateurId: user.id },
+      where: { utilisateurId: user.userId },
       orderBy: { dateMouvement: 'desc' },
     });
   }
@@ -59,7 +59,7 @@ export class HistoriquesService {
       throw new NotFoundException(`Entrée historique #${id} introuvable`);
     }
 
-    if (user.role !== RoleUtilisateur.ADMIN && user.id !== entry.utilisateurId) {
+    if (user.role !== RoleUtilisateur.ADMIN && user.userId !== entry.utilisateurId) {
       throw new UnauthorizedException("Accès non autorisé");
     }
 
