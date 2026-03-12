@@ -4,6 +4,7 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { RoleUtilisateur } from '@prisma/client';
 import { User } from 'src/users/entities/user.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { changeStockDto } from './dto/change-stocke.dto';
 
 @Injectable()
 export class BooksService {
@@ -38,6 +39,7 @@ export class BooksService {
         isbn: data.isbn,
         stock: data.stock ?? 3,
         categoryId: data.categoryId,
+        image:data.image
       },
       include: {
         category: true,
@@ -106,6 +108,28 @@ export class BooksService {
 
     return updatedBook;
   }
+
+
+  async stock(id:number,dto:changeStockDto) {
+    const book= await this.prisma.livre.findUnique({
+      where:{
+        id:id
+      }
+    })
+    if (!book) {
+      throw new NotFoundException('Livre introuvable');
+    }
+    const updatedLivreStock=await this.prisma.livre.update({
+      where:{
+        id:id
+      },
+      data: {
+        stock:{increment:dto.quantity}
+      }
+    })
+    return updatedLivreStock
+  }
+
 
   async remove(id: number, user: any) {
     if (user.role !== RoleUtilisateur.ADMIN) {

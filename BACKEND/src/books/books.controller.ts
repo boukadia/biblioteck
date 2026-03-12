@@ -5,6 +5,7 @@ import { UpdateBookDto } from './dto/update-book.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { changeStockDto } from './dto/change-stocke.dto';
 
 // @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('books')
@@ -42,5 +43,10 @@ export class BooksController {
     @Roles('ADMIN')
     remove(@Param('id') id: string, @Request() req){
         return this.bookService.remove(+id, req.user)
+    }
+    @Patch('stock/:id')
+    @Roles("ADMIN")
+    changerStock(@Param('id') id:string,@Body() body:changeStockDto){
+        return this.bookService.stock(+id,body)
     }
 }
