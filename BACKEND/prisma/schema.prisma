@@ -27,8 +27,9 @@ enum StatutUtilisateur {
 }
 
 enum StatutEmprunt {
+  EN_ATTENTE
   EN_COURS
-  EN_RETARD
+  ANNULE
   EN_ATTENTE_RETOUR
   RETOURNE
 }
@@ -93,6 +94,7 @@ model Category {
 model Livre {
   id        Int    @id @default(autoincrement())
   titre     String
+  image     String
   auteur    String
   isbn      String @unique
   stock     Int    @default(3)
@@ -119,7 +121,7 @@ model Emprunt {
   dateEmprunt  DateTime      @default(now())
   dateEcheance DateTime
   dateRetour   DateTime? // Vide (null) tant que le livre n'est pas retourné
-  statut       StatutEmprunt @default(EN_COURS)
+  statut       StatutEmprunt @default(EN_ATTENTE)
 
   // Relations
   utilisateurId Int

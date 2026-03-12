@@ -1,29 +1,18 @@
 import {
-    IsDateString,
-    IsEnum,
     IsInt,
     IsNotEmpty,
     IsOptional,
-    IsPositive,
+    Min,
 } from 'class-validator';
-import { StatutEmprunt } from '@prisma/client';
 
 export class CreateEmpruntDto {
-    @IsNotEmpty()
-    @IsInt()
-    @IsPositive()
-    utilisateurId: number;
+   @IsNotEmpty({ message: "L'identifiant du livre (livreId) est obligatoire." })
+  @IsInt({ message: "Le livreId doit être un nombre entier." })
+  @Min(1, { message: "L'identifiant du livre doit être positif." })
+  livreId: number;
 
-    @IsNotEmpty()
-    @IsInt()
-    @IsPositive()
-    livreId: number;
-
-    @IsNotEmpty()
-    @IsDateString()
-    dateEcheance: string;
-
-    @IsOptional()
-    @IsEnum(StatutEmprunt)
-    statut?: StatutEmprunt;
+  @IsOptional()
+  @IsInt({ message: "L'identifiant du bonus doit être un nombre entier." })
+  @Min(1)
+  bonusPossedeId?: number;
 }
