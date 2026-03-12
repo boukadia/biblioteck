@@ -169,15 +169,97 @@ export class EmpruntsService {
     return { message: "Livre remis à l'étudiant (Statut: EN_COURS).", emprunt: empruntMisAJour };
   }
 
-
-  findAll() {
-    return `This action returns all emprunts`;
+  async getEmpruntsEnAttente() {
+    return this.prisma.emprunt.findMany({
+      where: { 
+        statut: StatutEmprunt.EN_ATTENTE 
+      },
+      include: {
+        utilisateur: {
+          select: { id: true, nom: true, email: true, niveau: true }
+        },
+        livre: {
+          select: { id: true, titre: true, auteur: true, image: true }
+        }
+      },
+      orderBy: {
+        id: 'asc' 
+      }
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} emprunt`;
+  async annulerEmprunt(empruntId: number) {
+    const emprunt = await this.prisma.emprunt.findUnique({
+      where: { id: empruntId }
+    });
+
+    if (!emprunt) throw new NotFoundException("Emprunt introuvable.");
+    if (emprunt.statut !== StatutEmprunt.EN_ATTENTE) {
+      throw new BadRequestException("Impossible d'annuler un emprunt qui n'est plus EN_ATTENTE.");
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      
+      const empruntAnnule = await tx.emprunt.update({
+        where: { id: empruntId },
+        data: { statut: StatutEmprunt.ANNULE }
+      });
+
+      await tx.livre.update({
+        where: { id: emprunt.livreId },
+        data: { stock: { increment: 1 } }
+      });
+
+      const bonusUtilise = await tx.bonusPossede.findFirst({
+        where: { empruntId: empruntId }
+      });
+
+      if (bonusUtilise) {
+        await tx.bonusPossede.update({
+          where: { id: bonusUtilise.id },
+          data: { estConsomme: false, dateUtilisation: null, empruntId: null }
+        });
+      }
+
+      return {
+        message: "L'emprunt a été annulé car l'étudiant ne s'est pas présenté. Le livre et les bonus ont été restitués.",
+        emprunt: empruntAnnule
+      };
+    });
   }
 
+
+  async findAll() {
+    return this.prisma.emprunt.findMany({
+      include: {
+        utilisateur: { select: { id: true, nom: true, email: true } },
+        livre: { select: { id: true, titre: true, auteur: true } }
+      },
+      orderBy: { id: 'desc' } 
+    });
+  }
+
+  async findMesEmprunts(utilisateurId: number) {
+    return this.prisma.emprunt.findMany({
+      where: { utilisateurId: utilisateurId },
+      include: {
+        livre: { select: { id: true, titre: true, auteur: true, image: true } }
+      },
+      orderBy: { id: 'desc' }
+    });
+  }
+  async getEmpruntsEnCours() {
+    return this.prisma.emprunt.findMany({
+      where: { statut: StatutEmprunt.EN_COURS },
+      include: {
+        utilisateur: { select: { id: true, nom: true, email: true, niveau: true } },
+        livre: { select: { id: true, titre: true, auteur: true } }
+      },
+      orderBy: { dateEcheance: 'asc' } 
+    });
+  }
+
+  
   
 
   
