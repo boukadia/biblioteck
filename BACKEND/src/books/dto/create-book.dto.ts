@@ -22,6 +22,10 @@ export class CreateBookDto {
     isbn: string;
 
     @IsOptional()
+    @IsString()
+    image:string
+
+    @IsOptional()
     @IsInt()
     @Min(0)
     stock?: number;
