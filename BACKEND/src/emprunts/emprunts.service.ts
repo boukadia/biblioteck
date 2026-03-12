@@ -13,7 +13,7 @@ import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
 export class EmpruntsService {
   constructor(private readonly prisma: PrismaService) {}
   // EMPRUNTER UN LIVRE (Étudiant -> EN_ATTENTE)
-  async emprunterLivre(data: CreateEmpruntDto, user: any) {
+  async emprunterLivre(data: CreateEmpruntDto, user: JwtUser) {
     const etudiant = await this.prisma.utilisateur.findUnique({
       where: {
         id: user.userId,
@@ -263,9 +263,9 @@ export class EmpruntsService {
     });
   }
 
-  async findMesEmprunts(utilisateurId: number) {
+  async findMesEmprunts(user: JwtUser) {
     return this.prisma.emprunt.findMany({
-      where: { utilisateurId: utilisateurId },
+      where: { utilisateurId: user.userId },
       include: {
         livre: { select: { id: true, titre: true, auteur: true, image: true } },
       },
@@ -286,13 +286,13 @@ export class EmpruntsService {
   }
 
   // DÉCLARER LE RETOUR (Étudiant -> EN_ATTENTE_RETOUR) 
-  async declarerRetour(utilisateurId: number, empruntId: number, bonusProtectionId?: number) {
+  async declarerRetour(user: JwtUser, empruntId: number, bonusProtectionId?: number) {
     const emprunt = await this.prisma.emprunt.findUnique({ where: { id: empruntId } });
     
     if (!emprunt) {
       throw new NotFoundException("Emprunt introuvable.");
     }
-    if (emprunt.utilisateurId !== utilisateurId) {
+    if (emprunt.utilisateurId !== user.userId) {
        throw new ForbiddenException("Ce n'est pas votre emprunt.");
     }
     if (emprunt.statut !== StatutEmprunt.EN_COURS) {
@@ -308,7 +308,7 @@ export class EmpruntsService {
         include: { recompense: true }
       });
 
-      if (!bonus || bonus.utilisateurId !== utilisateurId) {
+      if (!bonus || bonus.utilisateurId !== user.userId) {
         throw new BadRequestException("Ce bonus ne vous appartient pas.");
       }
       if (bonus.estConsomme) { 
