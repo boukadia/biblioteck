@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Request, UseGuards } from '@nestjs/common';
 import { EmpruntsService } from './emprunts.service';
 import { CreateEmpruntDto } from './dto/create-emprunt.dto';
-import { UpdateEmpruntDto } from './dto/update-emprunt.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 
 
 @UseGuards(JwtAuthGuard,RolesGuard)
@@ -12,27 +12,54 @@ export class EmpruntsController {
   constructor(private readonly empruntsService: EmpruntsService) {}
 
   @Post()
+  @Roles('ETUDIANT')
   create(@Body() createEmpruntDto: CreateEmpruntDto,@Request() req: any) {
     return this.empruntsService.emprunterLivre(createEmpruntDto,req.user);
   }
 
+  
+  @Get('en-attente')
+  @Roles('ADMIN')
+  getEnAttente() {
+    return this.empruntsService.getEmpruntsEnAttente();
+  }
+
+  @Get('en-cours')
+  @Roles('ADMIN')
+  getEnCours() {
+    return this.empruntsService.getEmpruntsEnCours();
+  }
+
+  @Patch(':id/recuperation')
+  @Roles('ADMIN')
+  validerRecuperation(@Param('id') id: number) {
+    return this.empruntsService.validerRecuperation(id);
+  }
+  @Patch(':id/retour')
+  @Roles('ADMIN')
+  retourner(
+    @Param('id') id: number,
+    @Body('utilisateurId') utilisateurId: number,
+    @Body('bonusProtectionId') bonusProtectionId: number // Optionnel (Bouclier)
+  ) {
+    return this.empruntsService.retournerLivre(utilisateurId, id, bonusProtectionId);
+  }
+  @Patch(':id/annuler')
+  @Roles('ADMIN')
+  annuler(@Param('id') id: number) {
+    return this.empruntsService.annulerEmprunt(id);
+  }
+
   @Get()
+  @Roles('ADMIN')
   findAll() {
     return this.empruntsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.empruntsService.findOne(+id);
+  @Get('mes-emprunts')
+  @Roles('ETUDIANT')
+  findMesEmprunts(@Request() req) {
+    return this.empruntsService.findMesEmprunts(req.user.id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEmpruntDto: UpdateEmpruntDto) {
-    return this.empruntsService.update(+id, updateEmpruntDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.empruntsService.remove(+id);
-  }
 }
