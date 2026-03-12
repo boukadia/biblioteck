@@ -285,18 +285,26 @@ export class EmpruntsService {
     });
   }
 
-  // DÉCLARER LE RETOUR (Étudiant -> EN_ATTENTE_RETOUR) 
-  async declarerRetour(user: JwtUser, empruntId: number, bonusProtectionId?: number) {
-    const emprunt = await this.prisma.emprunt.findUnique({ where: { id: empruntId } });
-    
+  // DÉCLARER LE RETOUR (Étudiant -> EN_ATTENTE_RETOUR)
+  async declarerRetour(
+    user: JwtUser,
+    empruntId: number,
+    bonusProtectionId?: number,
+  ) {
+    const emprunt = await this.prisma.emprunt.findUnique({
+      where: { id: empruntId },
+    });
+
     if (!emprunt) {
-      throw new NotFoundException("Emprunt introuvable.");
+      throw new NotFoundException('Emprunt introuvable.');
     }
     if (emprunt.utilisateurId !== user.userId) {
-       throw new ForbiddenException("Ce n'est pas votre emprunt.");
+      throw new ForbiddenException("Ce n'est pas votre emprunt.");
     }
     if (emprunt.statut !== StatutEmprunt.EN_COURS) {
-      throw new BadRequestException("Vous ne pouvez déclarer un retour que pour un livre EN_COURS.");
+      throw new BadRequestException(
+        'Vous ne pouvez déclarer un retour que pour un livre EN_COURS.',
+      );
     }
 
     const dateDeclaration = new Date();
@@ -305,48 +313,60 @@ export class EmpruntsService {
     if (bonusProtectionId) {
       const bonus = await this.prisma.bonusPossede.findUnique({
         where: { id: bonusProtectionId },
-        include: { recompense: true }
+        include: { recompense: true },
       });
 
       if (!bonus || bonus.utilisateurId !== user.userId) {
-        throw new BadRequestException("Ce bonus ne vous appartient pas.");
+        throw new BadRequestException('Ce bonus ne vous appartient pas.');
       }
-      if (bonus.estConsomme) { 
-        throw new BadRequestException("Ce bonus a déjà été utilisé.");
+      if (bonus.estConsomme) {
+        throw new BadRequestException('Ce bonus a déjà été utilisé.');
       }
-      if (bonus.dateExpiration && dateDeclaration > bonus.dateExpiration) { 
-        throw new BadRequestException("Ce bonus a expiré.");
+      if (bonus.dateExpiration && dateDeclaration > bonus.dateExpiration) {
+        throw new BadRequestException('Ce bonus a expiré.');
       }
       if (bonus.recompense.type !== TypeRecompense.PROTECTION) {
-        throw new BadRequestException("Ce n'est pas un bouclier de PROTECTION.");
+        throw new BadRequestException(
+          "Ce n'est pas un bouclier de PROTECTION.",
+        );
       }
       if (!estEnRetard) {
-        throw new BadRequestException("Vous n'êtes pas en retard, gardez votre bouclier !");
+        throw new BadRequestException(
+          "Vous n'êtes pas en retard, gardez votre bouclier !",
+        );
       }
-      await this.prisma.bonusPossede.update({
-        where: { id: bonusProtectionId },
-        data: { estConsomme: true, dateUtilisation: dateDeclaration, empruntId: emprunt.id }
-      });
     }
-
-    const empruntMisAJour = await this.prisma.emprunt.update({
-      where: { id: empruntId },
-      data: { 
-        statut: StatutEmprunt.EN_ATTENTE_RETOUR,
-        dateRetour: dateDeclaration 
+    return this.prisma.$transaction(async (tx) => {
+      if (bonusProtectionId) {
+        await tx.bonusPossede.update({
+          where: { id: bonusProtectionId },
+          data: {
+            estConsomme: true,
+            dateUtilisation: dateDeclaration,
+            empruntId: emprunt.id,
+          },
+        });
       }
-    });
 
-    return { 
-      message: bonusProtectionId 
-        ? "Retour déclaré. Votre bouclier a été activé avec succès !" 
-        : "Retour déclaré avec succès. En attente de validation.", 
-      emprunt: empruntMisAJour 
-    };
+      const empruntMisAJour = await tx.emprunt.update({
+        where: { id: empruntId },
+        data: {
+          statut: StatutEmprunt.EN_ATTENTE_RETOUR,
+          dateRetour: dateDeclaration,
+        },
+      });
+
+      return {
+        message: bonusProtectionId
+          ? 'Retour déclaré. Votre bouclier a été activé avec succès !'
+          : "Retour déclaré avec succès. En attente de validation par l'administrateur.",
+        emprunt: empruntMisAJour,
+      };
+    });
   }
 
   //Retourner un livre (Admin--->Retourn +Gamification)
-  async retournerLivre(empruntId: number, bonusProtectionId?: number) {
+  async retournerLivre(empruntId: number) {
     const emprunt = await this.prisma.emprunt.findUnique({
       where: { id: empruntId },
       include: { utilisateur: true },
@@ -355,43 +375,58 @@ export class EmpruntsService {
     if (!emprunt) {
       throw new NotFoundException('Emprunt introuvable.');
     }
-    
-    if (emprunt.statut !== StatutEmprunt.EN_COURS && emprunt.statut !== StatutEmprunt.EN_ATTENTE_RETOUR) {
-      throw new BadRequestException(`Impossible de retourner ce livre (Statut actuel: ${emprunt.statut}).`);
+
+    if (
+      emprunt.statut !== StatutEmprunt.EN_COURS &&
+      emprunt.statut !== StatutEmprunt.EN_ATTENTE_RETOUR
+    ) {
+      throw new BadRequestException(
+        `Impossible de retourner ce livre (Statut actuel: ${emprunt.statut}).`,
+      );
     }
 
-    const etudiantId=emprunt.utilisateurId
-    const dateFinReel=emprunt.dateRetour?emprunt.dateRetour:new Date();
-    const estEnRetard= dateFinReel > emprunt.dateEcheance;
+    const etudiantId = emprunt.utilisateurId;
+    const dateFinReel = emprunt.dateRetour ? emprunt.dateRetour : new Date();
+    const estEnRetard = dateFinReel > emprunt.dateEcheance;
     const bonusApplique = await this.prisma.bonusPossede.findFirst({
-      where: { 
+      where: {
         empruntId: emprunt.id,
-        recompense: { type: TypeRecompense.PROTECTION } 
-      }
+        recompense: { type: TypeRecompense.PROTECTION },
+      },
     });
 
-   return this.prisma.$transaction(async (tx) => {
-      
+    return this.prisma.$transaction(async (tx) => {
       const empruntMisAJour = await tx.emprunt.update({
         where: { id: empruntId },
-        data: { statut: StatutEmprunt.RETOURNE, dateRetour: dateFinReel }
+        data: { statut: StatutEmprunt.RETOURNE, dateRetour: dateFinReel },
       });
 
-      await tx.livre.update({ where: { id: emprunt.livreId }, data: { stock: { increment: 1 } } });
-      let message = "Livre retourné.";
+      await tx.livre.update({
+        where: { id: emprunt.livreId },
+        data: { stock: { increment: 1 } },
+      });
+      let message = 'Livre retourné.';
 
       // Gamification
       if (!estEnRetard) {
-        const pointsGagnes = 10; const xpGagne = 10;
+        const pointsGagnes = 10;
+        const xpGagne = 10;
         const nouvelXpTotal = (emprunt.utilisateur.xp ?? 0) + xpGagne;
         await tx.utilisateur.update({
           where: { id: etudiantId },
-          data: { pointsActuels: { increment: pointsGagnes }, xp: nouvelXpTotal, niveau: this.calculerNiveau(nouvelXpTotal) }
+          data: {
+            pointsActuels: { increment: pointsGagnes },
+            xp: nouvelXpTotal,
+            niveau: this.calculerNiveau(nouvelXpTotal),
+          },
         });
         message += ` +${pointsGagnes} Points et +${xpGagne} XP !`;
       } else {
-        const joursRetard = Math.ceil((dateFinReel.getTime() - emprunt.dateEcheance.getTime()) / (1000 * 3600 * 24));
-        
+        const joursRetard = Math.ceil(
+          (dateFinReel.getTime() - emprunt.dateEcheance.getTime()) /
+            (1000 * 3600 * 24),
+        );
+
         // Hna l-mantiq t-beddel 👈
         if (bonusApplique) {
           message += ` Retard de ${joursRetard} jour(s) annulé par le bouclier de l'étudiant !`;
@@ -399,10 +434,20 @@ export class EmpruntsService {
           const penalite = joursRetard * 5;
           await tx.utilisateur.update({
             where: { id: etudiantId },
-            data: { pointsActuels: Math.max(0, (emprunt.utilisateur.pointsActuels ?? 0) - penalite) }
+            data: {
+              pointsActuels: Math.max(
+                0,
+                (emprunt.utilisateur.pointsActuels ?? 0) - penalite,
+              ),
+            },
           });
           await tx.sanction.create({
-            data: { utilisateurId:etudiantId, raison: `Retard de ${joursRetard} jour(s)`, penalitePoints: penalite, dureeBlocage: joursRetard }
+            data: {
+              utilisateurId: etudiantId,
+              raison: `Retard de ${joursRetard} jour(s)`,
+              penalitePoints: penalite,
+              dureeBlocage: joursRetard,
+            },
           });
           message += ` Pénalité de -${penalite} points et compte bloqué.`;
         }
@@ -411,11 +456,21 @@ export class EmpruntsService {
     });
   }
 
-  
   // OUTIL : CALCUL DU NIVEAU
   private calculerNiveau(xpTotal: number): number {
-    const PALIERS = [ { niveau: 10, xpMin: 4000 }, { niveau: 9, xpMin: 2500 }, { niveau: 8, xpMin: 1700 }, { niveau: 7, xpMin: 1200 }, { niveau: 6, xpMin: 800 }, { niveau: 5, xpMin: 500 }, { niveau: 4, xpMin: 300 }, { niveau: 3, xpMin: 150 }, { niveau: 2, xpMin: 50 }, { niveau: 1, xpMin: 0 } ];
-    const palier = PALIERS.find(p => xpTotal >= p.xpMin);
+    const PALIERS = [
+      { niveau: 10, xpMin: 4000 },
+      { niveau: 9, xpMin: 2500 },
+      { niveau: 8, xpMin: 1700 },
+      { niveau: 7, xpMin: 1200 },
+      { niveau: 6, xpMin: 800 },
+      { niveau: 5, xpMin: 500 },
+      { niveau: 4, xpMin: 300 },
+      { niveau: 3, xpMin: 150 },
+      { niveau: 2, xpMin: 50 },
+      { niveau: 1, xpMin: 0 },
+    ];
+    const palier = PALIERS.find((p) => xpTotal >= p.xpMin);
     return palier ? palier.niveau : 1;
   }
 }
