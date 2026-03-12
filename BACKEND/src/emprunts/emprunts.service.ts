@@ -1,21 +1,26 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateEmpruntDto } from './dto/create-emprunt.dto';
-import { UpdateEmpruntDto } from './dto/update-emprunt.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { StatutEmprunt, TypeRecompense } from '@prisma/client';
+import { StatutEmprunt, TypeRecompense, Utilisateur } from '@prisma/client';
+import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
 
 @Injectable()
 export class EmpruntsService {
-  constructor(private readonly prisma:PrismaService) { }
-  async emprunterLivre(data: CreateEmpruntDto,user: any) {
-    
-    const etudiant= await this.prisma.utilisateur.findUnique({
-      where:{
-        id:user.userId
-      }
-    })
+  constructor(private readonly prisma: PrismaService) {}
+  // EMPRUNTER UN LIVRE (Étudiant -> EN_ATTENTE)
+  async emprunterLivre(data: CreateEmpruntDto, user: any) {
+    const etudiant = await this.prisma.utilisateur.findUnique({
+      where: {
+        id: user.userId,
+      },
+    });
     if (!etudiant) {
-      throw new NotFoundException("Utilisateur introuvable.");
+      throw new NotFoundException('Utilisateur introuvable.');
     }
 
     const niveauEtudiant = etudiant.niveau ?? 0;
@@ -29,95 +34,107 @@ export class EmpruntsService {
       limiteEmprunts = 1;
     }
 
-    let joursEmprunt=7;
-    let messageBonus=""
+    let joursEmprunt = 7;
+    let messageBonus = '';
 
     if (data.bonusPossedeId) {
-      const bonus= await this.prisma.bonusPossede.findUnique({
-        where:{id: data.bonusPossedeId},
-        include:{recompense: true}
-      })
-      if(!bonus){
+      const bonus = await this.prisma.bonusPossede.findUnique({
+        where: { id: data.bonusPossedeId },
+        include: { recompense: true },
+      });
+      if (!bonus) {
         throw new BadRequestException("Ce bonus n'existe pas.");
       }
-      if (bonus.utilisateurId!==user.userId) {
-        throw new BadRequestException("Ce bonus ne vous appartient pas.");
+      if (bonus.utilisateurId !== user.userId) {
+        throw new BadRequestException('Ce bonus ne vous appartient pas.');
       }
       if (bonus.estConsomme) {
-        throw new BadRequestException("Ce bonus a déjà été utilisé.");
+        throw new BadRequestException('Ce bonus a déjà été utilisé.');
       }
-      if (bonus.dateExpiration && new Date()>bonus.dateExpiration) {
-        throw new BadRequestException("Ce bonus a expiré.");
+      if (bonus.dateExpiration && new Date() > bonus.dateExpiration) {
+        throw new BadRequestException('Ce bonus a expiré.');
       }
 
       switch (bonus.recompense.type) {
         case TypeRecompense.PREMIUM:
           limiteEmprunts = 5;
-          messageBonus = " (Bonus PREMIUM appliqué)";
+          messageBonus = ' (Bonus PREMIUM appliqué)';
           break;
         case TypeRecompense.BONUS:
           limiteEmprunts += 1;
-          messageBonus = " (Bonus Livre Extra appliqué)";
+          messageBonus = ' (Bonus Livre Extra appliqué)';
           break;
         case TypeRecompense.PROLONGATION:
           joursEmprunt += 7;
-          messageBonus = " (Bonus Prolongation appliqué)";
+          messageBonus = ' (Bonus Prolongation appliqué)';
           break;
         case TypeRecompense.PROTECTION:
         case TypeRecompense.REACTIVATION:
-          throw new BadRequestException(`Le bonus de type ${bonus.recompense.type} ne peut pas être utilisé lors d'un emprunt.`);
+          throw new BadRequestException(
+            `Le bonus de type ${bonus.recompense.type} ne peut pas être utilisé lors d'un emprunt.`,
+          );
         default:
-          throw new BadRequestException("Type de bonus non reconnu.");
+          throw new BadRequestException('Type de bonus non reconnu.');
       }
     }
 
-    const livre=await this.prisma.livre.findUnique({
+    const livre = await this.prisma.livre.findUnique({
       where: {
-        id:data.livreId
-      }
-    })
+        id: data.livreId,
+      },
+    });
     if (!livre) {
       throw new NotFoundException("Le livre demandé n'existe pas.");
     }
-    if (livre.stock<=0) {
-      throw new BadRequestException("Ce livre est en rupture de stock.");
+    if (livre.stock <= 0) {
+      throw new BadRequestException('Ce livre est en rupture de stock.');
     }
-    
-   
-   const dernierSanction= await this.prisma.sanction.findFirst({
-    where:{
-      utilisateurId:user.userId
-    },
-    orderBy:{
-      dateCreation:"desc"
-    } 
-   })
 
-   if (dernierSanction && dernierSanction.dureeBlocage>0) {
-    const dateFinBlocage=new Date(dernierSanction.dateCreation)
-    dateFinBlocage.setDate(dateFinBlocage.getDate() + dernierSanction.dureeBlocage)
-    if(new Date() <dateFinBlocage){
-      throw new ForbiddenException(`Vous êtes bloqué jusqu'au ${dateFinBlocage.toLocaleDateString()} suite à une sanction.`);
-    }
-   }
+    const dernierSanction = await this.prisma.sanction.findFirst({
+      where: {
+        utilisateurId: user.userId,
+      },
+      orderBy: {
+        dateCreation: 'desc',
+      },
+    });
 
-   const empruntesEnCours= await this.prisma.emprunt.count({
-    where:{
-      utilisateurId:user.userId,
-      dateRetour:null
+    if (dernierSanction && dernierSanction.dureeBlocage > 0) {
+      const dateFinBlocage = new Date(dernierSanction.dateCreation);
+      dateFinBlocage.setDate(
+        dateFinBlocage.getDate() + dernierSanction.dureeBlocage,
+      );
+      if (new Date() < dateFinBlocage) {
+        throw new ForbiddenException(
+          `Vous êtes bloqué jusqu'au ${dateFinBlocage.toLocaleDateString()} suite à une sanction.`,
+        );
+      }
     }
-   })
-   if (empruntesEnCours>=limiteEmprunts) {
-    throw new BadRequestException(`Limite atteinte : ${limiteEmprunts} livre(s) maximum avec votre niveau/bonus actuels.`);
-   }
-   const empruntExistant = await this.prisma.emprunt.findFirst({
-      where: { utilisateurId: user.userId, livreId: data.livreId, dateRetour: null }
+
+    const empruntesEnCours = await this.prisma.emprunt.count({
+      where: {
+        utilisateurId: user.userId,
+        dateRetour: null,
+      },
+    });
+    if (empruntesEnCours >= limiteEmprunts) {
+      throw new BadRequestException(
+        `Limite atteinte : ${limiteEmprunts} livre(s) maximum avec votre niveau/bonus actuels.`,
+      );
+    }
+    const empruntExistant = await this.prisma.emprunt.findFirst({
+      where: {
+        utilisateurId: user.userId,
+        livreId: data.livreId,
+        dateRetour: null,
+      },
     });
     if (empruntExistant) {
-      throw new BadRequestException("Vous avez déjà emprunté ce livre et ne l'avez pas encore rendu.");
+      throw new BadRequestException(
+        "Vous avez déjà emprunté ce livre et ne l'avez pas encore rendu.",
+      );
     }
     return this.prisma.$transaction(async (tx) => {
-      
       const dateEcheance = new Date();
       dateEcheance.setDate(dateEcheance.getDate() + joursEmprunt);
 
@@ -126,116 +143,123 @@ export class EmpruntsService {
           utilisateurId: user.userId,
           livreId: data.livreId,
           dateEcheance: dateEcheance,
-        }
+        },
       });
 
       await tx.livre.update({
         where: { id: data.livreId },
-        data: { stock: { decrement: 1 } }
+        data: { stock: { decrement: 1 } },
       });
 
       if (data.bonusPossedeId) {
         await tx.bonusPossede.update({
           where: { id: data.bonusPossedeId },
-          data: { 
+          data: {
             estConsomme: true,
             dateUtilisation: new Date(),
-            empruntId: nouvelEmprunt.id
-          }
+            empruntId: nouvelEmprunt.id,
+          },
         });
       }
 
       return {
         message: `Livre emprunté avec succès${messageBonus}.`,
         emprunt: nouvelEmprunt,
-        aRendreLe: dateEcheance.toLocaleDateString()
+        aRendreLe: dateEcheance.toLocaleDateString(),
       };
     });
-
   }
-
-  async validerRecuperation(empruntId: number) {
-    const emprunt = await this.prisma.emprunt.findUnique({ where: { id: empruntId } });
-    if (!emprunt) throw new NotFoundException("Emprunt introuvable.");
+  //VALIDER LA RÉCUPÉRATION (Admin -> EN_COURS)
+  async validerEmprunt(empruntId: number) {
+    const emprunt = await this.prisma.emprunt.findUnique({
+      where: { id: empruntId },
+    });
+    if (!emprunt) throw new NotFoundException('Emprunt introuvable.');
     if (emprunt.statut !== StatutEmprunt.EN_ATTENTE) {
-      throw new BadRequestException("Cet emprunt n'est pas en attente de récupération.");
+      throw new BadRequestException(
+        "Cet emprunt n'est pas en attente de récupération.",
+      );
     }
 
     const empruntMisAJour = await this.prisma.emprunt.update({
       where: { id: empruntId },
-      data: { statut: StatutEmprunt.EN_COURS }
+      data: { statut: StatutEmprunt.EN_COURS },
     });
 
-    return { message: "Livre remis à l'étudiant (Statut: EN_COURS).", emprunt: empruntMisAJour };
+    return {
+      message: "Livre remis à l'étudiant (Statut: EN_COURS).",
+      emprunt: empruntMisAJour,
+    };
   }
 
   async getEmpruntsEnAttente() {
     return this.prisma.emprunt.findMany({
-      where: { 
-        statut: StatutEmprunt.EN_ATTENTE 
+      where: {
+        statut: StatutEmprunt.EN_ATTENTE,
       },
       include: {
         utilisateur: {
-          select: { id: true, nom: true, email: true, niveau: true }
+          select: { id: true, nom: true, email: true, niveau: true },
         },
         livre: {
-          select: { id: true, titre: true, auteur: true, image: true }
-        }
+          select: { id: true, titre: true, auteur: true, image: true },
+        },
       },
       orderBy: {
-        id: 'asc' 
-      }
+        id: 'asc',
+      },
     });
   }
-
+  // ANNULER UN EMPRUNT (Admin -> ANNULE)
   async annulerEmprunt(empruntId: number) {
     const emprunt = await this.prisma.emprunt.findUnique({
-      where: { id: empruntId }
+      where: { id: empruntId },
     });
 
-    if (!emprunt) throw new NotFoundException("Emprunt introuvable.");
+    if (!emprunt) throw new NotFoundException('Emprunt introuvable.');
     if (emprunt.statut !== StatutEmprunt.EN_ATTENTE) {
-      throw new BadRequestException("Impossible d'annuler un emprunt qui n'est plus EN_ATTENTE.");
+      throw new BadRequestException(
+        "Impossible d'annuler un emprunt qui n'est plus EN_ATTENTE.",
+      );
     }
 
     return this.prisma.$transaction(async (tx) => {
-      
       const empruntAnnule = await tx.emprunt.update({
         where: { id: empruntId },
-        data: { statut: StatutEmprunt.ANNULE }
+        data: { statut: StatutEmprunt.ANNULE },
       });
 
       await tx.livre.update({
         where: { id: emprunt.livreId },
-        data: { stock: { increment: 1 } }
+        data: { stock: { increment: 1 } },
       });
 
       const bonusUtilise = await tx.bonusPossede.findFirst({
-        where: { empruntId: empruntId }
+        where: { empruntId: empruntId },
       });
 
       if (bonusUtilise) {
         await tx.bonusPossede.update({
           where: { id: bonusUtilise.id },
-          data: { estConsomme: false, dateUtilisation: null, empruntId: null }
+          data: { estConsomme: false, dateUtilisation: null, empruntId: null },
         });
       }
 
       return {
-        message: "L'emprunt a été annulé car l'étudiant ne s'est pas présenté. Le livre et les bonus ont été restitués.",
-        emprunt: empruntAnnule
+        message:
+          "L'emprunt a été annulé car l'étudiant ne s'est pas présenté. Le livre et les bonus ont été restitués.",
+        emprunt: empruntAnnule,
       };
     });
   }
-
 
   async findAll() {
     return this.prisma.emprunt.findMany({
       include: {
         utilisateur: { select: { id: true, nom: true, email: true } },
-        livre: { select: { id: true, titre: true, auteur: true } }
+        livre: { select: { id: true, titre: true, auteur: true } },
       },
-      orderBy: { id: 'desc' } 
+      orderBy: { id: 'desc' },
     });
   }
 
@@ -243,24 +267,155 @@ export class EmpruntsService {
     return this.prisma.emprunt.findMany({
       where: { utilisateurId: utilisateurId },
       include: {
-        livre: { select: { id: true, titre: true, auteur: true, image: true } }
+        livre: { select: { id: true, titre: true, auteur: true, image: true } },
       },
-      orderBy: { id: 'desc' }
+      orderBy: { id: 'desc' },
     });
   }
   async getEmpruntsEnCours() {
     return this.prisma.emprunt.findMany({
       where: { statut: StatutEmprunt.EN_COURS },
       include: {
-        utilisateur: { select: { id: true, nom: true, email: true, niveau: true } },
-        livre: { select: { id: true, titre: true, auteur: true } }
+        utilisateur: {
+          select: { id: true, nom: true, email: true, niveau: true },
+        },
+        livre: { select: { id: true, titre: true, auteur: true } },
       },
-      orderBy: { dateEcheance: 'asc' } 
+      orderBy: { dateEcheance: 'asc' },
+    });
+  }
+
+  // DÉCLARER LE RETOUR (Étudiant -> EN_ATTENTE_RETOUR) 
+  async declarerRetour(utilisateurId: number, empruntId: number, bonusProtectionId?: number) {
+    const emprunt = await this.prisma.emprunt.findUnique({ where: { id: empruntId } });
+    
+    if (!emprunt) {
+      throw new NotFoundException("Emprunt introuvable.");
+    }
+    if (emprunt.utilisateurId !== utilisateurId) {
+       throw new ForbiddenException("Ce n'est pas votre emprunt.");
+    }
+    if (emprunt.statut !== StatutEmprunt.EN_COURS) {
+      throw new BadRequestException("Vous ne pouvez déclarer un retour que pour un livre EN_COURS.");
+    }
+
+    const dateDeclaration = new Date();
+    const estEnRetard = dateDeclaration > emprunt.dateEcheance;
+
+    if (bonusProtectionId) {
+      const bonus = await this.prisma.bonusPossede.findUnique({
+        where: { id: bonusProtectionId },
+        include: { recompense: true }
+      });
+
+      if (!bonus || bonus.utilisateurId !== utilisateurId) {
+        throw new BadRequestException("Ce bonus ne vous appartient pas.");
+      }
+      if (bonus.estConsomme) { 
+        throw new BadRequestException("Ce bonus a déjà été utilisé.");
+      }
+      if (bonus.dateExpiration && dateDeclaration > bonus.dateExpiration) { 
+        throw new BadRequestException("Ce bonus a expiré.");
+      }
+      if (bonus.recompense.type !== TypeRecompense.PROTECTION) {
+        throw new BadRequestException("Ce n'est pas un bouclier de PROTECTION.");
+      }
+      if (!estEnRetard) {
+        throw new BadRequestException("Vous n'êtes pas en retard, gardez votre bouclier !");
+      }
+      await this.prisma.bonusPossede.update({
+        where: { id: bonusProtectionId },
+        data: { estConsomme: true, dateUtilisation: dateDeclaration, empruntId: emprunt.id }
+      });
+    }
+
+    const empruntMisAJour = await this.prisma.emprunt.update({
+      where: { id: empruntId },
+      data: { 
+        statut: StatutEmprunt.EN_ATTENTE_RETOUR,
+        dateRetour: dateDeclaration 
+      }
+    });
+
+    return { 
+      message: bonusProtectionId 
+        ? "Retour déclaré. Votre bouclier a été activé avec succès !" 
+        : "Retour déclaré avec succès. En attente de validation.", 
+      emprunt: empruntMisAJour 
+    };
+  }
+
+  //Retourner un livre (Admin--->Retourn +Gamification)
+  async retournerLivre(empruntId: number, bonusProtectionId?: number) {
+    const emprunt = await this.prisma.emprunt.findUnique({
+      where: { id: empruntId },
+      include: { utilisateur: true },
+    });
+
+    if (!emprunt) {
+      throw new NotFoundException('Emprunt introuvable.');
+    }
+    
+    if (emprunt.statut !== StatutEmprunt.EN_COURS && emprunt.statut !== StatutEmprunt.EN_ATTENTE_RETOUR) {
+      throw new BadRequestException(`Impossible de retourner ce livre (Statut actuel: ${emprunt.statut}).`);
+    }
+
+    const etudiantId=emprunt.utilisateurId
+    const dateFinReel=emprunt.dateRetour?emprunt.dateRetour:new Date();
+    const estEnRetard= dateFinReel > emprunt.dateEcheance;
+    const bonusApplique = await this.prisma.bonusPossede.findFirst({
+      where: { 
+        empruntId: emprunt.id,
+        recompense: { type: TypeRecompense.PROTECTION } 
+      }
+    });
+
+   return this.prisma.$transaction(async (tx) => {
+      
+      const empruntMisAJour = await tx.emprunt.update({
+        where: { id: empruntId },
+        data: { statut: StatutEmprunt.RETOURNE, dateRetour: dateFinReel }
+      });
+
+      await tx.livre.update({ where: { id: emprunt.livreId }, data: { stock: { increment: 1 } } });
+      let message = "Livre retourné.";
+
+      // Gamification
+      if (!estEnRetard) {
+        const pointsGagnes = 10; const xpGagne = 10;
+        const nouvelXpTotal = (emprunt.utilisateur.xp ?? 0) + xpGagne;
+        await tx.utilisateur.update({
+          where: { id: etudiantId },
+          data: { pointsActuels: { increment: pointsGagnes }, xp: nouvelXpTotal, niveau: this.calculerNiveau(nouvelXpTotal) }
+        });
+        message += ` +${pointsGagnes} Points et +${xpGagne} XP !`;
+      } else {
+        const joursRetard = Math.ceil((dateFinReel.getTime() - emprunt.dateEcheance.getTime()) / (1000 * 3600 * 24));
+        
+        // Hna l-mantiq t-beddel 👈
+        if (bonusApplique) {
+          message += ` Retard de ${joursRetard} jour(s) annulé par le bouclier de l'étudiant !`;
+        } else {
+          const penalite = joursRetard * 5;
+          await tx.utilisateur.update({
+            where: { id: etudiantId },
+            data: { pointsActuels: Math.max(0, (emprunt.utilisateur.pointsActuels ?? 0) - penalite) }
+          });
+          await tx.sanction.create({
+            data: { utilisateurId:etudiantId, raison: `Retard de ${joursRetard} jour(s)`, penalitePoints: penalite, dureeBlocage: joursRetard }
+          });
+          message += ` Pénalité de -${penalite} points et compte bloqué.`;
+        }
+      }
+      return { message, emprunt: empruntMisAJour };
     });
   }
 
   
-  
-
-  
+  // OUTIL : CALCUL DU NIVEAU
+  private calculerNiveau(xpTotal: number): number {
+    const PALIERS = [ { niveau: 10, xpMin: 4000 }, { niveau: 9, xpMin: 2500 }, { niveau: 8, xpMin: 1700 }, { niveau: 7, xpMin: 1200 }, { niveau: 6, xpMin: 800 }, { niveau: 5, xpMin: 500 }, { niveau: 4, xpMin: 300 }, { niveau: 3, xpMin: 150 }, { niveau: 2, xpMin: 50 }, { niveau: 1, xpMin: 0 } ];
+    const palier = PALIERS.find(p => xpTotal >= p.xpMin);
+    return palier ? palier.niveau : 1;
+  }
 }

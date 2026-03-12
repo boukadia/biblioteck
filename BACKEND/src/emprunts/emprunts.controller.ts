@@ -4,6 +4,8 @@ import { CreateEmpruntDto } from './dto/create-emprunt.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
+import { DeclarerRetourDto } from './dto/declarer.retour.dto';
 
 
 @UseGuards(JwtAuthGuard,RolesGuard)
@@ -13,7 +15,7 @@ export class EmpruntsController {
 
   @Post()
   @Roles('ETUDIANT')
-  create(@Body() createEmpruntDto: CreateEmpruntDto,@Request() req: any) {
+  emprunterLivre(@Body() createEmpruntDto: CreateEmpruntDto,@Request() req: any) {
     return this.empruntsService.emprunterLivre(createEmpruntDto,req.user);
   }
 
@@ -32,18 +34,23 @@ export class EmpruntsController {
 
   @Patch(':id/recuperation')
   @Roles('ADMIN')
-  validerRecuperation(@Param('id') id: number) {
-    return this.empruntsService.validerRecuperation(id);
+  validerEmprunt(@Param('id') id: number) {
+    return this.empruntsService.validerEmprunt(id);
   }
   @Patch(':id/retour')
   @Roles('ADMIN')
   retourner(
-    @Param('id') id: number,
-    @Body('utilisateurId') utilisateurId: number,
-    @Body('bonusProtectionId') bonusProtectionId: number // Optionnel (Bouclier)
+    @Param('id') id: number
   ) {
-    return this.empruntsService.retournerLivre(utilisateurId, id, bonusProtectionId);
+    return this.empruntsService.retournerLivre(id);
   }
+
+  @Patch(':id/declarer-retour')
+  @Roles('ETUDIANT')
+  declarerRetour(@Param('id') id: number, @Request() req: any,@Body() declarerRetourDto: DeclarerRetourDto,) {
+    return this.empruntsService.declarerRetour(req.user.id, id, declarerRetourDto.bonusProtectionId);
+  }
+
   @Patch(':id/annuler')
   @Roles('ADMIN')
   annuler(@Param('id') id: number) {
