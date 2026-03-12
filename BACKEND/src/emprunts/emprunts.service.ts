@@ -2,7 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { CreateEmpruntDto } from './dto/create-emprunt.dto';
 import { UpdateEmpruntDto } from './dto/update-emprunt.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { TypeRecompense } from '@prisma/client';
+import { StatutEmprunt, TypeRecompense } from '@prisma/client';
 
 @Injectable()
 export class EmpruntsService {
@@ -154,6 +154,22 @@ export class EmpruntsService {
 
   }
 
+  async validerRecuperation(empruntId: number) {
+    const emprunt = await this.prisma.emprunt.findUnique({ where: { id: empruntId } });
+    if (!emprunt) throw new NotFoundException("Emprunt introuvable.");
+    if (emprunt.statut !== StatutEmprunt.EN_ATTENTE) {
+      throw new BadRequestException("Cet emprunt n'est pas en attente de récupération.");
+    }
+
+    const empruntMisAJour = await this.prisma.emprunt.update({
+      where: { id: empruntId },
+      data: { statut: StatutEmprunt.EN_COURS }
+    });
+
+    return { message: "Livre remis à l'étudiant (Statut: EN_COURS).", emprunt: empruntMisAJour };
+  }
+
+
   findAll() {
     return `This action returns all emprunts`;
   }
@@ -162,11 +178,7 @@ export class EmpruntsService {
     return `This action returns a #${id} emprunt`;
   }
 
-  update(id: number, updateEmpruntDto: UpdateEmpruntDto) {
-    return `This action updates a #${id} emprunt`;
-  }
+  
 
-  remove(id: number) {
-    return `This action removes a #${id} emprunt`;
-  }
+  
 }
