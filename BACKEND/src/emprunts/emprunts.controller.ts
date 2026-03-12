@@ -48,7 +48,7 @@ export class EmpruntsController {
   @Patch(':id/declarer-retour')
   @Roles('ETUDIANT')
   declarerRetour(@Param('id') id: number, @Request() req: any,@Body() declarerRetourDto: DeclarerRetourDto,) {
-    return this.empruntsService.declarerRetour(req.user.id, id, declarerRetourDto.bonusProtectionId);
+    return this.empruntsService.declarerRetour(req.user, id, declarerRetourDto.bonusProtectionId);
   }
 
   @Patch(':id/annuler')
@@ -66,7 +66,7 @@ export class EmpruntsController {
   @Get('mes-emprunts')
   @Roles('ETUDIANT')
   findMesEmprunts(@Request() req) {
-    return this.empruntsService.findMesEmprunts(req.user.id);
+    return this.empruntsService.findMesEmprunts(req.user);
   }
 
 }
