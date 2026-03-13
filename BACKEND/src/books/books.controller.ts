@@ -44,6 +44,7 @@ export class BooksController {
     remove(@Param('id') id: string, @Request() req){
         return this.bookService.remove(+id, req.user)
     }
+    
     @Patch('stock/:id')
     @Roles("ADMIN")
     changerStock(@Param('id') id:string,@Body() body:changeStockDto){
