@@ -8,15 +8,10 @@ import { CreateEmpruntDto } from './dto/create-emprunt.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { StatutEmprunt, TypeRecompense, Utilisateur } from '@prisma/client';
 import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
-import { BadgesService } from '../badges/badges.service';
 
 @Injectable()
 export class EmpruntsService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly badgesService: BadgesService,
-  ) {}
-
+  constructor(private readonly prisma: PrismaService) {}
   // EMPRUNTER UN LIVRE (Étudiant -> EN_ATTENTE)
   async emprunterLivre(data: CreateEmpruntDto, user: JwtUser) {
     const etudiant = await this.prisma.utilisateur.findUnique({
@@ -174,8 +169,7 @@ export class EmpruntsService {
       };
     });
   }
-
-  // VALIDER LA RÉCUPÉRATION (Admin -> EN_COURS)
+  //VALIDER LA RÉCUPÉRATION (Admin -> EN_COURS)
   async validerEmprunt(empruntId: number) {
     const emprunt = await this.prisma.emprunt.findUnique({
       where: { id: empruntId },
@@ -198,7 +192,6 @@ export class EmpruntsService {
     };
   }
 
-  // LECTURE (GET)
   async getEmpruntsEnAttente() {
     return this.prisma.emprunt.findMany({
       where: {
@@ -217,40 +210,6 @@ export class EmpruntsService {
       },
     });
   }
-
-  async findAll() {
-    return this.prisma.emprunt.findMany({
-      include: {
-        utilisateur: { select: { id: true, nom: true, email: true } },
-        livre: { select: { id: true, titre: true, auteur: true } },
-      },
-      orderBy: { id: 'desc' },
-    });
-  }
-
-  async findMesEmprunts(user: JwtUser) {
-    return this.prisma.emprunt.findMany({
-      where: { utilisateurId: user.userId },
-      include: {
-        livre: { select: { id: true, titre: true, auteur: true, image: true } },
-      },
-      orderBy: { id: 'desc' },
-    });
-  }
-
-  async getEmpruntsEnCours() {
-    return this.prisma.emprunt.findMany({
-      where: { statut: StatutEmprunt.EN_COURS },
-      include: {
-        utilisateur: {
-          select: { id: true, nom: true, email: true, niveau: true },
-        },
-        livre: { select: { id: true, titre: true, auteur: true } },
-      },
-      orderBy: { dateEcheance: 'asc' },
-    });
-  }
-
   // ANNULER UN EMPRUNT (Admin -> ANNULE)
   async annulerEmprunt(empruntId: number) {
     const emprunt = await this.prisma.emprunt.findUnique({
@@ -291,6 +250,38 @@ export class EmpruntsService {
           "L'emprunt a été annulé car l'étudiant ne s'est pas présenté. Le livre et les bonus ont été restitués.",
         emprunt: empruntAnnule,
       };
+    });
+  }
+
+  async findAll() {
+    return this.prisma.emprunt.findMany({
+      include: {
+        utilisateur: { select: { id: true, nom: true, email: true } },
+        livre: { select: { id: true, titre: true, auteur: true } },
+      },
+      orderBy: { id: 'desc' },
+    });
+  }
+
+  async findMesEmprunts(user: JwtUser) {
+    return this.prisma.emprunt.findMany({
+      where: { utilisateurId: user.userId },
+      include: {
+        livre: { select: { id: true, titre: true, auteur: true, image: true } },
+      },
+      orderBy: { id: 'desc' },
+    });
+  }
+  async getEmpruntsEnCours() {
+    return this.prisma.emprunt.findMany({
+      where: { statut: StatutEmprunt.EN_COURS },
+      include: {
+        utilisateur: {
+          select: { id: true, nom: true, email: true, niveau: true },
+        },
+        livre: { select: { id: true, titre: true, auteur: true } },
+      },
+      orderBy: { dateEcheance: 'asc' },
     });
   }
 
@@ -374,7 +365,7 @@ export class EmpruntsService {
     });
   }
 
-  // RETOURNER UN LIVRE (Admin -> RETOURNE + Gamification + Badges)
+  //Retourner un livre (Admin--->Retourn +Gamification)
   async retournerLivre(empruntId: number) {
     const emprunt = await this.prisma.emprunt.findUnique({
       where: { id: empruntId },
@@ -404,8 +395,7 @@ export class EmpruntsService {
       },
     });
 
-    // 1. L-Transaction l-assassiya (Ktab + XP + Sanctions)
-    const resultatTransaction = await this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx) => {
       const empruntMisAJour = await tx.emprunt.update({
         where: { id: empruntId },
         data: { statut: StatutEmprunt.RETOURNE, dateRetour: dateFinReel },
@@ -437,6 +427,7 @@ export class EmpruntsService {
             (1000 * 3600 * 24),
         );
 
+        // Hna l-mantiq t-beddel 👈
         if (bonusApplique) {
           message += ` Retard de ${joursRetard} jour(s) annulé par le bouclier de l'étudiant !`;
         } else {
@@ -463,25 +454,6 @@ export class EmpruntsService {
       }
       return { message, emprunt: empruntMisAJour };
     });
-
-    try {
-      const verificationBadges =
-        await this.badgesService.verifierEtAttribuerBadges(etudiantId);
-
-      if (
-        verificationBadges.nouveauxBadges &&
-        verificationBadges.nouveauxBadges.length > 0
-      ) {
-        const nomsBadges = verificationBadges.nouveauxBadges
-          .map((b) => b.badge.nom)
-          .join(', ');
-        resultatTransaction.message += ` 🏆 Félicitations ! L'étudiant a débloqué de nouveaux badges : ${nomsBadges} !`;
-      }
-    } catch (error) {
-      console.error("Erreur lors de l'attribution des badges:", error);
-    }
-
-    return resultatTransaction;
   }
 
   // OUTIL : CALCUL DU NIVEAU
