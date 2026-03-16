@@ -30,6 +30,7 @@ enum StatutEmprunt {
   EN_ATTENTE
   EN_COURS
   ANNULE
+  EN_RETARD
   EN_ATTENTE_RETOUR
   RETOURNE
 }

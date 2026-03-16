@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateEmpruntDto } from './dto/create-emprunt.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { StatutEmprunt, TypeRecompense, Utilisateur } from '@prisma/client';
+import { StatutEmprunt, StatutUtilisateur, TypeRecompense, Utilisateur } from '@prisma/client';
 import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
 import { BadgesService } from '../badges/badges.service';
 
@@ -19,6 +19,19 @@ export class EmpruntsService {
 
   // EMPRUNTER UN LIVRE (Étudiant -> EN_ATTENTE)
   async emprunterLivre(data: CreateEmpruntDto, user: JwtUser) {
+    const empruntEnRetard = await this.prisma.emprunt.findFirst({
+    where: {
+      utilisateurId: user.userId,
+      statut: StatutEmprunt.EN_RETARD,
+    },
+  });
+
+  if (empruntEnRetard) {
+    throw new ForbiddenException(
+      "Accès refusé. Vous avez un livre en retard. Veuillez le rendre avant de pouvoir effectuer un nouvel emprunt."
+    );
+  }
+  
     const etudiant = await this.prisma.utilisateur.findUnique({
       where: {
         id: user.userId,
@@ -27,6 +40,13 @@ export class EmpruntsService {
     if (!etudiant) {
       throw new NotFoundException('Utilisateur introuvable.');
     }
+    
+
+  if (etudiant.statut === StatutUtilisateur.BLOQUE) {
+    throw new ForbiddenException(
+      "Votre compte est actuellement bloqué suite à des pénalités."
+    );
+  }
 
     const niveauEtudiant = etudiant.niveau ?? 0;
 
