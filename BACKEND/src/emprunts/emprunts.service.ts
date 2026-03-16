@@ -330,7 +330,7 @@ export class EmpruntsService {
     if (emprunt.utilisateurId !== user.userId) {
       throw new ForbiddenException("Ce n'est pas votre emprunt.");
     }
-    if (emprunt.statut !== StatutEmprunt.EN_COURS) {
+    if (emprunt.statut !== StatutEmprunt.EN_COURS && emprunt.statut !== StatutEmprunt.EN_RETARD) {
       throw new BadRequestException(
         'Vous ne pouvez déclarer un retour que pour un livre EN_COURS.',
       );
@@ -407,7 +407,7 @@ export class EmpruntsService {
 
     if (
       emprunt.statut !== StatutEmprunt.EN_COURS &&
-      emprunt.statut !== StatutEmprunt.EN_ATTENTE_RETOUR
+      emprunt.statut !== StatutEmprunt.EN_ATTENTE_RETOUR && emprunt.statut !== StatutEmprunt.EN_RETARD
     ) {
       throw new BadRequestException(
         `Impossible de retourner ce livre (Statut actuel: ${emprunt.statut}).`,
