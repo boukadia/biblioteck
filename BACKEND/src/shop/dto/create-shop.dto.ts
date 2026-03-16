@@ -20,5 +20,5 @@ export class CreateRecompenseDto {
   @IsNumber()
   @Min(1)
   @IsOptional()
-  dureeValidite?: number; 
+  dureeValiditeJours?: number; 
 }

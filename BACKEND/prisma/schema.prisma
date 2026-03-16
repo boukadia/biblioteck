@@ -75,7 +75,7 @@ model Utilisateur {
   badgesObtenus    BadgeEtudiant[]
 
   // Relation One-to-One avec la Liste de Souhaits
-  listeSouhaits ListeSouhaits?
+  listeSouhaits ListeSouhaits[]
 }
 model RegleSanction {
   id              Int      @id @default(autoincrement())
@@ -107,13 +107,17 @@ model Livre {
   listesSouhaits ListeSouhaits[] // Un livre peut être dans plusieurs wishlists
 }
 model ListeSouhaits {
-  id Int @id @default(autoincrement())
+  id            Int         @id @default(autoincrement())
+  utilisateurId Int
+  livreId       Int
+  dateAjout     DateTime    @default(now())
 
   // Relations
-  utilisateurId Int         @unique // Un étudiant a une seule wishlist
   utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id])
+  livre         Livre       @relation(fields: [livreId], references: [id])
 
-  livres Livre[] // Une wishlist contient plusieurs livres (Relation Many-to-Many implicite)
+  
+  @@unique([utilisateurId, livreId])
 }
 
 model Emprunt {
