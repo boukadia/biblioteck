@@ -105,7 +105,7 @@ export class ShopService {
         data: {
           utilisateurId: etudiant.id,
           montant: -recompense.cout,
-          type: 'ACHAT_BOUTIQUE',
+          type: TypeMouvementPoints.ACHAT_BOUTIQUE,
           description: `Achat du bonus: ${recompense.type}`,
         },
       });
