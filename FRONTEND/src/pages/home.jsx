@@ -1,6 +1,8 @@
 import React from 'react';
 import '../styles/home.css';
 import BookCard from '../components/ui/BookCard';
+import Footer from '../components/Footer';
+import Navbar from '../components/Navbar';
 
 // Données des livres
 const booksData = [
@@ -81,45 +83,8 @@ const booksData = [
 export default function Home() {
   return (
     <div>
-      {/* Navbar */}
-      <nav className="navbar navbar-expand-lg sticky-top">
-        <div className="container">
-          <a className="navbar-brand" href="#home">
-            <i className="fas fa-book-reader me-2"></i>Bibliothèque
-          </a>
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav mx-auto">
-              <li className="nav-item">
-                <a className="nav-link" href="#home">Accueil</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#categories">Catégories</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#books">Livres</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#features">Services</a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#contact">Contact</a>
-              </li>
-            </ul>
-            <a href="login.html" className="btn btn-primary">
-              <i className="fas fa-sign-in-alt me-2"></i>Connexion
-            </a>
-          </div>
-        </div>
-      </nav>
-
+      <Navbar />
+      
       {/* Hero Section */}
       <section className="hero" id="home">
         <div className="container">
@@ -135,7 +100,7 @@ export default function Home() {
               <a href="#books" className="btn btn-primary btn-lg me-2">
                 <i className="fas fa-book me-2"></i>Explorer
               </a>
-              <a href="register.html" className="btn btn-outline-dark btn-lg">
+              <a  className="btn btn-outline-dark btn-lg">
                 <i className="fas fa-user-plus me-2"></i>S'inscrire
               </a>
             </div>
@@ -201,58 +166,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="footer" id="contact">
-        <div className="container">
-          <div className="row g-4">
-            <div className="col-lg-4">
-              <a href="#home" className="footer-brand">
-                <i className="fas fa-book-reader me-2"></i>Bibliothèque
-              </a>
-              <p className="footer-text">
-                Votre destination pour la connaissance et la découverte.
-                Explorez notre collection et rejoignez notre communauté.
-              </p>
-              <div className="footer-social">
-                <a href="#facebook"><i className="fab fa-facebook-f"></i></a>
-                <a href="#twitter"><i className="fab fa-twitter"></i></a>
-                <a href="#instagram"><i className="fab fa-instagram"></i></a>
-                <a href="#linkedin"><i className="fab fa-linkedin-in"></i></a>
-              </div>
-            </div>
-            <div className="col-lg-2 col-md-6">
-              <h5 className="footer-title">Liens</h5>
-              <ul className="footer-links">
-                <li><a href="#home">Accueil</a></li>
-                <li><a href="#categories">Catégories</a></li>
-                <li><a href="#books">Livres</a></li>
-                <li><a href="#features">Services</a></li>
-              </ul>
-            </div>
-            <div className="col-lg-2 col-md-6">
-              <h5 className="footer-title">Catégories</h5>
-              <ul className="footer-links">
-                <li><a href="#romans">Romans</a></li>
-                <li><a href="#sciences">Sciences</a></li>
-                <li><a href="#histoire">Histoire</a></li>
-                <li><a href="#technologie">Technologie</a></li>
-              </ul>
-            </div>
-            <div className="col-lg-4">
-              <h5 className="footer-title">Contact</h5>
-              <ul className="footer-links">
-                <li><i className="fas fa-map-marker-alt me-2"></i>123 Avenue de la Lecture, Paris</li>
-                <li><i className="fas fa-phone me-2"></i>+33 1 23 45 67 89</li>
-                <li><i className="fas fa-envelope me-2"></i>contact@bibliotheque.fr</li>
-                <li><i className="fas fa-clock me-2"></i>Lun - Sam: 9h - 20h</li>
-              </ul>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <p>&copy; 2026 Bibliothèque du Savoir. Tous droits réservés.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
