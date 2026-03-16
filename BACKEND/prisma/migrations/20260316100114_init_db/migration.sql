@@ -16,15 +16,48 @@ CREATE TABLE `Utilisateur` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `RegleSanction` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `nomRegle` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(191) NULL,
+    `penalitePoints` INTEGER NOT NULL,
+    `dureeBlocage` INTEGER NOT NULL,
+
+    UNIQUE INDEX `RegleSanction_nomRegle_key`(`nomRegle`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Category` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(191) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `Livre` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `titre` VARCHAR(191) NOT NULL,
+    `image` VARCHAR(191) NOT NULL,
     `auteur` VARCHAR(191) NOT NULL,
     `isbn` VARCHAR(191) NOT NULL,
     `stock` INTEGER NOT NULL DEFAULT 3,
-    `categorie` VARCHAR(191) NOT NULL,
+    `categoryId` INTEGER NOT NULL,
 
     UNIQUE INDEX `Livre_isbn_key`(`isbn`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `ListeSouhaits` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `utilisateurId` INTEGER NOT NULL,
+    `livreId` INTEGER NOT NULL,
+    `dateAjout` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    UNIQUE INDEX `ListeSouhaits_utilisateurId_livreId_key`(`utilisateurId`, `livreId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -34,7 +67,7 @@ CREATE TABLE `Emprunt` (
     `dateEmprunt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `dateEcheance` DATETIME(3) NOT NULL,
     `dateRetour` DATETIME(3) NULL,
-    `statut` ENUM('EN_COURS', 'EN_RETARD', 'RETOURNE') NOT NULL DEFAULT 'EN_COURS',
+    `statut` ENUM('EN_ATTENTE', 'EN_COURS', 'ANNULE', 'EN_ATTENTE_RETOUR', 'RETOURNE') NOT NULL DEFAULT 'EN_ATTENTE',
     `utilisateurId` INTEGER NOT NULL,
     `livreId` INTEGER NOT NULL,
 
@@ -112,23 +145,14 @@ CREATE TABLE `Sanction` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `ListeSouhaits` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `utilisateurId` INTEGER NOT NULL,
+-- AddForeignKey
+ALTER TABLE `Livre` ADD CONSTRAINT `Livre_categoryId_fkey` FOREIGN KEY (`categoryId`) REFERENCES `Category`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
-    UNIQUE INDEX `ListeSouhaits_utilisateurId_key`(`utilisateurId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- AddForeignKey
+ALTER TABLE `ListeSouhaits` ADD CONSTRAINT `ListeSouhaits_utilisateurId_fkey` FOREIGN KEY (`utilisateurId`) REFERENCES `Utilisateur`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
--- CreateTable
-CREATE TABLE `_ListeSouhaitsToLivre` (
-    `A` INTEGER NOT NULL,
-    `B` INTEGER NOT NULL,
-
-    UNIQUE INDEX `_ListeSouhaitsToLivre_AB_unique`(`A`, `B`),
-    INDEX `_ListeSouhaitsToLivre_B_index`(`B`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- AddForeignKey
+ALTER TABLE `ListeSouhaits` ADD CONSTRAINT `ListeSouhaits_livreId_fkey` FOREIGN KEY (`livreId`) REFERENCES `Livre`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Emprunt` ADD CONSTRAINT `Emprunt_utilisateurId_fkey` FOREIGN KEY (`utilisateurId`) REFERENCES `Utilisateur`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -156,12 +180,3 @@ ALTER TABLE `BadgeEtudiant` ADD CONSTRAINT `BadgeEtudiant_badgeId_fkey` FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE `Sanction` ADD CONSTRAINT `Sanction_utilisateurId_fkey` FOREIGN KEY (`utilisateurId`) REFERENCES `Utilisateur`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `ListeSouhaits` ADD CONSTRAINT `ListeSouhaits_utilisateurId_fkey` FOREIGN KEY (`utilisateurId`) REFERENCES `Utilisateur`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `_ListeSouhaitsToLivre` ADD CONSTRAINT `_ListeSouhaitsToLivre_A_fkey` FOREIGN KEY (`A`) REFERENCES `ListeSouhaits`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `_ListeSouhaitsToLivre` ADD CONSTRAINT `_ListeSouhaitsToLivre_B_fkey` FOREIGN KEY (`B`) REFERENCES `Livre`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

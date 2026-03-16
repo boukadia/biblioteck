@@ -89,7 +89,7 @@ export class ShopService {
       });
 
       const dateExpiration = new Date();
-      dateExpiration.setDate(dateExpiration.getDate() + 60);
+      dateExpiration.setDate(dateExpiration.getDate() + (recompense.dureeValiditeJours || 60));
 
       const nouveauBonus = await tx.bonusPossede.create({
         data: {
