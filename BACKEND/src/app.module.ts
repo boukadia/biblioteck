@@ -14,9 +14,11 @@ import { EmpruntsModule } from './emprunts/emprunts.module';
 import { CategoriesModule } from './categories/categories.module';
 import { RegleSanctionsModule } from './regle-sanctions/regle-sanctions.module';
 import { HistoriquesModule } from './historiques/historiques.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, BooksModule, ShopModule, BadgesModule, SanctionsModule, WishlistModule, NotesModule, PrismaModule, EmpruntsModule, CategoriesModule, RegleSanctionsModule, HistoriquesModule],
+  imports: [AuthModule, UsersModule, BooksModule, ShopModule, BadgesModule, SanctionsModule, WishlistModule, NotesModule, PrismaModule, EmpruntsModule, CategoriesModule, RegleSanctionsModule, HistoriquesModule,ScheduleModule.forRoot(), TasksModule],
   controllers: [AppController],
   providers: [AppService],
 })
