@@ -1,13 +1,7 @@
-import { IsArray, IsInt, IsNotEmpty, IsPositive } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateWishlistDto {
-    @IsNotEmpty()
-    @IsInt()
-    @IsPositive()
-    utilisateurId: number;
-
-    @IsArray()
-    @IsInt({ each: true })
-    @IsPositive({ each: true })
-    livreIds: number[];
+  @IsNumber({}, { message: "L'ID du livre doit être un nombre." })
+  @IsNotEmpty({ message: "L'ID du livre est obligatoire." })
+  livreId: number;
 }
