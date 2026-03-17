@@ -1,88 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/home.css';
 import BookCard from '../components/ui/BookCard';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
+import Leaderboard from '../components/Leaderboard';
+import {getAllBooks} from '../services/books.api'
 
-// Données des livres
-const booksData = [
-  {
-    id: 1,
-    titre: 'Le Petit Prince',
-    auteur: 'Antoine de Saint-Exupéry',
-    categorie: 'Roman',
-    rating: 4.8,
-    stock: 5,
-    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400',
-  },
-  {
-    id: 2,
-    titre: 'Une brève histoire du temps',
-    auteur: 'Stephen Hawking',
-    categorie: 'Science',
-    rating: 5.0,
-    stock: 3,
-    image: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400',
-  },
-  {
-    id: 3,
-    titre: "L'Étranger",
-    auteur: 'Albert Camus',
-    categorie: 'Philosophie',
-    rating: 4.5,
-    stock: 0,
-    image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400',
-  },
-  {
-    id: 4,
-    titre: 'Clean Code',
-    auteur: 'Robert C. Martin',
-    categorie: 'Technologie',
-    rating: 4.7,
-    stock: 7,
-    image: 'https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=400',
-  },
-  {
-    id: 5,
-    titre: 'Sapiens',
-    auteur: 'Yuval Noah Harari',
-    categorie: 'Histoire',
-    rating: 4.9,
-    stock: 4,
-    image: 'https://images.unsplash.com/photo-1476275466078-4007374efbbe?w=400',
-  },
-  {
-    id: 6,
-    titre: 'Thinking, Fast and Slow',
-    auteur: 'Daniel Kahneman',
-    categorie: 'Psychologie',
-    rating: 4.6,
-    stock: 0,
-    image: 'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=400',
-  },
-  {
-    id: 7,
-    titre: '1984',
-    auteur: 'George Orwell',
-    categorie: 'Roman',
-    rating: 4.8,
-    stock: 6,
-    image: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400',
-  },
-  {
-    id: 8,
-    titre: 'Cosmos',
-    auteur: 'Carl Sagan',
-    categorie: 'Science',
-    rating: 4.9,
-    stock: 2,
-    image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400',
-  },
-];
+
+
+
 
 export default function Home() {
+  const [booksData,setBooksData]=useState([])
+
+
+
+useEffect(
+  function() {
+    async function loadData() {
+        try {
+            const data = await getAllBooks(); 
+            setBooksData(data);
+        } catch (err) {
+            console.error(" error du l-API:", err);
+        }
+    }
+    loadData();
+}, []);
+console.log('====================================');
+console.log("books",booksData);
+console.log('====================================');
   return (
-    <div>
+    <div style={{ backgroundColor: '#ffffff' }}>
       <Navbar />
       
       {/* Hero Section */}
@@ -165,6 +114,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Leaderboard Section */}
+      <Leaderboard />
 
       <Footer />
     </div>

@@ -190,6 +190,7 @@ model Badge {
   id          Int    @id @default(autoincrement())
   nom         String
   description String
+  image       String? // URL de l'image du badge
   conditionXP Int // Nombre d'XP requis pour débloquer ce badge
 
   // Relations
