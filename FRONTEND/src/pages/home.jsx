@@ -15,6 +15,7 @@ export default function Home() {
   const [booksData,setBooksData]=useState([])
   const [topStudents, setTopStudents] = useState([]);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   
 
   useEffect(
@@ -35,6 +36,8 @@ export default function Home() {
           console.error("error du l-API leaderboard:", err);
           setError(err.message || JSON.stringify(err));
         }
+        
+        setIsLoading(false);
       }
       loadAllData();
     }, 
@@ -126,7 +129,20 @@ export default function Home() {
       </section>
 
       {/* Leaderboard Section */}
-      <Leaderboard students={topStudents} />
+      {isLoading && (
+        <section className="leaderboard-section" id="leaderboard">
+          <div className="section-header">
+            <h2>🏆 <span>Classement des Lecteurs</span></h2>
+          </div>
+          <div className="text-center p-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Chargement...</span>
+            </div>
+            <p className="mt-3">Chargement des données en cours...</p>
+          </div>
+        </section>
+      )}
+      {!isLoading && <Leaderboard students={topStudents} />}
 
       <Footer />
     </div>

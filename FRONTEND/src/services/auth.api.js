@@ -6,7 +6,11 @@ export async function login(credentials) {
 }
 
 export async function register(userData) {
+    console.log('====================================');
+    console.log("erfdsnfk",userData);
+    console.log('====================================');
     const response = await api.post('/auth/register', userData);
+    console.log("response",response);
     return response.data;
 }
 
