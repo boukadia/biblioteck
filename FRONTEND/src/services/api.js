@@ -19,10 +19,21 @@ api.interceptors.response.use(
     return response;
   },
   function (error) {
-    if (error.response && error.response.status === 401) {
-      localStorage.clear();
-      window.location.href = '/login';
-    }
+    console.error('❌ API Error Details:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      url: error.config?.url,
+      method: error.config?.method,
+      fullError: error
+    });
+    
+    // Commented out for debugging - we'll uncomment once we fix the 401 issue
+    // if (error.response && error.response.status === 401) {
+    //   localStorage.clear();
+    //   window.location.href = '/login';
+    // }
     return Promise.reject(error);
   }
 );

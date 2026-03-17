@@ -224,4 +224,22 @@ export class UsersService {
 
     return safeUser
   }
+  async getTopStudents() {
+  return await this.prisma.utilisateur.findMany({
+    where: {
+      role: 'ETUDIANT', 
+    },
+    select: {
+      id: true,
+      nom: true,
+      xp: true,
+      niveau: true,
+      
+    },
+    orderBy: {
+      xp: 'desc',
+    },
+    take: 5,
+  });
+}
 }

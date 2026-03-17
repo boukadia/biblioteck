@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import Leaderboard from '../components/Leaderboard';
 import {getAllBooks} from '../services/books.api'
+import { getLeaderboard } from '../services/users.api';
 
 
 
@@ -12,24 +13,33 @@ import {getAllBooks} from '../services/books.api'
 
 export default function Home() {
   const [booksData,setBooksData]=useState([])
+  const [topStudents, setTopStudents] = useState([]);
+  const [error, setError] = useState(null);
+  
 
-
-
-useEffect(
-  function() {
-    async function loadData() {
+  useEffect(
+    function() {
+      async function loadAllData() {
         try {
-            const data = await getAllBooks(); 
-            setBooksData(data);
+          const booksData = await getAllBooks(); 
+          setBooksData(booksData);
         } catch (err) {
-            console.error(" error du l-API:", err);
+          console.error("error du l-API books:", err);
+          setError(err.message || JSON.stringify(err));
         }
-    }
-    loadData();
-}, []);
-console.log('====================================');
-console.log("books",booksData);
-console.log('====================================');
+
+        try {
+          const leaderboardData = await getLeaderboard();
+          setTopStudents(leaderboardData);
+        } catch (err) {
+          console.error("error du l-API leaderboard:", err);
+          setError(err.message || JSON.stringify(err));
+        }
+      }
+      loadAllData();
+    }, 
+  []);
+
   return (
     <div style={{ backgroundColor: '#ffffff' }}>
       <Navbar />
@@ -116,7 +126,7 @@ console.log('====================================');
       </section>
 
       {/* Leaderboard Section */}
-      <Leaderboard />
+      <Leaderboard students={topStudents} />
 
       <Footer />
     </div>
