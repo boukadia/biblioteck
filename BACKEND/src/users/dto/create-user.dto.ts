@@ -13,6 +13,10 @@ export class CreateUserDto {
     @IsString()
     nom: string;
 
+    @IsOptional()
+    @IsString()
+    prenom?: string;
+
     @IsNotEmpty()
     @IsEmail()
     email: string;
