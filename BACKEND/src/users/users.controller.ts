@@ -6,7 +6,6 @@ import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-  @UseGuards(JwtAuthGuard,RolesGuard)
 
 @Controller('users')
 export class UsersController {
@@ -14,32 +13,44 @@ export class UsersController {
 
   
   @Get('')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   findAll() {
     return this.usersService.findAll();
   }
 
+  @Get('leaderboard')
+  async getLeaderboard() {
+    return await this.usersService.getTopStudents();
+  }
+
   @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(+id);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   changeStatus(@Param('id') id: number,@Request() req: any) {
     return this.usersService.changeStatus(+id,req.user);
   }
+  
   @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("ADMIN")
   remove(@Param('id') id: string,@Request() req : any) {
     return this.usersService.remove(+id,req.user);
   }
 
   @Patch(':id/changePassword')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   changePaassword(@Param('id') id:number, @Body() password:ChangePasswordDto, @Request() req: any ){
     return this.usersService.changePaassword(password ,+id, req.user)
   }
