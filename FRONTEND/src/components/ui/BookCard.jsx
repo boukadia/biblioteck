@@ -4,7 +4,6 @@ function BookCard({ book }) {
   return (
     <div className="col-lg-3 col-md-6">
       <div className="book-card border-0 shadow-sm h-100 bg-white rounded-4 overflow-hidden">
-        {/* Image du livre */}
         <div className="position-relative">
           <img 
             src={book.image} 
@@ -27,7 +26,6 @@ function BookCard({ book }) {
               {book.rating ? book.rating.toFixed(1) : "N/A"}
             </span>
             
-            {/* Badge 3la 7ssab l-stock */}
             <span className={book.stock > 0 ? 'badge-available' : 'badge-unavailable'}>
               {book.stock > 0 ? 'Disponible' : 'Indisponible'}
             </span>
