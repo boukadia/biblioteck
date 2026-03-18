@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import '../../styles/Auth.css';
-import { login } from '../../services/auth.api';
+import { useAuth } from '../../context/AuthContext';
 
 
 export default function Login() {
     const navigate = useNavigate();
+    const { login } = useAuth();
     
     const [email, setEmail] = useState('');
     const [motDePasse, setMotDePasse] = useState('');
@@ -18,15 +19,15 @@ export default function Login() {
     
     const [message, setMessage] = useState({ type: '', text: '' });
 
-    const handleChangeEmail = (e) => {
+    function handleChangeEmail(e) {
         setEmail(e.target.value);
     };
 
-    const handleChangeMotDePasse = (e) => {
+    function handleChangeMotDePasse(e) {
         setMotDePasse(e.target.value);
     };
 
-    const validateForm = () => {
+    function validateForm() {
         const newErrors = {};
         
         if (!email) {
@@ -45,13 +46,8 @@ export default function Login() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e) => {
+    async function handleSubmit(e) {
         e.preventDefault();
-        
-        const userData = {
-            email,
-            motDePasse,
-        };
         
         if (!validateForm()) return;
         
@@ -59,9 +55,9 @@ export default function Login() {
         setMessage({ type: '', text: '' });
         
         try {
-            const response = await login(userData);
+            await login(email, motDePasse);
             setMessage({ type: 'success', text: 'Connexion réussie! Redirection...' });
-            setTimeout(() => {
+            setTimeout(function() {
                 navigate('/dashboard');
             }, 1500);
         } catch (error) {
@@ -69,8 +65,8 @@ export default function Login() {
             console.log('Response:', error.response?.data);
             
             const errorMessage = error.response?.data?.message || 
-                                error.response?.data?.error || 
-                                'Une erreur est survenue lors de la connexion';
+                                 error.response?.data?.error || 
+                                 'Une erreur est survenue lors de la connexion';
             
             setMessage({ type: 'danger', text: errorMessage });
         } finally {
@@ -78,15 +74,11 @@ export default function Login() {
         }
     };
 
-    const handleSocialLogin = (provider) => {
-        console.log(`Connexion avec ${provider}`);
-
     return (
         <div className="auth-body">
             <div className="container">
                 <div className="auth-container">
                     <div className="row g-0">
-                        {/* Section gauche - Image */}
                         <div className="col-lg-5 d-none d-lg-block">
                             <div className="auth-image login-bg">
                                 <div className="auth-image-content text-center">
@@ -117,7 +109,6 @@ export default function Login() {
                             </div>
                         </div>
                         
-                        {/* القسم الأيمن - النموذج */}
                         <div className="col-lg-7">
                             <div className="auth-form">
                                 <div className="text-center mb-4">
@@ -126,7 +117,6 @@ export default function Login() {
                                     <p className="text-muted">Entrez vos informations pour accéder à votre compte</p>
                                 </div>
                                 
-                                {/* رسالة النجاح أو الخطأ */}
                                 {message.text && (
                                     <div className={`alert alert-${message.type} alert-custom`} role="alert">
                                         <i className={`fas ${message.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2`}></i>
@@ -135,7 +125,6 @@ export default function Login() {
                                 )}
                                 
                                 <form onSubmit={handleSubmit}>
-                                    {/* البريد الإلكتروني */}
                                     <div className="mb-3">
                                         <label className="form-label">Email</label>
                                         <div className="input-group">
@@ -159,7 +148,6 @@ export default function Login() {
                                         )}
                                     </div>
                                     
-                                    {/* كلمة المرور */}
                                     <div className="mb-4">
                                         <label className="form-label">Mot de passe</label>
                                         <div className="input-group position-relative">
@@ -189,14 +177,12 @@ export default function Login() {
                                         )}
                                     </div>
                                     
-                                    {/* تذكرني ونسيت كلمة المرور */}
                                     <div className="mb-4">
                                         <Link to="/forgot-password" className="auth-link float-end">
                                             Mot de passe oublié ?
                                         </Link>
                                     </div>
                                     
-                                    {/* زر الدخول */}
                                     <button 
                                         type="submit" 
                                         className="btn btn-auth w-100 mb-3"
@@ -215,7 +201,6 @@ export default function Login() {
                                         )}
                                     </button>
                                     
-                                    {/* رابط التسجيل */}
                                     <p className="text-center mb-0">
                                         Pas encore de compte ?{' '}
                                         <Link to="/register" className="auth-link">
@@ -230,6 +215,4 @@ export default function Login() {
             </div>
         </div>
     );
-};
-
-// export default Login;
+}
