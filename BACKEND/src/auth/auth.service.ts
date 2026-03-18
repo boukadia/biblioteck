@@ -34,14 +34,15 @@ export class AuthService {
         motDePasse: hashedPassword,
       },
     });
-
+const { motDePasse, ...safeUser } = newUser;
     const payload = {
       sub: newUser.id,
       email: newUser.email,
       role: newUser.role,
     };
+
     const access_token = await this.jwtService.signAsync(payload);
-    return { token: access_token };
+    return { token: access_token, user: safeUser };
   }
   async login(data) {
     const user = await this.prisma.utilisateur.findUnique({
@@ -62,7 +63,20 @@ export class AuthService {
       role: user.role,
     };
     const access_token = await this.jwtService.signAsync(payload);
-    const { motDePasse, ...safeUser } = user; //supprimer mots du pass dans response
+    const { motDePasse, ...safeUser } = user;
     return { token: access_token, user: safeUser };
+  }
+
+  async getProfile(userId: number) {
+    const user = await this.prisma.utilisateur.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    const { motDePasse, ...safeUser } = user;
+    return safeUser;
   }
 }

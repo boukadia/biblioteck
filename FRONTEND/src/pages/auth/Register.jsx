@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../../styles/Auth.css";
-import { register } from "../../services/auth.api";
+import { useAuth } from "../../context/AuthContext";
 
 function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const [nom, setNom] = useState("");
   const [prenom, setPrenom] = useState("");
@@ -33,9 +34,7 @@ function Register() {
     }
     return "medium";
   }
-  console.log("====================================");
-  console.log(nom, prenom, email, motDePasse, confirmPassword);
-  console.log("====================================");
+
   function handleChangeNom(e) {
     setNom(e.target.value);
     // if (errors.nom) {
@@ -112,8 +111,8 @@ function Register() {
 
     try {
       await register(userData);
-      setMessage({ type: "success", text: "Compte a été creer avec success" });
-      setTimeout(() => {
+      setMessage({ type: "success", text: "Compte a été créé avec succès" });
+      setTimeout(function() {
         navigate("/dashboard");
       }, 1500);
     } catch (error) {

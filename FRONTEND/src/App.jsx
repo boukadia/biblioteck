@@ -3,11 +3,13 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
 import Home from './pages/Home';
-import Login from './pages/Login';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
 
 // Pages
-import AdminDashboard from './pages/admin/Dashboard';
-import GestionLivres from './pages/admin/GestionLivres';
+// import StudentDashboard from './pages/etudiant/Dashboard';
+// import AdminDashboard from './pages/admin/Dashboard';
+// import GestionLivres from './pages/admin/GestionLivres';
 import ProtectedRoute from './components/protected/ProtectedRoute';
 
 export default function App() {
@@ -18,13 +20,22 @@ export default function App() {
           {/* Routes Publiques */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
-          {/* Routes dyal l-Admin (Kolla we7da m-ghlfa b ProtectedRoute) */}
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute allowedRole="ETUDIANT">
+                {/* <StudentDashboard /> */}
+              </ProtectedRoute>
+            } 
+          />
+
           <Route 
             path="/admin" 
             element={
               <ProtectedRoute allowedRole="ADMIN">
-                <AdminDashboard />
+                {/* <AdminDashboard /> */}
               </ProtectedRoute>
             } 
           />
@@ -33,7 +44,7 @@ export default function App() {
             path="/admin/livres" 
             element={
               <ProtectedRoute allowedRole="ADMIN">
-                <GestionLivres />
+                {/* <GestionLivres /> */}
               </ProtectedRoute>
             } 
           />
