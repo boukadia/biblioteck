@@ -7,10 +7,11 @@ export async function login(credentials) {
 
 export async function register(userData) {
     const response = await api.post('/auth/register', userData);
+    console.log("REGISTER RESPONSE:", response.data);  
     return response.data;
 }
 
-export async function getProfile() {
-    const response = await api.get('/auth/profile');
-    return response.data;
-}
+// export async function getProfile() {
+//     const response = await api.get('/auth/profile');
+//     return response.data;
+// }

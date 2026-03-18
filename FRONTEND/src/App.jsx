@@ -1,21 +1,56 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import  Home  from './pages/Home';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 
-function App() {
+import Home from './pages/Home';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
 
- return (
-  <BrowserRouter>
-      <Routes>
-        {/* Route accessible par tout le monde */}
-        <Route path="/" element={<Home />} />
-        
-        {/* Prochaines étapes : Login et Register */}
-        {/* <Route path="/login" element={<div className="container mt-5">Page Login (Bientôt)</div>} />
-        <Route path="/register" element={<div className="container mt-5">Page Register (Bientôt)</div>} /> */}
-      </Routes>
-  </BrowserRouter>
+// Pages
+// import StudentDashboard from './pages/etudiant/Dashboard';
+// import AdminDashboard from './pages/admin/Dashboard';
+// import GestionLivres from './pages/admin/GestionLivres';
+import ProtectedRoute from './components/protected/ProtectedRoute';
 
+export default function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Routes Publiques */}
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute allowedRole="ETUDIANT">
+                {/* <StudentDashboard /> */}
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute allowedRole="ADMIN">
+                {/* <AdminDashboard /> */}
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/admin/livres" 
+            element={
+              <ProtectedRoute allowedRole="ADMIN">
+                {/* <GestionLivres /> */}
+              </ProtectedRoute>
+            } 
+          />
+          
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
-
-export default App
