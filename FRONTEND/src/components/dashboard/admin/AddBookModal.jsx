@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 
 const initialForm = {
-  title: '',
-  author: '',
-  isbn: '',
-  category: '',
-  publisher: '',
-  year: '',
-  copies: '',
-  description: '',
+ titre : "",
+image : "",
+auteur : "",
+isbn : "",
+stock : "",
+categoryId : "",
 };
 
 function AddBookModal({ show, onClose }) {

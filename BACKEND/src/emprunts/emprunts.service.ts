@@ -313,6 +313,19 @@ export class EmpruntsService {
       };
     });
   }
+//get emprunts en retard
+  async getEmpruntsEnRetard() {
+    return this.prisma.emprunt.findMany({
+      where: { statut: StatutEmprunt.EN_RETARD },
+      include: {
+        utilisateur: {
+          select: { id: true, nom: true, email: true, niveau: true },
+        },
+        livre: { select: { id: true, titre: true, auteur: true } },
+      },
+      orderBy: { dateEcheance: 'asc' },
+    });
+  }
 
   // DÉCLARER LE RETOUR (Étudiant -> EN_ATTENTE_RETOUR)
   async declarerRetour(

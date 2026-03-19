@@ -10,6 +10,19 @@ export async function getMesEmprunts() {
     return response.data;
 }
 
+export async function getAllEmprunts() {
+    const response = await api.get('/emprunts');
+    return response.data;
+}
+export async function getEmpruntsEnRetard() {
+    const response = await api.get('/emprunts/en-retard');
+    return response.data;
+}
+export async function getEmpruntsEnAttente() {
+    const response = await api.get('/emprunts/en-attente');
+    return response.data;
+}
+
 export async function declarerRetour(id, bonusId) {
     const response = await api.patch('/emprunts/retour/' + id, { 
         bonusProtectionId: bonusId 

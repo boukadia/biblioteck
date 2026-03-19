@@ -18,10 +18,16 @@ export class EmpruntsController {
   emprunterLivre(@Body() createEmpruntDto: CreateEmpruntDto,@Request() req: any) {
     return this.empruntsService.emprunterLivre(createEmpruntDto,req.user);
   }
+  @Get('all')
+  @Roles('ADMIN')
+  getAllEmprunts() {
+    return this.empruntsService.findAll();
+  }
+
 
   
   @Get('en-attente')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   getEnAttente() {
     return this.empruntsService.getEmpruntsEnAttente();
   }
@@ -30,6 +36,11 @@ export class EmpruntsController {
   @Roles('ADMIN')
   getEnCours() {
     return this.empruntsService.getEmpruntsEnCours();
+  }
+  @Get('en-retard')
+  // @Roles('ADMIN')
+  getRetard() {
+    return this.empruntsService.getEmpruntsEnRetard();
   }
 
   @Patch(':id/recuperation')

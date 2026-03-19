@@ -3,11 +3,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class StatsService {
-  constructor(private readonly prisma:PrismaService){}
+  constructor(private readonly prisma: PrismaService) { }
   async getDashboardStats() {
     const now = new Date();
 
-  
+
     const [
       totalLivres,
       empruntsActifs,
@@ -18,18 +18,18 @@ export class StatsService {
       this.prisma.livre.count(),
 
       this.prisma.emprunt.count({
-        where: { statut: 'EN_COURS' }, 
+        where: { statut: 'EN_COURS' },
       }),
 
       this.prisma.emprunt.count({
-        where: { statut: 'EN_ATTENTE' }, 
+        where: { statut: 'EN_ATTENTE' },
       }),
 
       this.prisma.emprunt.count({
         where: {
-          statut: 'EN_COURS',
+          statut: 'EN_RETARD',
           dateEcheance: {
-            lt: now, 
+            lt: now,
           },
         },
       }),
