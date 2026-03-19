@@ -22,6 +22,15 @@ export async function getEmpruntsEnAttente() {
     const response = await api.get('/emprunts/en-attente');
     return response.data;
 }
+export async function validerEmprunt(id) {
+    const response = await api.patch(`/emprunts/${id}/valider`);
+    return response.data;
+}
+ export async function annule(id) {
+    const response = await api.patch(`/emprunts/${id}/annuler`);
+    return response.data;
+
+ }
 
 export async function declarerRetour(id, bonusId) {
     const response = await api.patch('/emprunts/retour/' + id, { 

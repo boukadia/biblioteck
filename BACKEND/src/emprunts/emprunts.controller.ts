@@ -43,8 +43,8 @@ export class EmpruntsController {
     return this.empruntsService.getEmpruntsEnRetard();
   }
 
-  @Patch(':id/recuperation')
-  @Roles('ADMIN')
+  @Patch(':id/valider')
+  // @Roles('ADMIN')
   validerEmprunt(@Param('id') id: number) {
     return this.empruntsService.validerEmprunt(id);
   }
