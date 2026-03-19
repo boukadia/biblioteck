@@ -10,47 +10,64 @@ import '../../styles/dashboardAdmin.css';
 import { getAdminStats } from '../../services/stats.api';
 import { getCategories } from '../../services/category.api';
 import { getEmpruntsEnAttente, getEmpruntsEnRetard, getMesEmprunts } from '../../services/emprunts.api';
+import { getAllBooks } from '../../services/livres.api';
 
 
 function DashboardAdmin() {
-  const [isLoading,setIsLoading]=useState(true)
+  const [isLoading, setIsLoading] = useState(true)
   const [showModal, setShowModal] = useState(false);
   const [activeNav, setActiveNav] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [stats,setStats]=useState({})
-  const [categories,setCategories]=useState([])
-  const [books,setBooks]=useState([])
-  const [empruntsEnRetard,setEmpruntsEnRetard]=useState([])
-  const [empruntsEnAttente,setEmpruntsEnAttente]=useState([])
-  const [users,setUsers]=useState([])
-  
-  useEffect(()=> {
-    async function getStats(){
+  const [stats, setStats] = useState({})
+  const [categories, setCategories] = useState([])
+  const [books, setBooks] = useState([])
+  const [empruntsEnRetard, setEmpruntsEnRetard] = useState([])
+  const [empruntsEnAttente, setEmpruntsEnAttente] = useState([])
+  const [users, setUsers] = useState([])
 
-      const stats=await getAdminStats();
+  const handleBookAdded = (newBook) => {
+    setBooks([...books, newBook]);
+    setStats({ ...stats, totalLivres: (stats.totalLivres || 0) + 1 });
+  };
+
+  useEffect(() => {
+    async function getStats() {
+
+      const stats = await getAdminStats();
       setStats(stats)
       setIsLoading(false)
     }
-   getStats();
+    getStats();
 
-   async function loadCategories(){
-    const categories=await getCategories();
-    setCategories(categories)
-    setIsLoading(false)
-   }
-   loadCategories();
+    async function loadCategories() {
+      const categories = await getCategories();
+      setCategories(categories)
+      setIsLoading(false)
+    }
+    loadCategories();
 
-   async function loadEmprunts(){
-    const empruntsEnRetard=await getEmpruntsEnRetard();
-    setEmpruntsEnRetard(empruntsEnRetard);
-    const empruntsEnAttente=await getEmpruntsEnAttente();
-    setEmpruntsEnAttente(empruntsEnAttente);
-    setIsLoading(false)
-   }
-   loadEmprunts();
+    async function loadEmprunts() {
+      const empruntsEnRetard = await getEmpruntsEnRetard();
+      setEmpruntsEnRetard(empruntsEnRetard);
+      const empruntsEnAttente = await getEmpruntsEnAttente();
+      setEmpruntsEnAttente(empruntsEnAttente);
+      setIsLoading(false)
+    }
+    loadEmprunts();
+
+    async function loadBooks() {
+      try {
+        const booksData = await getAllBooks();
+        setBooks(booksData);
+      } catch (error) {
+        console.error('Error loading books:', error);
+      }
+      setIsLoading(false)
+    }
+    loadBooks();
   },
     [])
-    
+
 
   return (
     <div className="app-wrapper">
@@ -80,6 +97,7 @@ function DashboardAdmin() {
       <AddBookModal
         show={showModal}
         onClose={() => setShowModal(false)}
+        onSuccess={handleBookAdded}
       />
     </div>
   );

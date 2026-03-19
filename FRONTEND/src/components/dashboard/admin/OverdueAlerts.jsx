@@ -1,25 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { retournerLivre } from '../../../services/emprunts.api';
 
-const alerts = [
-  {
-    id: 1,
-    type: 'danger',
-    icon: 'fa-exclamation',
-    title: 'Khalid Abdullah - "Le Feu"',
-    subtitle: 'Une action imm\u00e9diate s\'impose',
-    days: 15,
-  },
-  {
-    id: 2,
-    type: 'danger',
-    icon: 'fa-exclamation',
-    title: 'Sarah Ahmed - "Le Petit Prince"',
-    subtitle: 'Rappel envoy\u00e9',
-    days: 10,
-  },
-];
+function OverdueAlerts({ empruntsEnRetard }) {
+  const [newEmpruntsEnRetard, setNewEmpruntsEnRetard] = useState(empruntsEnRetard || []);
 
-function OverdueAlerts() {
+  useEffect(() => {
+    setNewEmpruntsEnRetard(empruntsEnRetard || []);
+  }, [empruntsEnRetard]);
+
+  async function handleMarkResolved(id) {
+    try {
+      await retournerLivre(id);
+      setNewEmpruntsEnRetard(newEmpruntsEnRetard.filter((alert) => alert.id !== id));
+    } catch (error) {
+      console.error('Error resolving overdue:', error);
+    }
+  }
+
   return (
     <div className="section-card">
       <div className="section-header">
@@ -27,27 +24,37 @@ function OverdueAlerts() {
           <i className="fas fa-exclamation-triangle" style={{ color: 'var(--danger)' }}></i>
           Alertes de retard
           <span className="count" style={{ background: 'var(--danger)' }}>
-            {alerts.length}
+            {newEmpruntsEnRetard.length}
           </span>
         </h3>
         <a href="#!" className="btn btn-sm btn-outline">Voir tout</a>
       </div>
 
-      {alerts.map((alert) => (
-        <div className={`alert-item ${alert.type === 'warning' ? 'warning' : ''}`} key={alert.id}>
+      {newEmpruntsEnRetard.map((emp) => (
+        <div className={`alert-item danger`} key={emp.id}>
           <div className="alert-icon">
-            <i className={`fas ${alert.icon}`}></i>
+            <i className="fas fa-exclamation"></i>
           </div>
           <div className="alert-content">
-            <h5>{alert.title}</h5>
-            <span>{alert.subtitle}</span>
+            <h5>{emp.utilisateur?.nom} - "{emp.livre?.titre}"</h5>
+            <span>{emp.statut}</span>
           </div>
-          <div className="alert-days">
-            <strong>{alert.days}</strong>
-            <span>jours de retard</span>
+          <div className="alert-actions">
+            <button
+              className="action-btn resolve"
+              title="Marquer comme résolu"
+              onClick={() => handleMarkResolved(emp.id)}
+            >
+              <i className="fas fa-check"></i>
+            </button>
           </div>
         </div>
       ))}
+      {newEmpruntsEnRetard.length === 0 && (
+        <div className="text-center py-4" style={{ color: 'var(--gray)' }}>
+          Aucune alerte de retard
+        </div>
+      )}
     </div>
   );
 }

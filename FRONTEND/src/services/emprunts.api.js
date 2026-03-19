@@ -32,6 +32,11 @@ export async function validerEmprunt(id) {
 
  }
 
+export async function retournerLivre(id) {
+    const response = await api.patch(`/emprunts/${id}/retour`);
+    return response.data;
+}
+
 export async function declarerRetour(id, bonusId) {
     const response = await api.patch('/emprunts/retour/' + id, { 
         bonusProtectionId: bonusId 

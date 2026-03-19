@@ -6,9 +6,7 @@ import { getAdminStats } from '../../../services/stats.api';
 function StatsGrid({stats}) {
   // const [stats, setStats] = useState(defaultStats);
   const [loading, setLoading] = useState(true);
-  console.log('====================================');
-  console.log(stats);
-  console.log('====================================');
+  
   const updatedStats = [
   {
     color: 'purple',
