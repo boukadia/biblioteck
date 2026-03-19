@@ -1,33 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { validerEmprunt, annule } from '../../../services/emprunts.api';
 const initialRequests = [
   {
     id: 1,
-    user: { initials: 'JS', name: 'John Smith', level: 'Level 5', gradient: 'linear-gradient(135deg, var(--primary), var(--secondary))' },
-    book: { title: "Sophie's World", author: 'Jostein Gaarder', gradient: 'linear-gradient(135deg,#667eea,#764ba2)' },
-    time: '2 hours ago',
+    user: {  gradient: 'linear-gradient(135deg, var(--primary), var(--secondary))' },
+    book: {  gradient: 'linear-gradient(135deg,#667eea,#764ba2)' },
+   
   },
-  {
-    id: 2,
-    user: { initials: 'SJ', name: 'Sarah Johnson', level: 'Level 8', gradient: 'linear-gradient(135deg, #f093fb, #f5576c)' },
-    book: { title: 'The Alchemist', author: 'Paulo Coelho', gradient: 'linear-gradient(135deg,#f093fb,#f5576c)' },
-    time: '4 hours ago',
-  },
-  {
-    id: 3,
-    user: { initials: 'MK', name: 'Mike Kennedy', level: 'Level 3', gradient: 'linear-gradient(135deg, #4facfe, #00f2fe)' },
-    book: { title: '1984', author: 'George Orwell', gradient: 'linear-gradient(135deg,#a8edea,#fed6e3)' },
-    time: '5 hours ago',
-  },
+  
 ];
 
 function PendingLoans({empruntsEnAttente}) {
+  const [newEmpruntsEnAttente,setNewEmpruntsEnAttente]=useState(empruntsEnAttente)
 
-  const handleApprove = (id) => {
-    setRequests(requests.filter((r) => r.id !== id));
-  };
+  useEffect(() => {
+    setNewEmpruntsEnAttente(empruntsEnAttente);
+  }, [empruntsEnAttente]);
 
-  const handleReject = (id) => {
-    setRequests(requests.filter((r) => r.id !== id));
+console.log("emen",newEmpruntsEnAttente);
+
+  async function  handleApprove(id){
+    await validerEmprunt(id)
+    setNewEmpruntsEnAttente(newEmpruntsEnAttente.filter((emp) => emp.id !== id));
+
+  } 
+
+  async function handleReject (id){
+    await annule(id)
+    setNewEmpruntsEnAttente(newEmpruntsEnAttente.filter((emp) => emp.id !== id));
+
+    
   };
 
   return (
@@ -52,7 +54,7 @@ function PendingLoans({empruntsEnAttente}) {
             </tr>
           </thead>
           <tbody>
-            {empruntsEnAttente.map((emp) => (
+            {newEmpruntsEnAttente.map((emp) => (
               <tr key={emp.id}>
                 <td>
                   <div className="user-cell">
@@ -61,7 +63,7 @@ function PendingLoans({empruntsEnAttente}) {
                     </div>
                     <div className="user-details">
                       <h5>{emp.utilisateur.nom}</h5>
-                      <span>{emp.utilisateur.niveau}</span>
+                      <span>Level {emp.utilisateur.niveau}</span>
                     </div>
                   </div>
                 </td>
