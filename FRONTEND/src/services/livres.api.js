@@ -11,7 +11,7 @@ export async function getBookById(id) {
 }
 
 export async function searchBooks(query) {
-    const response = await api.get('/books/search?q=' + query);
+    const response = await api.get('/books/recherche?q=' + query);
     return response.data;
 }
 
@@ -21,11 +21,16 @@ export async function createBook(bookData) {
 }
 
 export async function updateBook(id, bookData) {
-    const response = await api.patch(`/books/${id}`, bookData);
+    const response = await api.put(`/books/${id}`, bookData);
     return response.data;
 }
 
 export async function deleteBook(id) {
     const response = await api.delete(`/books/${id}`);
+    return response.data;
+}
+
+export async function changeBookStock(id, quantity) {
+    const response = await api.patch(`/books/stock/${id}`, { quantity });
     return response.data;
 }
