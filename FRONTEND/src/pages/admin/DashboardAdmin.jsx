@@ -48,16 +48,8 @@ function DashboardAdmin() {
     setIsLoading(false)
    }
    loadEmprunts();
-   
-
-   
-   
-   
-
   },
     [])
-    console.log("empruntsEnRetard",stats);
-    console.log("empruntsEnAttente",empruntsEnAttente);
     
 
   return (
@@ -78,8 +70,8 @@ function DashboardAdmin() {
         <QuickActions onAddBook={() => setShowModal(true)} />
 
         <div className="dashboard-grid">
-          <PendingLoans />
-          <OverdueAlerts />
+          <PendingLoans empruntsEnAttente={empruntsEnAttente} />
+          <OverdueAlerts empruntsEnRetard={empruntsEnRetard} />
           {/* <BorrowChart /> */}
           {/* <ActivityTimeline /> */}
         </div>

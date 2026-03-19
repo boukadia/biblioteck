@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-
 const initialRequests = [
   {
     id: 1,
@@ -21,8 +20,8 @@ const initialRequests = [
   },
 ];
 
-function PendingLoans() {
-  const [requests, setRequests] = useState(initialRequests);
+function PendingLoans({empruntsEnAttente}) {
+console.log('.........',empruntsEnAttente);
 
   const handleApprove = (id) => {
     setRequests(requests.filter((r) => r.id !== id));
@@ -38,7 +37,7 @@ function PendingLoans() {
         <h3>
           <i className="fas fa-clock" style={{ color: 'var(--secondary)' }}></i>
           Demandes d'emprunt en attente
-          <span className="count">{requests.length}</span>
+          <span className="count">{empruntsEnAttente.length}</span>
         </h3>
         <a href="#!" className="btn btn-sm btn-outline">Voir tout</a>
       </div>
@@ -54,42 +53,42 @@ function PendingLoans() {
             </tr>
           </thead>
           <tbody>
-            {requests.map((req) => (
-              <tr key={req.id}>
+            {empruntsEnAttente.map((emp) => (
+              <tr key={emp.id}>
                 <td>
                   <div className="user-cell">
-                    <div className="user-avatar-sm" style={{ background: req.user.gradient }}>
-                      {req.user.initials}
+                    <div className="user-avatar-sm" style={{ background: initialRequests[0].user.gradient }}>
+                      {emp.utilisateur.initials}
                     </div>
                     <div className="user-details">
-                      <h5>{req.user.name}</h5>
-                      <span>{req.user.level}</span>
+                      <h5>{emp.utilisateur.nom}</h5>
+                      <span>{emp.utilisateur.niveau}</span>
                     </div>
                   </div>
                 </td>
                 <td>
                   <div className="book-cell">
-                    <div className="book-cover-sm" style={{ background: req.book.gradient }}></div>
+                    <div className="book-cover-sm" style={{ background: initialRequests[0].book.gradient }}></div>
                     <div className="book-details">
-                      <h5>{req.book.title}</h5>
-                      <span>{req.book.author}</span>
+                      <h5>{emp.livre.titre}</h5>
+                      <span>{emp.livre.auteur}</span>
                     </div>
                   </div>
                 </td>
-                <td>{req.time}</td>
+                <td>{emp.dateEmprunt}</td>
                 <td>
                   <div className="action-btns">
                     <button
                       className="action-btn approve"
                       title="Approve"
-                      onClick={() => handleApprove(req.id)}
+                      onClick={() => handleApprove(emp.id)}
                     >
                       <i className="fas fa-check"></i>
                     </button>
                     <button
                       className="action-btn reject"
                       title="Reject"
-                      onClick={() => handleReject(req.id)}
+                      onClick={() => handleReject(emp.id)}
                     >
                       <i className="fas fa-times"></i>
                     </button>
@@ -97,7 +96,7 @@ function PendingLoans() {
                 </td>
               </tr>
             ))}
-            {requests.length === 0 && (
+            {empruntsEnAttente.length === 0 && (
               <tr>
                 <td colSpan="4" className="text-center py-4" style={{ color: 'var(--gray)' }}>
                   لا توجد طلبات معلقة

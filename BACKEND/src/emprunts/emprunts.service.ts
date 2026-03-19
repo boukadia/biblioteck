@@ -226,7 +226,7 @@ export class EmpruntsService {
       },
       include: {
         utilisateur: {
-          select: { id: true, nom: true, email: true, niveau: true },
+          select: { id: true, nom: true, email: true, niveau: true, initials: true },
         },
         livre: {
           select: { id: true, titre: true, auteur: true, image: true },
@@ -241,7 +241,7 @@ export class EmpruntsService {
   async findAll() {
     return this.prisma.emprunt.findMany({
       include: {
-        utilisateur: { select: { id: true, nom: true, email: true } },
+        utilisateur: { select: { id: true, nom: true, email: true, initials: true } },
         livre: { select: { id: true, titre: true, auteur: true } },
       },
       orderBy: { id: 'desc' },
@@ -263,7 +263,7 @@ export class EmpruntsService {
       where: { statut: StatutEmprunt.EN_COURS },
       include: {
         utilisateur: {
-          select: { id: true, nom: true, email: true, niveau: true },
+          select: { id: true, nom: true, email: true, niveau: true, initials: true },
         },
         livre: { select: { id: true, titre: true, auteur: true } },
       },
@@ -319,7 +319,7 @@ export class EmpruntsService {
       where: { statut: StatutEmprunt.EN_RETARD },
       include: {
         utilisateur: {
-          select: { id: true, nom: true, email: true, niveau: true },
+          select: { id: true, nom: true, email: true, niveau: true, initials: true },
         },
         livre: { select: { id: true, titre: true, auteur: true } },
       },
