@@ -17,7 +17,6 @@ function PendingLoans({empruntsEnAttente}) {
     setNewEmpruntsEnAttente(empruntsEnAttente);
   }, [empruntsEnAttente]);
 
-console.log("emen",newEmpruntsEnAttente);
 
   async function  handleApprove(id){
     await validerEmprunt(id)
@@ -100,7 +99,7 @@ console.log("emen",newEmpruntsEnAttente);
             {empruntsEnAttente.length === 0 && (
               <tr>
                 <td colSpan="4" className="text-center py-4" style={{ color: 'var(--gray)' }}>
-                  لا توجد طلبات معلقة
+                  Aucune demande en attente
                 </td>
               </tr>
             )}

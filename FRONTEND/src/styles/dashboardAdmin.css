@@ -27,7 +27,7 @@ body {
   background: var(--darkest);
   color: var(--light);
   min-height: 100vh;
-  direction: rtl;
+  direction: ltr;
 }
 
 .sidebar-overlay {
@@ -47,11 +47,11 @@ body {
 .sidebar {
   position: fixed;
   top: 0;
-  right: 0;
+  left: 0;
   width: var(--sidebar-width);
   height: 100vh;
   background: linear-gradient(180deg, var(--darker) 0%, var(--dark) 100%);
-  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -102,7 +102,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 0.75rem;
-  padding-right: 1rem;
+  padding-left: 1rem;
 }
 
 .nav-item {
@@ -137,7 +137,7 @@ body {
 }
 
 .nav-item .badge {
-  margin-right: auto;
+  margin-left: auto;
   background: var(--danger);
   color: white;
   font-size: 0.65rem;
@@ -194,7 +194,7 @@ body {
 }
 
 .main-content {
-  margin-right: var(--sidebar-width);
+  margin-left: var(--sidebar-width);
   padding: 1.5rem 2rem;
   min-height: 100vh;
 }
@@ -253,7 +253,7 @@ body {
 
 .search-box i {
   position: absolute;
-  right: 1rem;
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--gray);
@@ -326,7 +326,7 @@ body {
 .icon-btn .badge-dot {
   position: absolute;
   top: -5px;
-  right: -5px;
+  left: -5px;
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -364,7 +364,7 @@ body {
   content: '';
   position: absolute;
   top: -20px;
-  right: -20px;
+  left: -20px;
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -859,13 +859,13 @@ body {
 
 .activity-timeline {
   position: relative;
-  padding-right: 1.5rem;
+  padding-left: 1.5rem;
 }
 
 .activity-timeline::before {
   content: '';
   position: absolute;
-  right: 0;
+  left: 0;
   top: 0;
   bottom: 0;
   width: 2px;
@@ -875,13 +875,13 @@ body {
 .timeline-item {
   position: relative;
   padding-bottom: 1.25rem;
-  padding-right: 1.5rem;
+  padding-left: 1.5rem;
 }
 
 .timeline-item::before {
   content: '';
   position: absolute;
-  right: -1.5rem;
+  left: -1.5rem;
   top: 0;
   width: 10px;
   height: 10px;
@@ -940,6 +940,8 @@ body {
   animation: modalIn 0.3s ease-out;
   max-height: 90vh;
   overflow-y: auto;
+  z-index: 2005;
+  pointer-events: auto;
 }
 
 @keyframes modalIn {
@@ -986,6 +988,10 @@ body {
 
 .modal-body {
   padding: 1.5rem;
+  pointer-events: auto;
+}
+
+form {
   pointer-events: auto;
 }
 
@@ -1049,6 +1055,13 @@ body {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
+  pointer-events: auto;
+  z-index: 2010;
+}
+
+.modal-footer button {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .filter-select {
@@ -1084,13 +1097,13 @@ body {
 
 @media (max-width: 768px) {
   .sidebar {
-    transform: translateX(100%);
+    transform: translateX(-100%);
   }
   .sidebar.active {
     transform: translateX(0);
   }
   .main-content {
-    margin-right: 0;
+    margin-left: 0;
     padding: 1rem;
   }
   .stats-grid {
