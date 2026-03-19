@@ -1,47 +1,74 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getAdminStats } from '../../../services/stats.api';
 
-const stats = [
+
+
+function StatsGrid({stats}) {
+  // const [stats, setStats] = useState(defaultStats);
+  const [loading, setLoading] = useState(true);
+  console.log('====================================');
+  console.log(stats);
+  console.log('====================================');
+  const updatedStats = [
   {
     color: 'purple',
     icon: 'fa-book',
-    value: '1,247',
-    label: 'Total des livres',
-    trend: { direction: 'up', value: '12%' },
+    value: stats.totalLivres,
+    label: 'totalLivres',
   },
   {
     color: 'green',
     icon: 'fa-hand-holding',
-    value: '156',
-    label: 'Emprunts actifs',
-    trend: { direction: 'up', value: '8%' },
+    value: stats.empruntsActifs,
+    label: 'empruntsActifs',
   },
   {
     color: 'orange',
     icon: 'fa-clock',
-    value: '8',
-    label: 'Demandes en attente',
-    trend: null,
+    value: stats.demandesEnAttente,
+    label: 'demandesEnAttente',
   },
   {
     color: 'red',
     icon: 'fa-exclamation-triangle',
-    value: '23',
-    label: 'Emprunts en retard',
-    trend: { direction: 'down', value: '5%' },
+    value: stats.empruntsEnRetard,
+    label: 'empruntsEnRetard',
   },
   {
     color: 'blue',
     icon: 'fa-users',
-    value: '892',
-    label: 'Étudiants inscrits',
-    trend: { direction: 'up', value: '15%' },
+    value: stats.totalEtudiants,
+    label: 'totalEtudiants',
   },
 ];
 
-function StatsGrid() {
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getAdminStats();
+        
+        // if (data && Array.isArray(data)) {
+        //   const updatedStats = defaultStats.map((stat) => {
+        //     const apiStat = data.find(s => s.label.toLowerCase() === stat.label.toLowerCase());
+        //     return apiStat ? { ...stat, value: apiStat.value } : stat;
+        //   });
+        //   setStats(updatedStats);
+        // }
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        // setStats(defaultStats);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+  
+
   return (
     <div className="stats-grid">
-      {stats.map((stat, index) => (
+      {updatedStats.map((stat, index) => (
         <div className={`stat-card ${stat.color}`} key={index}>
           <div className="stat-header">
             <div className="stat-icon">
@@ -54,7 +81,7 @@ function StatsGrid() {
               </span>
             )} */}
           </div>
-          <h3>{stat.value}</h3>
+          <h3>{loading ? '...' : stat.value}</h3>
           <p>{stat.label}</p>
         </div>
       ))}
