@@ -5,33 +5,60 @@ import StatsGrid from '../../components/dashboard/admin/StatsGrid';
 import QuickActions from '../../components/dashboard/admin/QuickActions';
 import PendingLoans from '../../components/dashboard/admin/PendingLoans';
 import OverdueAlerts from '../../components/dashboard/admin/OverdueAlerts';
-import BorrowChart from '../../components/dashboard/admin/BorrowChart';
-import ActivityTimeline from '../../components/dashboard/admin/ActivityTimeline';
 import AddBookModal from '../../components/dashboard/admin/AddBookModal';
 import '../../styles/dashboardAdmin.css';
 import { getAdminStats } from '../../services/stats.api';
+import { getCategories } from '../../services/category.api';
+import { getEmpruntsEnAttente, getEmpruntsEnRetard, getMesEmprunts } from '../../services/emprunts.api';
 
 
 function DashboardAdmin() {
+  const [isLoading,setIsLoading]=useState(true)
   const [showModal, setShowModal] = useState(false);
   const [activeNav, setActiveNav] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [stats,setStats]=useState({})
+  const [categories,setCategories]=useState([])
+  const [books,setBooks]=useState([])
+  const [empruntsEnRetard,setEmpruntsEnRetard]=useState([])
+  const [empruntsEnAttente,setEmpruntsEnAttente]=useState([])
+  const [users,setUsers]=useState([])
+  
   useEffect(()=> {
     async function getStats(){
+
       const stats=await getAdminStats();
       setStats(stats)
-    
+      setIsLoading(false)
     }
+   getStats();
 
-   getStats()
+   async function loadCategories(){
+    const categories=await getCategories();
+    setCategories(categories)
+    setIsLoading(false)
+   }
+   loadCategories();
+
+   async function loadEmprunts(){
+    const empruntsEnRetard=await getEmpruntsEnRetard();
+    setEmpruntsEnRetard(empruntsEnRetard);
+    const empruntsEnAttente=await getEmpruntsEnAttente();
+    setEmpruntsEnAttente(empruntsEnAttente);
+    setIsLoading(false)
+   }
+   loadEmprunts();
+   
+
+   
+   
    
 
   },
     [])
-     console.log('====================================');
-      console.log('statsds',stats);
-      console.log('====================================');
+    console.log("empruntsEnRetard",stats);
+    console.log("empruntsEnAttente",empruntsEnAttente);
+    
 
   return (
     <div className="app-wrapper">
@@ -53,8 +80,8 @@ function DashboardAdmin() {
         <div className="dashboard-grid">
           <PendingLoans />
           <OverdueAlerts />
-          <BorrowChart />
-          <ActivityTimeline />
+          {/* <BorrowChart /> */}
+          {/* <ActivityTimeline /> */}
         </div>
       </main>
 
