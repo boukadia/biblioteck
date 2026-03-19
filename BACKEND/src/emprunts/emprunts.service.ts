@@ -139,7 +139,14 @@ export class EmpruntsService {
     const empruntesEnCours = await this.prisma.emprunt.count({
       where: {
         utilisateurId: user.userId,
-        dateRetour: null,
+        statut: {
+          in: [
+            StatutEmprunt.EN_COURS, 
+            StatutEmprunt.EN_ATTENTE, 
+            StatutEmprunt.EN_RETARD,
+            StatutEmprunt.EN_ATTENTE_RETOUR
+          ]
+        }
       },
     });
     if (empruntesEnCours >= limiteEmprunts) {
@@ -147,11 +154,18 @@ export class EmpruntsService {
         `Limite atteinte : ${limiteEmprunts} livre(s) maximum avec votre niveau/bonus actuels.`,
       );
     }
-    const empruntExistant = await this.prisma.emprunt.findFirst({
+   const empruntExistant = await this.prisma.emprunt.findFirst({
       where: {
         utilisateurId: user.userId,
         livreId: data.livreId,
-        dateRetour: null,
+        statut: {
+          in: [
+            StatutEmprunt.EN_COURS, 
+            StatutEmprunt.EN_ATTENTE, 
+            StatutEmprunt.EN_RETARD,
+            StatutEmprunt.EN_ATTENTE_RETOUR
+          ]
+        }
       },
     });
     if (empruntExistant) {
@@ -196,7 +210,7 @@ export class EmpruntsService {
   }
 
   // VALIDER LA RÉCUPÉRATION (Admin -> EN_COURS)
-  async validerEmprunt(empruntId: number) {
+ async validerEmprunt(empruntId: number) {
     const emprunt = await this.prisma.emprunt.findUnique({
       where: { id: empruntId },
     });
@@ -207,13 +221,26 @@ export class EmpruntsService {
       );
     }
 
+    const dateAujourdhui = new Date();
+
+    const dureeInitialeEnJours = Math.round(
+      (emprunt.dateEcheance.getTime() - emprunt.dateEmprunt.getTime()) / (1000 * 3600 * 24)
+    );
+
+    const nouvelleDateEcheance = new Date(dateAujourdhui);
+    nouvelleDateEcheance.setDate(nouvelleDateEcheance.getDate() + dureeInitialeEnJours);
+
     const empruntMisAJour = await this.prisma.emprunt.update({
       where: { id: empruntId },
-      data: { statut: StatutEmprunt.EN_COURS },
+      data: { 
+        statut: StatutEmprunt.EN_COURS,
+        dateEmprunt: dateAujourdhui,    
+        dateEcheance: nouvelleDateEcheance 
+      },
     });
 
     return {
-      message: "Livre remis à l'étudiant (Statut: EN_COURS).",
+      message: "Livre remis à l'étudiant (Statut: EN_COURS). La date d'échéance a été mise à jour.",
       emprunt: empruntMisAJour,
     };
   }
