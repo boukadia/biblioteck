@@ -21,7 +21,6 @@ const initialRequests = [
 ];
 
 function PendingLoans({empruntsEnAttente}) {
-console.log('.........',empruntsEnAttente);
 
   const handleApprove = (id) => {
     setRequests(requests.filter((r) => r.id !== id));
