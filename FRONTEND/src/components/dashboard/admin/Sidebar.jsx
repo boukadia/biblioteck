@@ -1,54 +1,38 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const navSections = [
   {
     title: 'Principal',
     items: [
-      { id: 'dashboard', icon: 'fa-tachometer-alt', label: 'Tableau de bord' },
-      { id: 'statistics', icon: 'fa-chart-line', label: 'Statistiques' },
+      { id: 'dashboard', icon: 'fa-tachometer-alt', label: 'Tableau de bord', path: '/admin' },
     ],
   },
   {
     title: 'Biblioth\u00e8que',
     items: [
-      { id: 'books', icon: 'fa-book', label: 'G\u00e9rer les livres' },
-      { id: 'categories', icon: 'fa-layer-group', label: 'Cat\u00e9gories' },
-      { id: 'inventory', icon: 'fa-box', label: 'Inventaire', badge: '12', badgeType: 'warning' },
+      { id: 'books', icon: 'fa-book', label: 'G\u00e9rer les livres', path: '/admin/livres' },
+      { id: 'categories', icon: 'fa-tags', label: 'Cat\u00e9gories', path: '/admin/categories' },
     ],
   },
   {
     title: 'Emprunts',
     items: [
-      { id: 'requests', icon: 'fa-hand-holding', label: 'Demandes d\'emprunt', badge: '8' },
-      { id: 'active-loans', icon: 'fa-exchange-alt', label: 'Emprunts actifs' },
-      { id: 'overdue', icon: 'fa-exclamation-triangle', label: 'En retard', badge: '5' },
-      { id: 'history', icon: 'fa-history', label: 'Historique' },
-    ],
-  },
-  {
-    title: 'Utilisateurs',
-    items: [
-      { id: 'students', icon: 'fa-users', label: 'G\u00e9rer les \u00e9tudiants' },
-      { id: 'blocked', icon: 'fa-user-slash', label: 'Comptes bloqu\u00e9s', badge: '3' },
-      { id: 'leaderboard', icon: 'fa-trophy', label: 'Classement' },
-    ],
-  },
-  {
-    title: 'Syst\u00e8me',
-    items: [
-      { id: 'settings', icon: 'fa-cog', label: 'Param\u00e8tres' },
-      { id: 'reports', icon: 'fa-file-alt', label: 'Rapports' },
-      { id: 'logout', icon: 'fa-sign-out-alt', label: 'D\u00e9connexion' },
+      { id: 'loan-requests', icon: 'fa-hand-holding', label: 'Demandes d\'emprunt', path: '/admin/emprunts' },
+      { id: 'overdue-loans', icon: 'fa-exclamation-triangle', label: 'En retard', path: '/admin/retards' },
+      { id: 'all-loans', icon: 'fa-history', label: 'Tous les emprunts', path: '/admin/tous-les-emprunts' },
     ],
   },
 ];
 
-function Sidebar({ activeNav, setActiveNav, isOpen, onClose }) {
+function Sidebar({ activePage, isOpen, onClose }) {
+  const navigate = useNavigate();
+
   return (
     <>
       {isOpen && <div className="sidebar-overlay" onClick={onClose} />}
       <aside className={`sidebar ${isOpen ? 'active' : ''}`}>
-        <div className="sidebar-logo">
+        <div className="sidebar-logo" onClick={() => navigate('/admin')} style={{ cursor: 'pointer' }}>
           <i className="fas fa-book-open"></i>
           <span>BiblioTech</span>
         </div>
@@ -61,14 +45,12 @@ function Sidebar({ activeNav, setActiveNav, isOpen, onClose }) {
             <div className="nav-section" key={section.title}>
               <p className="nav-section-title">{section.title}</p>
               {section.items.map((item) => (
-                <a
-                  href="#!"
+                <div
                   key={item.id}
-                  className={`nav-item ${activeNav === item.id ? 'active' : ''}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setActiveNav(item.id);
-                    onClose();
+                  className={`nav-item ${activePage === item.id ? 'active' : ''}`}
+                  onClick={() => {
+                    navigate(item.path);
+                    if (onClose) onClose();
                   }}
                 >
                   <i className={`fas ${item.icon}`}></i>
@@ -78,7 +60,7 @@ function Sidebar({ activeNav, setActiveNav, isOpen, onClose }) {
                       {item.badge}
                     </span>
                   )}
-                </a>
+                </div>
               ))}
             </div>
           ))}

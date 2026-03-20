@@ -13,6 +13,9 @@ import Livres from './pages/admin/Livres'
 import ProtectedRoute from './components/protected/ProtectedRoute';
 import DashboardAdmin from './pages/admin/DashboardAdmin';
 import Emprunts from './pages/admin/emprunts';
+import EmpruntsEnRetard from './pages/admin/EmpruntsEnRetard';
+import TousLesEmprunts from './pages/admin/TousLesEmprunts';
+import Categories from './pages/admin/Categories';
 
 export default function App() {
   return (
@@ -55,6 +58,30 @@ export default function App() {
             element={
               // <ProtectedRoute allowedRole="ADMIN">
                 <Emprunts />
+              // </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/retards" 
+            element={
+              // <ProtectedRoute allowedRole="ADMIN">
+                <EmpruntsEnRetard />
+              // </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/tous-les-emprunts" 
+            element={
+              // <ProtectedRoute allowedRole="ADMIN">
+                <TousLesEmprunts />
+              // </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/categories" 
+            element={
+              // <ProtectedRoute allowedRole="ADMIN">
+                <Categories />
               // </ProtectedRoute>
             } 
           />
