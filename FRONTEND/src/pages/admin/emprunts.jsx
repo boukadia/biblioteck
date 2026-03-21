@@ -15,7 +15,6 @@ function Emprunts() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [empruntsEnAttente, setEmpruntsEnAttente] = useState([]);
   
-  // States for simple confirmation
   const [confirmModal, setConfirmModal] = useState({
     show: false,
     action: null, // 'approve' or 'reject'
@@ -24,7 +23,6 @@ function Emprunts() {
   });
 
   useEffect(() => {
-    // Exact pattern from DashboardAdmin.jsx
     async function getStats() {
       try {
         const statsData = await getAdminStats();
