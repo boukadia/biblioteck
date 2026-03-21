@@ -7,7 +7,6 @@ export class StatsService {
   async getDashboardStats() {
     const now = new Date();
 
-
     const [
       totalLivres,
       empruntsAnnules,
@@ -15,36 +14,27 @@ export class StatsService {
       demandesEnAttente,
       empruntsEnRetard,
       totalEtudiants,
+      etudiantsEnRetard,
     ] = await Promise.all([
       this.prisma.livre.count(),
-
-      this.prisma.emprunt.count({
-        where: { statut: 'ANNULE' },
-      }),
-
-      this.prisma.emprunt.count({
-        where: { statut: 'EN_COURS' },
-      }),
-
-      this.prisma.emprunt.count({
-        where: { statut: 'EN_ATTENTE' },
-      }),
-
+      this.prisma.emprunt.count({ where: { statut: 'ANNULE' } }),
+      this.prisma.emprunt.count({ where: { statut: 'EN_COURS' } }),
+      this.prisma.emprunt.count({ where: { statut: 'EN_ATTENTE' } }),
       this.prisma.emprunt.count({
         where: {
           statut: 'EN_RETARD',
-          dateEcheance: {
-            lt: now,
-          },
+          dateEcheance: { lt: now },
         },
       }),
-
-      this.prisma.utilisateur.count({
-        where: { role: 'ETUDIANT' },
+      this.prisma.utilisateur.count({ where: { role: 'ETUDIANT' } }),
+      this.prisma.emprunt.count({
+        where: {
+          statut: 'EN_RETARD',
+          dateEcheance: { lt: now },
+        },
+        distinct: ['utilisateurId'],
       }),
     ]);
-    
-
 
     return {
       totalLivres,
@@ -53,6 +43,7 @@ export class StatsService {
       demandesEnAttente,
       empruntsEnRetard,
       totalEtudiants,
+      etudiantsEnRetard,
     };
   }
 }
