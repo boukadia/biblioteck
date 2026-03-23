@@ -8,9 +8,9 @@ import { RoleUtilisateur } from '@prisma/client';
 export class CategoriesService {
   constructor(private readonly prisma:PrismaService){}
   async create(data: CreateCategoryDto,user) {
-     if (user.role !== RoleUtilisateur.ADMIN) {
-          throw new ForbiddenException("Vous n'avez pas le droit d'ajouter une categorie");
-        }
+    //  if (user.role !== RoleUtilisateur.ADMIN) {
+    //       throw new ForbiddenException("Vous n'avez pas le droit d'ajouter une categorie");
+    //     }
     const category=await this.prisma.category.findFirst({
       where:{
         name: data.name
@@ -47,9 +47,9 @@ export class CategoriesService {
   }
 
   async update(id: number, data: UpdateCategoryDto,user) {
-    if (user.role!==RoleUtilisateur.ADMIN) {
-      throw new BadRequestException("Vous n'avez pas le droit du modifier une categorie")
-    }
+    // if (user.role!==RoleUtilisateur.ADMIN) {
+    //   throw new BadRequestException("Vous n'avez pas le droit du modifier une categorie")
+    // }
     
     const category=await this.prisma.category.findUnique({
       where: {
