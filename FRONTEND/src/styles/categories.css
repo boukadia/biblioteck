@@ -1,0 +1,116 @@
+/* ======================================================
+   Categories Page — Scoped Styles
+   Only styles specific to the Categories page go here.
+   Modal / form / button styles come from dashboardAdmin.css
+   ====================================================== */
+
+/* Categories List */
+.categories-page .categories-list {
+  padding: 1rem;
+}
+
+.categories-page .category-item {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s;
+}
+
+.categories-page .category-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+}
+
+.categories-page .category-item-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.categories-page .category-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.categories-page .category-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.categories-page .category-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.15rem 0;
+  color: var(--light);
+}
+
+.categories-page .category-desc {
+  font-size: 0.85rem;
+  color: var(--gray);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
+}
+
+.categories-page .category-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Empty state scoped to categories */
+.categories-page .cat-empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--gray);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.categories-page .cat-empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.categories-page .cat-empty-state p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .categories-page .category-item-body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .categories-page .category-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .categories-page .category-desc {
+    max-width: 100%;
+  }
+}
