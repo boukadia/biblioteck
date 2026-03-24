@@ -36,6 +36,7 @@ function TousLesEmprunts() {
     }
     loadEmprunts();
   }, []);
+console.log("emp",allEmprunts);
 
   const getStatusBadge = (status) => {
     switch (status) {

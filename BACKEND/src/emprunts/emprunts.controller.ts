@@ -43,6 +43,12 @@ export class EmpruntsController {
     return this.empruntsService.getEmpruntsEnRetard();
   }
 
+  @Get('en-attente-retour')
+  // @Roles('ADMIN')
+  getEnAttenteRetour() {
+    return this.empruntsService.getEmpruntsEnAttenteRetour();
+  }
+
   @Patch(':id/valider')
   // @Roles('ADMIN')
   validerEmprunt(@Param('id') id: number) {

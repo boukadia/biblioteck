@@ -18,6 +18,10 @@ export async function getEmpruntsEnRetard() {
     const response = await api.get('/emprunts/en-retard');
     return response.data;
 }
+export async function getEmpruntsEnAttenteRetour() {
+    const response = await api.get('/emprunts/en-attente-retour');
+    return response.data;
+}
 export async function getEmpruntsEnAttente() {
     const response = await api.get('/emprunts/en-attente');
     return response.data;

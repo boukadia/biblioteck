@@ -14,6 +14,7 @@ import ProtectedRoute from './components/protected/ProtectedRoute';
 import DashboardAdmin from './pages/admin/DashboardAdmin';
 import Emprunts from './pages/admin/emprunts';
 import EmpruntsEnRetard from './pages/admin/EmpruntsEnRetard';
+import EmpruntsEnAttenteRetour from './pages/admin/EmpruntsEnAttenteRetour';
 import TousLesEmprunts from './pages/admin/TousLesEmprunts';
 import Categories from './pages/admin/Categories';
 
@@ -66,6 +67,14 @@ export default function App() {
             element={
               // <ProtectedRoute allowedRole="ADMIN">
                 <EmpruntsEnRetard />
+              // </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/emprunts-en-attente-retour" 
+            element={
+              // <ProtectedRoute allowedRole="ADMIN">
+                <EmpruntsEnAttenteRetour />
               // </ProtectedRoute>
             } 
           />

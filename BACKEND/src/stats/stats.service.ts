@@ -27,13 +27,14 @@ export class StatsService {
         },
       }),
       this.prisma.utilisateur.count({ where: { role: 'ETUDIANT' } }),
-      this.prisma.emprunt.count({
+      this.prisma.emprunt.findMany({
         where: {
           statut: 'EN_RETARD',
           dateEcheance: { lt: now },
         },
+        select: { utilisateurId: true },
         distinct: ['utilisateurId'],
-      }),
+      }).then((rows) => rows.length),
     ]);
 
     return {
