@@ -1,0 +1,22 @@
+/* Users Page — minimal scoped styles */
+
+.users-filters {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+  .users-filters {
+    flex-direction: column;
+  }
+
+  .users-filters input,
+  .users-filters select {
+    width: 100%;
+  }
+}
