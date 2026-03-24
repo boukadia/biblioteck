@@ -63,7 +63,7 @@ export class EmpruntsController {
   }
 
   @Patch(':id/annuler')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   annuler(@Param('id') id: number) {
     return this.empruntsService.annulerEmprunt(id);
   }

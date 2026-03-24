@@ -12,6 +12,7 @@ import Livres from './pages/admin/Livres'
 // import GestionLivres from './pages/admin/GestionLivres';
 import ProtectedRoute from './components/protected/ProtectedRoute';
 import DashboardAdmin from './pages/admin/DashboardAdmin';
+import Emprunts from './pages/admin/emprunts';
 
 export default function App() {
   return (
@@ -46,6 +47,14 @@ export default function App() {
             element={
               // <ProtectedRoute allowedRole="ADMIN">
                 <Livres />
+              // </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/emprunts" 
+            element={
+              // <ProtectedRoute allowedRole="ADMIN">
+                <Emprunts />
               // </ProtectedRoute>
             } 
           />

@@ -10,12 +10,17 @@ export class StatsService {
 
     const [
       totalLivres,
+      empruntsAnnules,
       empruntsActifs,
       demandesEnAttente,
       empruntsEnRetard,
       totalEtudiants,
     ] = await Promise.all([
       this.prisma.livre.count(),
+
+      this.prisma.emprunt.count({
+        where: { statut: 'ANNULE' },
+      }),
 
       this.prisma.emprunt.count({
         where: { statut: 'EN_COURS' },
@@ -38,9 +43,12 @@ export class StatsService {
         where: { role: 'ETUDIANT' },
       }),
     ]);
+    
+
 
     return {
       totalLivres,
+      empruntsAnnules,
       empruntsActifs,
       demandesEnAttente,
       empruntsEnRetard,
