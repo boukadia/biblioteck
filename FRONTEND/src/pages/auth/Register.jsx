@@ -103,6 +103,7 @@ function Register() {
       email,
       motDePasse,
     };
+    
 
     if (!validateForm()) return;
 

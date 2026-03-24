@@ -57,6 +57,7 @@ enum TypeMouvementPoints {
 model Utilisateur {
   id           Int               @id @default(autoincrement())
   nom          String
+  initials     String            @default("")
   prenom       String?
   email        String            @unique
   motDePasse   String

@@ -6,7 +6,7 @@ export class CreateAuthDto {
     @IsEmail()
     email: string
     @IsString()
-    prenom?: string
+    prenom: string
     @IsString()
     motDePasse: string
 }
