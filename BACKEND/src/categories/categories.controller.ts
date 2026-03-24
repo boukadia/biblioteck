@@ -12,7 +12,7 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   create(@Body() createCategoryDto: CreateCategoryDto,@Request() req: any) {
     return this.categoriesService.create(createCategoryDto,req.user);
   }
@@ -22,13 +22,13 @@ export class CategoriesController {
   }
 
   @Get(':id')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   findOne(@Param('id') id: string,@Request() req : any) {
     return this.categoriesService.findOne(+id,req.user);
   }
 
   @Put(':id')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto,@Request() req: any) {
     return this.categoriesService.update(+id, updateCategoryDto,req.user);
   }

@@ -19,7 +19,7 @@ export class EmpruntsController {
     return this.empruntsService.emprunterLivre(createEmpruntDto,req.user);
   }
   @Get('all')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   getAllEmprunts() {
     return this.empruntsService.findAll();
   }
@@ -49,7 +49,7 @@ export class EmpruntsController {
     return this.empruntsService.validerEmprunt(id);
   }
   @Patch(':id/retour')
-  @Roles('ADMIN')
+  // @Roles('ADMIN')
   retourner(
     @Param('id') id: number
   ) {

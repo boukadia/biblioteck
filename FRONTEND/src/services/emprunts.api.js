@@ -11,7 +11,7 @@ export async function getMesEmprunts() {
 }
 
 export async function getAllEmprunts() {
-    const response = await api.get('/emprunts');
+    const response = await api.get('/emprunts/all');
     return response.data;
 }
 export async function getEmpruntsEnRetard() {
