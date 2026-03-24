@@ -13,7 +13,7 @@ export class BooksController {
     constructor(private readonly bookService : BooksService){}
 
     @Post('')
-    @Roles('ADMIN')
+    // @Roles('ADMIN')
     create(@Body() data: CreateBookDto, @Request() req){
         return this.bookService.create(data, req.user)
     }

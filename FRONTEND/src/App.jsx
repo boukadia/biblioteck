@@ -5,12 +5,14 @@ import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
+import Livres from './pages/admin/Livres'
 
 // Pages
 // import StudentDashboard from './pages/etudiant/Dashboard';
-// import AdminDashboard from './pages/admin/Dashboard';
 // import GestionLivres from './pages/admin/GestionLivres';
 import ProtectedRoute from './components/protected/ProtectedRoute';
+import DashboardAdmin from './pages/admin/DashboardAdmin';
+import Emprunts from './pages/admin/emprunts';
 
 export default function App() {
   return (
@@ -34,20 +36,29 @@ export default function App() {
           <Route 
             path="/admin" 
             element={
-              <ProtectedRoute allowedRole="ADMIN">
-                {/* <AdminDashboard /> */}
-              </ProtectedRoute>
+              // <ProtectedRoute allowedRole="ADMIN">
+                <DashboardAdmin />
+              // </ProtectedRoute>
             } 
           />
           
           <Route 
             path="/admin/livres" 
             element={
-              <ProtectedRoute allowedRole="ADMIN">
-                {/* <GestionLivres /> */}
-              </ProtectedRoute>
+              // <ProtectedRoute allowedRole="ADMIN">
+                <Livres />
+              // </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/admin/emprunts" 
+            element={
+              // <ProtectedRoute allowedRole="ADMIN">
+                <Emprunts />
+              // </ProtectedRoute>
+            } 
+          />
+          
           
         </Routes>
       </BrowserRouter>

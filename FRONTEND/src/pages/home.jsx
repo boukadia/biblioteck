@@ -4,7 +4,7 @@ import BookCard from '../components/ui/BookCard';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import Leaderboard from '../components/Leaderboard';
-import {getAllBooks} from '../services/books.api'
+import {getAllBooks} from '../services/livres.api'
 import { getLeaderboard } from '../services/users.api';
 
 

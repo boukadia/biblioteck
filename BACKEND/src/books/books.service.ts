@@ -11,9 +11,9 @@ export class BooksService {
   constructor(private readonly prisma: PrismaService){}
 
   async create(data: CreateBookDto, user: any) {
-    if (user.role !== RoleUtilisateur.ADMIN) {
-      throw new ForbiddenException("Vous n'avez pas le droit d'ajouter un livre");
-    }
+    // if (user.role !== RoleUtilisateur.ADMIN) {
+    //   throw new ForbiddenException("Vous n'avez pas le droit d'ajouter un livre");
+    // }
    
     const existingBook = await this.prisma.livre.findUnique({
       where: { isbn: data.isbn }
@@ -39,7 +39,7 @@ export class BooksService {
         isbn: data.isbn,
         stock: data.stock ?? 3,
         categoryId: data.categoryId,
-        image:data.image
+        image: data.image,
       },
       include: {
         category: true,

@@ -71,6 +71,7 @@ async function main() {
       email: 'admin@bibliotech.ma',
       motDePasse: hashedPassword,
       nom: 'Anas Admin',
+      initials: 'AA',
       role: 'ADMIN',
     },
   });
@@ -80,6 +81,7 @@ async function main() {
       email: 'anas@etudiant.ma',
       motDePasse: hashedPassword,
       nom: 'Anas Etudiant',
+      initials: 'AE',
       role: 'ETUDIANT',
       pointsActuels: 1000,
       xp: 500,

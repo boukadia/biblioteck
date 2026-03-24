@@ -23,7 +23,7 @@ export class CreateBookDto {
 
     @IsOptional()
     @IsString()
-    image:string
+    image: string;
 
     @IsOptional()
     @IsInt()
