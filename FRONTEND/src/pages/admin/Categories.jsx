@@ -5,12 +5,16 @@ import StatsCard from '../../components/dashboard/admin/StatsCard';
 import Sidebar from '../../components/dashboard/admin/Sidebar';
 import { getCategories, createCategory, updateCategory, deleteCategory } from '../../services/category.api';
 import { getAdminStats } from '../../services/stats.api';
+import { getAllBooks } from '../../services/livres.api';
+import { getAllEmprunts } from '../../services/emprunts.api';
 
 function Categories() {
   const [stats, setStats] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [categories, setCategories] = useState([]);
+  const [filteredCategories, setFilteredCategories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // States pour la gestion (Ajout/Edit)
   const [isEditing, setIsEditing] = useState(false);
@@ -21,40 +25,52 @@ function Categories() {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
-    async function fetchStats() {
-      try {
-        const statsData = await getAdminStats();
-        setStats(statsData);
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchStats();
-
-    async function loadCategories() {
-      try {
-        const data = await getCategories();
-        setCategories(data || []);
-      } catch (error) {
-        console.error('Error loading categories:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadCategories();
+    loadAllData();
   }, []);
 
-  const refreshData = async () => {
+  async function loadAllData() {
+    setIsLoading(true);
     try {
-      const data = await getCategories();
-      setCategories(data || []);
-      const statsData = await getAdminStats();
+      // Charger les catégories, stats, livres et emprunts en parallèle
+      const [catsData, statsData, booksData, empruntsData] = await Promise.all([
+        getCategories(),
+        getAdminStats(),
+        getAllBooks(),
+        getAllEmprunts()
+      ]);
+
+      const enrichedCategories = (catsData || []).map(cat => {
+        const booksInCat = (booksData || []).filter(b => b.categoryId === cat.id);
+        const bookIdsInCat = booksInCat.map(b => b.id);
+        const empruntsInCat = (empruntsData || []).filter(e => bookIdsInCat.includes(e.livreId));
+
+        return {
+          ...cat,
+          booksCount: booksInCat.length,
+          empruntsCount: empruntsInCat.length
+        };
+      });
+
+      setCategories(enrichedCategories);
+      setFilteredCategories(enrichedCategories);
       setStats(statsData);
     } catch (error) {
-      console.error('Error refreshing data:', error);
+      console.error('Error loading data:', error);
+    } finally {
+      setIsLoading(false);
     }
+  }
+
+  useEffect(() => {
+    const filtered = categories.filter(cat => 
+      (cat.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (cat.description || '').toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredCategories(filtered);
+  }, [searchQuery, categories]);
+
+  const refreshData = async () => {
+    await loadAllData();
   };
 
   const handleOpenAdd = () => {
@@ -134,9 +150,20 @@ function Categories() {
               <p>Organisez vos livres par thématiques</p>
             </div>
           </div>
-          <button className="btn btn-primary" onClick={handleOpenAdd}>
-            <i className="fas fa-plus"></i> Nouvelle Catégorie
-          </button>
+          <div className="header-actions">
+            <div className="search-box">
+              <i className="fas fa-search"></i>
+              <input
+                type="text"
+                placeholder="Rechercher une catégorie..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <button className="btn btn-primary" onClick={handleOpenAdd}>
+              <i className="fas fa-plus"></i> Nouvelle Catégorie
+            </button>
+          </div>
         </header>
 
         <div className="stats-grid">
@@ -150,11 +177,14 @@ function Categories() {
 
           {isLoading ? (
             <div className="cat-empty-state"><i className="fas fa-spinner fa-spin"></i><p>Chargement...</p></div>
-          ) : categories.length === 0 ? (
-            <div className="cat-empty-state"><i className="fas fa-tag"></i><p>Aucune catégorie trouvée</p></div>
+          ) : filteredCategories.length === 0 ? (
+            <div className="cat-empty-state">
+              <i className="fas fa-tag"></i>
+              <p>{searchQuery ? 'Aucune catégorie ne correspond à votre recherche' : 'Aucune catégorie trouvée'}</p>
+            </div>
           ) : (
             <div className="categories-list">
-              {categories.map((cat) => (
+              {filteredCategories.map((cat) => (
                 <div key={cat.id} className="category-item">
                   <div className="category-item-body">
                     <div className="category-info">
@@ -167,6 +197,17 @@ function Categories() {
                         </div>
                     </div>
                     
+                    <div className="category-meta" style={{ display: 'flex', gap: '2rem', flex: 1, justifyContent: 'center' }}>
+                      <div className="meta-item" style={{ textAlign: 'center' }}>
+                        <span style={{ display: 'block', fontSize: '1.1rem', fontWeight: '700', color: 'var(--primary)' }}>{cat.booksCount || 0}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--gray)', textTransform: 'uppercase' }}>Livres</span>
+                      </div>
+                      <div className="meta-item" style={{ textAlign: 'center' }}>
+                        <span style={{ display: 'block', fontSize: '1.1rem', fontWeight: '700', color: 'var(--accent)' }}>{cat.empruntsCount || 0}</span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--gray)', textTransform: 'uppercase' }}>Emprunts</span>
+                      </div>
+                    </div>
+
                     <div className="category-actions">
                         <button className="action-btn edit" onClick={() => handleOpenEdit(cat)} title="Modifier">
                             <i className="fas fa-edit"></i>
