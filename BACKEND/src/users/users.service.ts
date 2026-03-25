@@ -34,9 +34,9 @@ export class UsersService {
     return users;
   }
   async changeStatus(id: number, user) {
-    if (user.role !== RoleUtilisateur.ADMIN) {
-      throw new ForbiddenException("you don't have the right to access this resource")
-    }
+    // if (user.role !== RoleUtilisateur.ADMIN) {
+    //   throw new ForbiddenException("you don't have the right to access this resource")
+    // }
 
     const checkedUser = await this.prisma.utilisateur.findUnique({
       where: {
@@ -46,7 +46,7 @@ export class UsersService {
     if (!checkedUser) {
       throw new BadRequestException("user not found")
     }
-    if (user.statut === StatutUtilisateur.ACTIF) {
+    if (checkedUser.statut === StatutUtilisateur.ACTIF) {
       const updatedUser = await this.prisma.utilisateur.update({
         where: {
           id: id
@@ -146,9 +146,9 @@ export class UsersService {
     }
 
     // Vérifier s'il y a des emprunts actifs
-    if (user.emprunts.length > 0) {
+    if (checkUser.emprunts.length > 0) {
       throw new BadRequestException(
-        `Cannot delete user: ${user.emprunts.length} active loan(s) found. Please return all books first.`
+        `Cannot delete user: ${checkUser.emprunts.length} active loan(s) found. Please return all books first.`
       )
     }
 
@@ -223,6 +223,24 @@ export class UsersService {
     const { motDePasse, ...safeUser } = updatedUser;
 
     return safeUser
+  }
+  async getTopStudents() {
+    return await this.prisma.utilisateur.findMany({
+      where: {
+        role: 'ETUDIANT',
+      },
+      select: {
+        id: true,
+        nom: true,
+        xp: true,
+        niveau: true,
+
+      },
+      orderBy: {
+        xp: 'desc',
+      },
+      take: 5,
+    });
   }
   async getTopStudents() {
   return await this.prisma.utilisateur.findMany({

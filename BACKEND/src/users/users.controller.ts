@@ -9,9 +9,9 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
-  
+
   @Get('')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
@@ -32,10 +32,10 @@ export class UsersController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  changeStatus(@Param('id') id: number,@Request() req: any) {
-    return this.usersService.changeStatus(+id,req.user);
+  changeStatus(@Param('id') id: number, @Request() req: any) {
+    return this.usersService.changeStatus(+id, req.user);
   }
-  
+
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
@@ -45,13 +45,13 @@ export class UsersController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("ADMIN")
-  remove(@Param('id') id: string,@Request() req : any) {
-    return this.usersService.remove(+id,req.user);
+  remove(@Param('id') id: string, @Request() req: any): Promise<{ message: string; user: any; }> {
+    return this.usersService.remove(+id, req.user);
   }
 
   @Patch(':id/changePassword')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  changePaassword(@Param('id') id:number, @Body() password:ChangePasswordDto, @Request() req: any ){
-    return this.usersService.changePaassword(password ,+id, req.user)
+  changePaassword(@Param('id') id: number, @Body() password: ChangePasswordDto, @Request() req: any) {
+    return this.usersService.changePaassword(password, +id, req.user)
   }
 }

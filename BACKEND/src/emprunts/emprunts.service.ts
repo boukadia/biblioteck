@@ -271,7 +271,7 @@ export class EmpruntsService {
         utilisateur: { select: { id: true, nom: true, email: true, initials: true } },
         livre: { select: { id: true, titre: true, auteur: true } },
       },
-      orderBy: { id: 'desc' },
+      orderBy: { dateEmprunt: 'desc' },
     });
   }
 
@@ -351,6 +351,19 @@ export class EmpruntsService {
         livre: { select: { id: true, titre: true, auteur: true } },
       },
       orderBy: { dateEcheance: 'asc' },
+    });
+  }
+
+  async getEmpruntsEnAttenteRetour() {
+    return this.prisma.emprunt.findMany({
+      where: { statut: StatutEmprunt.EN_ATTENTE_RETOUR },
+      include: {
+        utilisateur: {
+          select: { id: true, nom: true, email: true, niveau: true, initials: true },
+        },
+        livre: { select: { id: true, titre: true, auteur: true } },
+      },
+      orderBy: { dateRetour: 'asc' },
     });
   }
 

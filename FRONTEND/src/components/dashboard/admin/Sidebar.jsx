@@ -19,8 +19,15 @@ const navSections = [
     title: 'Emprunts',
     items: [
       { id: 'loan-requests', icon: 'fa-hand-holding', label: 'Demandes d\'emprunt', path: '/admin/emprunts' },
+      { id: 'pending-return-loans', icon: 'fa-clipboard-check', label: 'En attente retour', path: '/admin/emprunts-en-attente-retour' },
       { id: 'overdue-loans', icon: 'fa-exclamation-triangle', label: 'En retard', path: '/admin/retards' },
       { id: 'all-loans', icon: 'fa-history', label: 'Tous les emprunts', path: '/admin/tous-les-emprunts' },
+    ],
+  },
+  {
+    title: 'Administration',
+    items: [
+      { id: 'users', icon: 'fa-users-cog', label: 'Utilisateurs', path: '/admin/users' },
     ],
   },
 ];
