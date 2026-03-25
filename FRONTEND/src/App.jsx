@@ -17,6 +17,7 @@ import EmpruntsEnRetard from './pages/admin/EmpruntsEnRetard';
 import EmpruntsEnAttenteRetour from './pages/admin/EmpruntsEnAttenteRetour';
 import TousLesEmprunts from './pages/admin/TousLesEmprunts';
 import Categories from './pages/admin/Categories';
+import Users from './pages/admin/Users';
 
 export default function App() {
   return (
@@ -91,6 +92,14 @@ export default function App() {
             element={
               // <ProtectedRoute allowedRole="ADMIN">
                 <Categories />
+              // </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/users" 
+            element={
+              // <ProtectedRoute allowedRole="ADMIN">
+                <Users />
               // </ProtectedRoute>
             } 
           />
