@@ -33,6 +33,12 @@ export class BadgesController {
     return this.badgesService.findAll();
   }
 
+  @Get('mes-badges')
+  @Roles('ETUDIANT')
+  getMesBadges(@Request() req) {
+    return this.badgesService.getMesBadges(req.user);
+  }
+
   @Get(':id')
   @Roles('ADMIN')
   findOne(@Param('id') id: string, @Request() req: any) {
@@ -53,11 +59,5 @@ export class BadgesController {
   @Roles('ADMIN')
   remove(@Param('id') id: string, @Request() req: any) {
     return this.badgesService.remove(+id, req.user);
-  }
-
-  @Get('mes-badges')
-  @Roles('ETUDIANT')
-  getMesBadges(@Request() req) {
-    return this.badgesService.getMesBadges(req.user);
   }
 }
