@@ -8,7 +8,7 @@ import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
 import { DeclarerRetourDto } from './dto/declarer.retour.dto';
 
 
-// @UseGuards(JwtAuthGuard,RolesGuard)
+@UseGuards(JwtAuthGuard,RolesGuard)
 @Controller('emprunts')
 export class EmpruntsController {
   constructor(private readonly empruntsService: EmpruntsService) {}

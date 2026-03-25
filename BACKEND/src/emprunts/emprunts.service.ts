@@ -280,6 +280,7 @@ export class EmpruntsService {
       where: { utilisateurId: user.userId },
       include: {
         livre: { select: { id: true, titre: true, auteur: true, image: true } },
+        utilisateur:true,
       },
       orderBy: { id: 'desc' },
     });

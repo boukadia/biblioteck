@@ -26,8 +26,9 @@ export class UsersController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  // @Roles("ADMIN", "ETUDIANT")
+  findOne(@Param('id') id: string, @Request() req: any) {
+    return this.usersService.findOne(+id, req.user);
   }
 
   @Patch(':id')
@@ -38,8 +39,8 @@ export class UsersController {
 
   @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto, @Request() req: any) {
+    return this.usersService.update(+id, updateUserDto, req.user);
   }
 
   @Delete(':id')
