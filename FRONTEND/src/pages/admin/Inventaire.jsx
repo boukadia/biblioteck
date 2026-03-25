@@ -40,21 +40,15 @@ function Inventaire() {
 
       // Map books to calculate available and borrowed copies
       const enrichedBooks = booksData.map(book => {
-        // Find borrowed copies for this book
-        const bookEmprunts = empruntsData.filter(e => e.livreId === book.id && ['EN_COURS', 'EN_RETARD', 'EN_ATTENTE_RETOUR'].includes(e.statut));
-        const emprunteCount = bookEmprunts.length;
+        const emprunteCount = empruntsData.filter(e => 
+          e.livreId === book.id && ['EN_COURS', 'EN_RETARD', 'EN_ATTENTE_RETOUR'].includes(e.statut)
+        ).length;
+
         const disponibleCount = book.stock - emprunteCount;
         
-        let stockStatus = 'good';
-        if (disponibleCount <= 0) stockStatus = 'out';
-        else if (disponibleCount < 3) stockStatus = 'low';
+        const stockStatus = disponibleCount <= 0 ? 'out' : (disponibleCount < 3 ? 'low' : 'good');
 
-        return {
-          ...book,
-          emprunte: emprunteCount,
-          disponible: disponibleCount,
-          stockStatus
-        };
+        return { ...book, emprunte: emprunteCount, disponible: disponibleCount, stockStatus };
       });
 
       setBooks(enrichedBooks);
