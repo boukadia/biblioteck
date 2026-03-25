@@ -1,0 +1,225 @@
+/* ======================================================
+   Étudiants Page — Styles dédiés
+   Les styles globaux (header, stats, sidebar, modal, btn)
+   viennent de dashboardAdmin.css
+   ====================================================== */
+
+/* Grille de cartes */
+.students-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Carte étudiant */
+.student-card {
+  background: linear-gradient(145deg, var(--dark), var(--darker));
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s;
+}
+
+.student-card:hover {
+  border-color: var(--primary);
+}
+
+/* Header de carte */
+.student-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.student-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.student-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.student-info h4 {
+  font-size: 1.1rem;
+  margin: 0 0 0.25rem 0;
+  color: var(--light);
+}
+
+.student-info .email {
+  font-size: 0.85rem;
+  color: var(--gray);
+  display: block;
+}
+
+.blocked-badge {
+  display: inline-block;
+  margin-top: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Badge niveau */
+.student-level {
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.level-badge {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin: 0 auto 0.25rem auto;
+}
+
+.level-badge.bronze {
+  background: linear-gradient(135deg, #cd7f32, #8b4513);
+}
+
+.level-badge.silver {
+  background: linear-gradient(135deg, #c0c0c0, #808080);
+}
+
+.level-badge.gold {
+  background: linear-gradient(135deg, #ffd700, #daa520);
+}
+
+.level-badge.diamond {
+  background: linear-gradient(135deg, #b9f2ff, #00bfff);
+}
+
+.student-level > span {
+  font-size: 0.75rem;
+  color: var(--gray);
+}
+
+/* Stats dans la carte — très spécifique pour éviter les conflits */
+.student-card .student-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.student-card .student-stat {
+  text-align: center;
+  padding: 0.5rem 0.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  height: fit-content;
+}
+
+.student-card .student-stat .etu-val {
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: block;
+  color: var(--light);
+}
+
+.student-card .student-stat .etu-val.points {
+  color: var(--secondary);
+}
+
+.student-card .student-stat .etu-val.books {
+  color: var(--primary);
+}
+
+.student-card .student-stat .etu-val.active-val {
+  color: var(--accent);
+}
+
+.student-card .student-stat .etu-val.overdue-val {
+  color: var(--danger);
+}
+
+.student-card .student-stat .etu-lbl {
+  font-size: 0.75rem;
+  color: var(--gray);
+  display: block;
+  margin-top: 0.2rem;
+}
+
+/* Actions carte */
+.student-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* Boutons sm */
+.btn.btn-sm {
+  padding: 0.4rem 0.75rem !important;
+  font-size: 0.8rem !important;
+  border-radius: 8px !important;
+}
+
+.btn.btn-success {
+  background: linear-gradient(135deg, var(--accent), #059669) !important;
+  color: white;
+  border: none;
+}
+
+.btn.btn-success:hover {
+  opacity: 0.9;
+}
+
+/* Filter select dans le header */
+.filter-select {
+  padding: 0.6rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--light);
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.filter-select option {
+  background: var(--darker);
+  color: var(--light);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .students-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-card .student-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .student-header {
+    flex-wrap: wrap;
+  }
+
+  .student-actions {
+    justify-content: center;
+  }
+}
