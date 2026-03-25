@@ -75,9 +75,12 @@ export class UsersService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, user: JwtUser) {
+    // if (user.role !== RoleUtilisateur.ADMIN && user.userId !== id) {
+    //   throw new ForbiddenException("you don't have the right to access this resource")
+    // }
 
-    const user = await this.prisma.utilisateur.findFirst({
+    const currentUser = await this.prisma.utilisateur.findFirst({
       where: {
         id: id
       },
@@ -94,22 +97,22 @@ export class UsersService {
         emprunts: true,
       }
     })
-    return user;
+    return currentUser;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: number, updateUserDto: UpdateUserDto, user: JwtUser) {
 
-    //  if(user.role!=="ADMIN" && user.id!==id ){
-    // throw new NotFoundException("you don't have the right to access this resource")
-    // }
-    const user = await this.prisma.utilisateur.findUnique({
+     if(user.role!=="ADMIN" && user.userId!==id ){
+    throw new NotFoundException("you don't have the right to access this resource")
+    }
+    const currentUser = await this.prisma.utilisateur.findUnique({
       where: {
         id: id
       }
     })
 
 
-    if (!user) {
+    if (!currentUser) {
       throw new BadRequestException("utilisateur not found")
     }
     const updatedUser = await this.prisma.utilisateur.update({
