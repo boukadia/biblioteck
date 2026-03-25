@@ -1,0 +1,139 @@
+/* ======================================================
+   Inventaire Page — Styles dédiés
+   ====================================================== */
+
+.inventory-alerts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.inventory-alert {
+  padding: 1.25rem;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.inventory-alert.danger {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.inventory-alert.warning {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.inventory-alert.info {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.inventory-alert .icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.inventory-alert.danger .icon {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--danger);
+}
+
+.inventory-alert.warning .icon {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--secondary);
+}
+
+.inventory-alert.info .icon {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--info);
+}
+
+.inventory-alert .content h4 {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+  color: var(--light);
+}
+
+.inventory-alert .content p {
+  font-size: 0.85rem;
+  color: var(--gray);
+  margin: 0;
+}
+
+.inventory-alert .count {
+  margin-left: auto;
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.inventory-alert.danger .count { color: var(--danger); }
+.inventory-alert.warning .count { color: var(--secondary); }
+.inventory-alert.info .count { color: var(--info); }
+
+.stock-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stock-bar {
+  width: 100px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.stock-bar .fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.stock-bar .fill.high { background: var(--accent); }
+.stock-bar .fill.medium { background: var(--secondary); }
+.stock-bar .fill.low { background: var(--danger); }
+
+.stock-text {
+  font-size: 0.85rem;
+  min-width: 40px;
+}
+
+.stock-text.high { color: var(--accent); }
+.stock-text.medium { color: var(--secondary); }
+.stock-text.low { color: var(--danger); }
+
+/* Cellule de livre dans la table */
+.book-cell {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.book-cover-sm {
+  width: 40px;
+  height: 60px;
+  border-radius: 6px;
+  background-size: cover;
+  background-position: center;
+}
+
+.book-details h5 {
+  margin: 0 0 0.25rem 0;
+  color: var(--light);
+  font-size: 0.95rem;
+}
+
+.book-details span {
+  color: var(--gray);
+  font-size: 0.8rem;
+}

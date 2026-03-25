@@ -19,6 +19,7 @@ import TousLesEmprunts from './pages/admin/TousLesEmprunts';
 import Categories from './pages/admin/Categories';
 import Users from './pages/admin/Users';
 import Etudiants from './pages/admin/Etudiants';
+import Inventaire from './pages/admin/Inventaire';
 
 export default function App() {
   return (
@@ -109,6 +110,14 @@ export default function App() {
             element={
               // <ProtectedRoute allowedRole="ADMIN">
                 <Etudiants />
+              // </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/inventaire" 
+            element={
+              // <ProtectedRoute allowedRole="ADMIN">
+                <Inventaire />
               // </ProtectedRoute>
             } 
           />
