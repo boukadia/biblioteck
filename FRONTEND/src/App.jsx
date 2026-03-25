@@ -18,6 +18,7 @@ import EmpruntsEnAttenteRetour from './pages/admin/EmpruntsEnAttenteRetour';
 import TousLesEmprunts from './pages/admin/TousLesEmprunts';
 import Categories from './pages/admin/Categories';
 import Users from './pages/admin/Users';
+import Etudiants from './pages/admin/Etudiants';
 
 export default function App() {
   return (
@@ -100,6 +101,14 @@ export default function App() {
             element={
               // <ProtectedRoute allowedRole="ADMIN">
                 <Users />
+              // </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/admin/etudiants" 
+            element={
+              // <ProtectedRoute allowedRole="ADMIN">
+                <Etudiants />
               // </ProtectedRoute>
             } 
           />

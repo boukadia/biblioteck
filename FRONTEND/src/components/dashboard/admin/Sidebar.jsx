@@ -28,6 +28,7 @@ const navSections = [
     title: 'Administration',
     items: [
       { id: 'users', icon: 'fa-users-cog', label: 'Utilisateurs', path: '/admin/users' },
+      { id: 'etudiants', icon: 'fa-user-graduate', label: 'Étudiants', path: '/admin/etudiants' },
     ],
   },
 ];
