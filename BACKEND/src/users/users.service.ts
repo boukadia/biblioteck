@@ -6,6 +6,7 @@ import { log } from 'node:console';
 import { Prisma } from 'src/prisma/entities/prisma.entity';
 import { RoleUtilisateur, StatutUtilisateur } from '@prisma/client';
 import * as bcrypt from 'bcrypt'
+import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
 
 @Injectable()
 export class UsersService {
@@ -33,10 +34,10 @@ export class UsersService {
     )
     return users;
   }
-  async changeStatus(id: number, user) {
-    // if (user.role !== RoleUtilisateur.ADMIN) {
-    //   throw new ForbiddenException("you don't have the right to access this resource")
-    // }
+  async changeStatus(id: number, user:JwtUser) {
+    if (user.role !== RoleUtilisateur.ADMIN) {
+      throw new ForbiddenException("you don't have the right to access this resource")
+    }
 
     const checkedUser = await this.prisma.utilisateur.findUnique({
       where: {
@@ -122,7 +123,7 @@ export class UsersService {
     return updateUserDto
   }
 
-  async remove(id: number, user) {
+  async remove(id: number, user: JwtUser) {
     if (user.role !== "ADMIN") {
       throw new NotFoundException("you don't have the right to access this resource")
     }
@@ -196,7 +197,7 @@ export class UsersService {
     return { message: "User successfully deleted", user };
   }
 
-  async changePaassword(password, id, user) {
+  async changePaassword(password, id: number, user: JwtUser) {
     const checkUser = await this.prisma.utilisateur.findFirst({
       where: {
         id: id
@@ -205,7 +206,7 @@ export class UsersService {
     if (!checkUser) {
       throw new BadRequestException('user not found')
     }
-    if (user.id !== id) {
+    if (user.userId !== id) {
       throw new BadRequestException('you don\'t have the right to access this resource')
     }
     const hashedPassword = await bcrypt.hash(password.motDePasse, 10)
@@ -242,22 +243,5 @@ export class UsersService {
       take: 5,
     });
   }
-  async getTopStudents() {
-  return await this.prisma.utilisateur.findMany({
-    where: {
-      role: 'ETUDIANT', 
-    },
-    select: {
-      id: true,
-      nom: true,
-      xp: true,
-      niveau: true,
-      
-    },
-    orderBy: {
-      xp: 'desc',
-    },
-    take: 5,
-  });
-}
+
 }
