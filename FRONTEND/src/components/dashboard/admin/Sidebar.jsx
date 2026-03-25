@@ -24,6 +24,12 @@ const navSections = [
       { id: 'all-loans', icon: 'fa-history', label: 'Tous les emprunts', path: '/admin/tous-les-emprunts' },
     ],
   },
+  {
+    title: 'Administration',
+    items: [
+      { id: 'users', icon: 'fa-users-cog', label: 'Utilisateurs', path: '/admin/users' },
+    ],
+  },
 ];
 
 function Sidebar({ activePage, isOpen, onClose }) {
