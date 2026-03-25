@@ -100,6 +100,7 @@ export class BadgesService {
   }
 
   async getMesBadges(user: JwtUser) {
+   
     return this.prisma.badgeEtudiant.findMany({
       where: { utilisateurId: user.userId },
       include: {
