@@ -8,7 +8,7 @@ import Register from './pages/auth/Register';
 import Livres from './pages/admin/Livres'
 
 // Pages
-// import StudentDashboard from './pages/etudiant/Dashboard';
+import StudentDashboard from './pages/etudiant/Dashboard';
 // import GestionLivres from './pages/admin/GestionLivres';
 import ProtectedRoute from './components/protected/ProtectedRoute';
 import DashboardAdmin from './pages/admin/DashboardAdmin';
@@ -32,11 +32,11 @@ export default function App() {
           <Route path="/register" element={<Register />} />
 
           <Route 
-            path="/dashboard" 
+            path="/Etudiant" 
             element={
-              <ProtectedRoute allowedRole="ETUDIANT">
-                {/* <StudentDashboard /> */}
-              </ProtectedRoute>
+              // <ProtectedRoute allowedRole="ETUDIANT">
+                <StudentDashboard />
+              // </ProtectedRoute>
             } 
           />
 

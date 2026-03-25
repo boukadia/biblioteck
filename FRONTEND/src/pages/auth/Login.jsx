@@ -55,10 +55,14 @@ export default function Login() {
         setMessage({ type: '', text: '' });
         
         try {
-            await login(email, motDePasse);
+            const user = await login(email, motDePasse);
             setMessage({ type: 'success', text: 'Connexion réussie! Redirection...' });
             setTimeout(function() {
-                navigate('/dashboard');
+                if (user.role === 'ADMIN') {
+                    navigate('/admin');
+                } else {
+                    navigate('/Etudiant');
+                }
             }, 1500);
         } catch (error) {
             console.log('❌ BACKEND ERROR:', error);
