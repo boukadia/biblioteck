@@ -13,6 +13,7 @@ const navSections = [
     items: [
       { id: 'books', icon: 'fa-book', label: 'G\u00e9rer les livres', path: '/admin/livres' },
       { id: 'categories', icon: 'fa-tags', label: 'Cat\u00e9gories', path: '/admin/categories' },
+      { id: 'inventaire', icon: 'fa-box', label: 'Inventaire', path: '/admin/inventaire', badge: '12', badgeType: 'warning' },
     ],
   },
   {
