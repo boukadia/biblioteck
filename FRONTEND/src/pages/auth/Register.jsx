@@ -111,10 +111,14 @@ function Register() {
     setMessage({ type: "", text: "" });
 
     try {
-      await register(userData);
+      const user = await register(userData);
       setMessage({ type: "success", text: "Compte a été créé avec succès" });
       setTimeout(function() {
-        navigate("/dashboard");
+        if (user.role === 'ADMIN') {
+            navigate('/admin');
+        } else {
+            navigate('/Etudiant');
+        }
       }, 1500);
     } catch (error) {
       console.log(" BACKEND ERROR:", error);
