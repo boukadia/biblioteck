@@ -44,7 +44,7 @@ export default function Home() {
   []);
 
   return (
-    <div style={{ backgroundColor: '#ffffff' }}>
+    <div className="home-page-scope" style={{ backgroundColor: '#ffffff' }}>
       <Navbar />
       
       {/* Hero Section */}
