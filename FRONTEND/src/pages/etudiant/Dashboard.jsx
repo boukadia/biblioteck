@@ -5,20 +5,21 @@ import { getMesEmprunts } from '../../services/emprunts.api';
 import { getUserById } from '../../services/users.api';
 import { getMesBadges } from '../../services/badges.api';
 import { getRecompenses } from '../../services/shop.api';
+import { getMaListe } from '../../services/wishList.api';
 
 function StudentDashboard() {
   const [activePage, setActivePage] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+
   const [user, setUser] = useState({});
   const [emprunts, setEmprunts] = useState([]);
   const [badges, setBadges] = useState([]);
   const [shopItems, setShopItems] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  console.log('====================================');
-  console.log(user);
-  console.log('====================================');
+  // console.log('====================================');
+  // console.log(user);
+  // console.log('====================================');
 
   const fetchUser = async (userId) => {
     try {
@@ -28,6 +29,21 @@ function StudentDashboard() {
       console.error('Erreur fetch user:', error);
     }
   };
+
+  async function fetchWichList() {
+    try {
+      const list = await getMaListe()
+      if (list) {
+        setWishlist(list)
+      }
+
+    } catch (error) {
+      console.error('Erreur fetch wishList:', error);
+    }
+
+
+
+  }
 
   const fetchEmprunts = async () => {
     try {
@@ -55,25 +71,25 @@ function StudentDashboard() {
       console.error('Erreur fetch shop items:', error);
     }
   };
-  console.log('====================================');
-  console.log("badge",badges);
-  console.log('====================================');
+  // console.log('====================================');
+  // console.log("badge",badges);
+  // console.log('====================================');
 
   useEffect(() => {
     async function loadData() {
       setIsLoading(true);
-      
+
       const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
-     
-      const userId = storedUser.id 
+
+      const userId = storedUser.id
 
       if (userId) {
         try {
           const fetchedUser = await getUserById(userId);
-         
+
           if (fetchedUser) {
             setUser(fetchedUser);
-            if(fetchedUser.listeSouhaits) setWishlist(fetchedUser.listeSouhaits);
+            // if(fetchedUser.listeSouhaits) setWishlist(fetchedUser.listeSouhaits);
           } else {
             setUser(storedUser);
           }
@@ -86,14 +102,15 @@ function StudentDashboard() {
       await fetchEmprunts();
       await fetchBadges();
       await fetchShopItems();
-      
+      await fetchWichList()
+
       setIsLoading(false);
     }
     loadData();
   }, []);
-console.log('====================================');
-console.log(user);
-console.log('====================================');
+  // console.log('====================================');
+  // console.log(user);
+  // console.log('====================================');
   const getLevelInfo = (niveau) => {
     const n = niveau || 1;
     if (n >= 8) return { name: 'Maître', icon: '👑', css: 'diamond' };
@@ -109,7 +126,7 @@ console.log('====================================');
   const activeLoans = emprunts.filter(e => ['EN_ATTENTE', 'EN_COURS'].includes(e.statut));
   const retards = emprunts.filter(e => e.statut === 'EN_RETARD');
   const finished = emprunts.filter(e => ['RETOURNE'].includes(e.statut));
-  
+
 
   return (
     <div className="app-wrapper">
@@ -143,7 +160,7 @@ console.log('====================================');
                 <strong style={{ color: 'var(--light)', fontSize: '0.9rem' }}>{levelInfo.name}</strong>
               </div>
             </div>
-            <button className="btn btn-primary" onClick={() => window.location.href='/livres'}>
+            <button className="btn btn-primary" onClick={() => window.location.href = '/livres'}>
               <i className="fas fa-book"></i> Découvrir
             </button>
           </div>
@@ -186,10 +203,10 @@ console.log('====================================');
           {/* Colonne Gauche (Emprunts + Badges) */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {/* Mes Emprunts en cours */}
-            <div className="card">
+            <div className="dashboard-card" style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', borderRadius: '24px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '2rem' }}>
               <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ margin: 0, color: 'var(--light)' }}><i className="fas fa-book-open" style={{ color: 'var(--primary)', marginRight: '0.5rem' }}></i> Mes Emprunts en cours</h3>
-                <button className="btn btn-sm btn-outline" onClick={() => window.location.href='/mes-emprunts'}>
+                <button className="btn btn-sm btn-outline" onClick={() => window.location.href = '/mes-emprunts'}>
                   Voir tout
                 </button>
               </div>
@@ -203,7 +220,7 @@ console.log('====================================');
                   <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--gray)' }}>
                     <i className="fas fa-box-open" style={{ fontSize: '3rem', opacity: 0.5, marginBottom: '1rem' }}></i>
                     <p>Vous n'avez aucun emprunt en cours.</p>
-                    <button className="btn btn-sm btn-primary" style={{ marginTop: '1rem' }} onClick={() => window.location.href='/livres'}>Trouver un livre</button>
+                    <button className="btn btn-sm btn-primary" style={{ marginTop: '1rem' }} onClick={() => window.location.href = '/livres'}>Trouver un livre</button>
                   </div>
                 ) : (
                   <table className="admin-table">
@@ -249,12 +266,12 @@ console.log('====================================');
             </div>
 
             {/* Badges Section */}
-            <div className="card">
+            <div className="dashboard-card" style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', borderRadius: '24px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '2rem' }}>
               <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--light)' }}><i className="fas fa-medal"></i> Mes Badges</h3>
                 <a href="/badges" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '0.9rem' }}>Voir tout</a>
               </div>
-              
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', padding: '1.5rem' }}>
                 {badges.length > 0 ? (
                   badges.slice(0, 6).map((b, index) => (
@@ -278,12 +295,12 @@ console.log('====================================');
           {/* Colonne Droite (Boutique + Wishlist) */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             {/* Virtual Shop */}
-            <div className="card">
+            <div className="dashboard-card" style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', borderRadius: '24px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '2rem' }}>
               <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--light)' }}><i className="fas fa-store"></i> Boutique</h3>
                 <a href="/boutique" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '0.9rem' }}>Visiter la boutique</a>
               </div>
-              
+
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem' }}>
                 {shopItems.length > 0 ? (
                   shopItems.slice(0, 3).map((item, index) => (
@@ -307,12 +324,12 @@ console.log('====================================');
             </div>
 
             {/* Wishlist */}
-            <div className="card">
+            <div className="dashboard-card" style={{ background: 'linear-gradient(145deg, #1e293b, #0f172a)', borderRadius: '24px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '2rem' }}>
               <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--light)' }}><i className="fas fa-heart"></i> Liste de souhaits</h3>
                 <a href="/wishlist" style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '0.9rem' }}>Voir tout</a>
               </div>
-              
+
               <div style={{ padding: '1.5rem' }}>
                 {wishlist && wishlist.length > 0 ? (
                   wishlist.slice(0, 3).map((w, index) => (

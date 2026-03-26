@@ -169,7 +169,7 @@ function Livres() {
         </div>
 
         {/* Books Section */}
-        <div className="card" style={{ marginTop: '2rem' }}>
+        <div className="section-card" style={{ marginTop: '2rem' }}>
           {/* Header with filters and view toggle */}
           <div className="books-header">
             <div className="books-filters">

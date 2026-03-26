@@ -1,9 +1,9 @@
 /* Books Management Page Styles */
 
-.card {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
+.app-wrapper .card {
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .books-header {

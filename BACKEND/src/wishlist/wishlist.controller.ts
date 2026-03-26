@@ -20,6 +20,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}
 
+
   @Post()
   @Roles('ETUDIANT')
   ajouterLivre(@Body() createWishlistDto: CreateWishlistDto, @Request() req: any) {
@@ -31,6 +32,7 @@ export class WishlistController {
   getMaListe(@Request() req: any) {
     return this.wishlistService.getMaListe(req.user);
   }
+ 
 
   @Delete(':livreId')
   @Roles('ETUDIANT')
@@ -40,4 +42,7 @@ export class WishlistController {
   ) {
     return this.wishlistService.retirerLivre(livreId, req.user);
   }
+
+
+   
 }

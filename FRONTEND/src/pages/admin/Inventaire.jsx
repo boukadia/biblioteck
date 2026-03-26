@@ -167,7 +167,7 @@ function Inventaire() {
         </div>
 
         {/* Inventory Table */}
-        <div className="card">
+        <div className="section-card">
           <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <h3 style={{ margin: 0 }}><i className="fas fa-boxes" style={{ color: 'var(--secondary)', marginRight: '0.5rem' }}></i> État du Stock</h3>
             <div style={{ display: 'flex', gap: '0.5rem' }}>

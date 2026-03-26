@@ -9,6 +9,8 @@ import Livres from './pages/admin/Livres'
 
 // Pages
 import StudentDashboard from './pages/etudiant/Dashboard';
+import StudentLivres from './pages/etudiant/Livres';
+import StudentEmprunts from './pages/etudiant/MesEmprunts';
 // import GestionLivres from './pages/admin/GestionLivres';
 import ProtectedRoute from './components/protected/ProtectedRoute';
 import DashboardAdmin from './pages/admin/DashboardAdmin';
@@ -36,6 +38,24 @@ export default function App() {
             element={
               // <ProtectedRoute allowedRole="ETUDIANT">
                 <StudentDashboard />
+              // </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/livres" 
+            element={
+              // <ProtectedRoute allowedRole="ETUDIANT">
+                <StudentLivres />
+              // </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/mes-emprunts" 
+            element={
+              // <ProtectedRoute allowedRole="ETUDIANT">
+                <StudentEmprunts />
               // </ProtectedRoute>
             } 
           />
