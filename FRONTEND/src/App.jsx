@@ -11,6 +11,11 @@ import Livres from './pages/admin/Livres'
 import StudentDashboard from './pages/etudiant/Dashboard';
 import StudentLivres from './pages/etudiant/Livres';
 import StudentEmprunts from './pages/etudiant/MesEmprunts';
+import Historique from './pages/etudiant/Historique';
+import Wishlist from './pages/etudiant/Wishlist';
+import Leaderboard from './pages/etudiant/Leaderboard';
+import Boutique from './pages/etudiant/Boutique';
+import Badges from './pages/etudiant/Badges';
 // import GestionLivres from './pages/admin/GestionLivres';
 import ProtectedRoute from './components/protected/ProtectedRoute';
 import DashboardAdmin from './pages/admin/DashboardAdmin';
@@ -59,6 +64,12 @@ export default function App() {
               // </ProtectedRoute>
             } 
           />
+
+          <Route path="/historique" element={<Historique />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/boutique" element={<Boutique />} />
+          <Route path="/badges" element={<Badges />} />
 
           <Route 
             path="/admin" 
