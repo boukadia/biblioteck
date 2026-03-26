@@ -42,7 +42,7 @@ export async function retournerLivre(id) {
 }
 
 export async function declarerRetour(id, bonusId) {
-    const response = await api.patch('/emprunts/retour/' + id, { 
+    const response = await api.patch(`/emprunts/${id}/declarer-retour`, { 
         bonusProtectionId: bonusId 
     });
     return response.data;
