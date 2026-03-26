@@ -62,6 +62,7 @@ export class WishlistService {
       },
     });
   }
+ 
 
   async retirerLivre(livreId: number, user: JwtUser) {
     const wishlistItem = await this.prisma.listeSouhaits.findFirst({
