@@ -65,8 +65,11 @@ export default function App() {
             } 
           />
 
+          {/* Historique & Wishlist */}
           <Route path="/historique" element={<Historique />} />
           <Route path="/wishlist" element={<Wishlist />} />
+
+          {/* Gamification */}
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/boutique" element={<Boutique />} />
           <Route path="/badges" element={<Badges />} />
