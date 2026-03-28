@@ -28,16 +28,20 @@ function Categories() {
     loadAllData();
   }, []);
 
-  async function loadAllData() {
-    setIsLoading(true);
+  async function fetchStats() {
     try {
-      // Charger les catégories, stats, livres et emprunts en parallèle
-      const [catsData, statsData, booksData, empruntsData] = await Promise.all([
-        getCategories(),
-        getAdminStats(),
-        getAllBooks(),
-        getAllEmprunts()
-      ]);
+      const statsData = await getAdminStats();
+      setStats(statsData);
+    } catch (error) {
+      console.error('Error loading stats:', error);
+    }
+  }
+
+  async function fetchCategoriesWithDetails() {
+    try {
+      const catsData = await getCategories();
+      const booksData = await getAllBooks();
+      const empruntsData = await getAllEmprunts();
 
       const enrichedCategories = (catsData || []).map(cat => {
         const booksInCat = (booksData || []).filter(b => b.categoryId === cat.id);
@@ -53,7 +57,16 @@ function Categories() {
 
       setCategories(enrichedCategories);
       setFilteredCategories(enrichedCategories);
-      setStats(statsData);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    }
+  }
+
+  async function loadAllData() {
+    setIsLoading(true);
+    try {
+      await fetchStats();
+      await fetchCategoriesWithDetails();
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {

@@ -36,8 +36,7 @@ function Boutique() {
     loadData();
   }, []);
 
-  async function loadData() {
-    setIsLoading(true);
+  async function fetchUser() {
     try {
       const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
       if (storedUser.id) {
@@ -46,15 +45,34 @@ function Boutique() {
           setUser(u);
         }
       }
-      const [recompensesData, bonusData] = await Promise.all([
-        getRecompenses(),
-        getMesBonus()
-      ]);
-      setRecompenses(recompensesData || []);
-      setMesBonus(bonusData || []);
     } catch (error) {
-      console.error('Erreur chargement boutique:', error);
+      console.error('Erreur chargement user:', error);
     }
+  }
+
+  async function fetchRecompenses() {
+    try {
+      const data = await getRecompenses();
+      setRecompenses(data || []);
+    } catch (error) {
+      console.error('Erreur chargement recompenses:', error);
+    }
+  }
+
+  async function fetchMesBonus() {
+    try {
+      const data = await getMesBonus();
+      setMesBonus(data || []);
+    } catch (error) {
+      console.error('Erreur chargement mes bonus:', error);
+    }
+  }
+
+  async function loadData() {
+    setIsLoading(true);
+    await fetchUser();
+    await fetchRecompenses();
+    await fetchMesBonus();
     setIsLoading(false);
   }
 

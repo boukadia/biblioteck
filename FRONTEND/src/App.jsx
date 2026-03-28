@@ -27,6 +27,7 @@ import Categories from './pages/admin/Categories';
 import Users from './pages/admin/Users';
 import Etudiants from './pages/admin/Etudiants';
 import Inventaire from './pages/admin/Inventaire';
+import Sanctions from './pages/admin/Sanctions';
 
 export default function App() {
   return (
@@ -38,31 +39,31 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          <Route 
-            path="/Etudiant" 
+          <Route
+            path="/Etudiant"
             element={
               // <ProtectedRoute allowedRole="ETUDIANT">
-                <StudentDashboard />
+              <StudentDashboard />
               // </ProtectedRoute>
-            } 
+            }
           />
 
-          <Route 
-            path="/livres" 
+          <Route
+            path="/livres"
             element={
               // <ProtectedRoute allowedRole="ETUDIANT">
-                <StudentLivres />
+              <StudentLivres />
               // </ProtectedRoute>
-            } 
+            }
           />
 
-          <Route 
-            path="/mes-emprunts" 
+          <Route
+            path="/mes-emprunts"
             element={
               // <ProtectedRoute allowedRole="ETUDIANT">
-                <StudentEmprunts />
+              <StudentEmprunts />
               // </ProtectedRoute>
-            } 
+            }
           />
 
           {/* Historique & Wishlist */}
@@ -74,89 +75,98 @@ export default function App() {
           <Route path="/boutique" element={<Boutique />} />
           <Route path="/badges" element={<Badges />} />
 
-          <Route 
-            path="/admin" 
+          <Route
+            path="/admin"
             element={
               // <ProtectedRoute allowedRole="ADMIN">
-                <DashboardAdmin />
+              <DashboardAdmin />
               // </ProtectedRoute>
-            } 
+            }
           />
-          
-          <Route 
-            path="/admin/livres" 
+
+          <Route
+            path="/admin/livres"
             element={
               // <ProtectedRoute allowedRole="ADMIN">
-                <Livres />
+              <Livres />
               // </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/emprunts" 
+          <Route
+            path="/admin/emprunts"
             element={
               // <ProtectedRoute allowedRole="ADMIN">
-                <Emprunts />
+              <Emprunts />
               // </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/retards" 
+          <Route
+            path="/admin/retards"
             element={
               // <ProtectedRoute allowedRole="ADMIN">
-                <EmpruntsEnRetard />
+              <EmpruntsEnRetard />
               // </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/emprunts-en-attente-retour" 
+          <Route
+            path="/admin/emprunts-en-attente-retour"
             element={
               // <ProtectedRoute allowedRole="ADMIN">
-                <EmpruntsEnAttenteRetour />
+              <EmpruntsEnAttenteRetour />
               // </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/tous-les-emprunts" 
+          <Route
+            path="/admin/tous-les-emprunts"
             element={
               // <ProtectedRoute allowedRole="ADMIN">
-                <TousLesEmprunts />
+              <TousLesEmprunts />
               // </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/categories" 
+          <Route
+            path="/admin/categories"
             element={
               // <ProtectedRoute allowedRole="ADMIN">
-                <Categories />
+              <Categories />
               // </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/users" 
+          <Route
+            path="/admin/users"
             element={
               // <ProtectedRoute allowedRole="ADMIN">
-                <Users />
+              <Users />
               // </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/etudiants" 
+          <Route
+            path="/admin/etudiants"
             element={
               // <ProtectedRoute allowedRole="ADMIN">
-                <Etudiants />
+              <Etudiants />
               // </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/admin/inventaire" 
+          <Route
+            path="/admin/inventaire"
             element={
               // <ProtectedRoute allowedRole="ADMIN">
-                <Inventaire />
+              <Inventaire />
               // </ProtectedRoute>
-            } 
+            }
           />
-          
-          
+          <Route
+            path="/admin/sanctions"
+            element={
+              // <ProtectedRoute allowedRole="ADMIN">
+              <Sanctions />
+              // </ProtectedRoute>
+            }
+          />
+
+
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>

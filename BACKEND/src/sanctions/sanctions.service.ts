@@ -6,6 +6,27 @@ import { AppliquerSanctionDto } from './dto/appliquerSanction.dto';
 @Injectable()
 export class SanctionsService {
   constructor(private readonly prisma: PrismaService){}
+  async findAll(user) {
+    // if(user.role !== RoleUtilisateur.ADMIN) {
+    //   throw new UnauthorizedException("Vous n'avez pas le droit de consulter les sanctions");
+    // }
+    return this.prisma.sanction.findMany({
+      include: {
+        utilisateur: {
+          select: {
+            id: true,
+            nom: true,
+            prenom: true,
+            email: true,
+            pointsActuels: true,
+            statut: true,
+          }
+        }
+      },
+      orderBy: { dateCreation: 'desc' }
+    });
+  }
+
   async appliquerSanction(data: AppliquerSanctionDto,user) {
     if(user.role!==RoleUtilisateur.ADMIN){
       throw new UnauthorizedException("vous n'avais pas le droit du creer la sanction")
