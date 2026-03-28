@@ -1,0 +1,206 @@
+/* ======================================================
+   Sanctions Page — Scoped Styles
+   Only styles specific to the Sanctions page go here.
+   Modal / form / button styles come from dashboardAdmin.css
+   ====================================================== */
+
+/* Sanctions List (reuses categories pattern) */
+.sanctions-page .sanctions-list {
+  padding: 1rem;
+}
+
+.sanctions-page .sanction-item {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s;
+}
+
+.sanctions-page .sanction-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+}
+
+.sanctions-page .sanction-item-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.sanctions-page .sanction-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.sanctions-page .sanction-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.sanctions-page .sanction-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.15rem 0;
+  color: var(--light);
+}
+
+.sanctions-page .sanction-desc {
+  font-size: 0.85rem;
+  color: var(--gray);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
+}
+
+.sanctions-page .sanction-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Applied sanctions table style */
+.sanctions-page .applied-sanctions-list {
+  padding: 1rem;
+}
+
+.sanctions-page .applied-sanction-item {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s;
+}
+
+.sanctions-page .applied-sanction-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+.sanctions-page .applied-sanction-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #4f46e5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+/* Tabs */
+.sanctions-page .sanctions-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.sanctions-page .sanction-tab {
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--gray);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sanctions-page .sanction-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--light);
+}
+
+.sanctions-page .sanction-tab.active {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.sanctions-page .tab-count {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.15rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.sanctions-page .sanction-tab.active .tab-count {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* Empty state scoped to sanctions */
+.sanctions-page .sanction-empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--gray);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.sanctions-page .sanction-empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.sanctions-page .sanction-empty-state p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sanctions-page .sanction-item-body {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sanctions-page .sanction-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .sanctions-page .sanction-desc {
+    max-width: 100%;
+  }
+
+  .sanctions-page .sanctions-tabs {
+    flex-wrap: wrap;
+  }
+
+  .sanctions-page .applied-sanction-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -34,8 +34,7 @@ function Badges() {
     loadData();
   }, []);
 
-  async function loadData() {
-    setIsLoading(true);
+  async function fetchUser() {
     try {
       const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
       if (storedUser.id) {
@@ -44,15 +43,34 @@ function Badges() {
           setUser(u);
         }
       }
-      const [mesBadgesData, allBadgesData] = await Promise.all([
-        getMesBadges(),
-        getAllBadges()
-      ]);
-      setMesBadges(mesBadgesData || []);
-      setAllBadges(allBadgesData || []);
     } catch (error) {
-      console.error('Erreur chargement badges:', error);
+      console.error('Erreur chargement user:', error);
     }
+  }
+
+  async function fetchMesBadges() {
+    try {
+      const data = await getMesBadges();
+      setMesBadges(data || []);
+    } catch (error) {
+      console.error('Erreur chargement mes badges:', error);
+    }
+  }
+
+  async function fetchAllBadges() {
+    try {
+      const data = await getAllBadges();
+      setAllBadges(data || []);
+    } catch (error) {
+      console.error('Erreur chargement all badges:', error);
+    }
+  }
+
+  async function loadData() {
+    setIsLoading(true);
+    await fetchUser();
+    await fetchMesBadges();
+    await fetchAllBadges();
     setIsLoading(false);
   }
 

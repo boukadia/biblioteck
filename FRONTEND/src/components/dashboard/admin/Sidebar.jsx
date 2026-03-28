@@ -30,6 +30,7 @@ const navSections = [
     items: [
       { id: 'users', icon: 'fa-users-cog', label: 'Utilisateurs', path: '/admin/users' },
       { id: 'etudiants', icon: 'fa-user-graduate', label: 'Étudiants', path: '/admin/etudiants' },
+      { id: 'sanctions', icon: 'fa-gavel', label: 'Sanctions', path: '/admin/sanctions' },
     ],
   },
 ];
