@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateEmpruntDto } from './dto/create-emprunt.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { StatutEmprunt, StatutUtilisateur, TypeRecompense, Utilisateur } from '@prisma/client';
+import { StatutEmprunt, StatutUtilisateur, TypeRecompense, TypeMouvementPoints, Utilisateur } from '@prisma/client';
 import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
 import { BadgesService } from '../badges/badges.service';
 
@@ -15,23 +15,23 @@ export class EmpruntsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly badgesService: BadgesService,
-  ) {}
+  ) { }
 
   // EMPRUNTER UN LIVRE (Étudiant -> EN_ATTENTE)
   async emprunterLivre(data: CreateEmpruntDto, user: JwtUser) {
     const empruntEnRetard = await this.prisma.emprunt.findFirst({
-    where: {
-      utilisateurId: user.userId,
-      statut: StatutEmprunt.EN_RETARD,
-    },
-  });
+      where: {
+        utilisateurId: user.userId,
+        statut: StatutEmprunt.EN_RETARD,
+      },
+    });
 
-  if (empruntEnRetard) {
-    throw new ForbiddenException(
-      "Accès refusé. Vous avez un livre en retard. Veuillez le rendre avant de pouvoir effectuer un nouvel emprunt."
-    );
-  }
-  
+    if (empruntEnRetard) {
+      throw new ForbiddenException(
+        "Accès refusé. Vous avez un livre en retard. Veuillez le rendre avant de pouvoir effectuer un nouvel emprunt."
+      );
+    }
+
     const etudiant = await this.prisma.utilisateur.findUnique({
       where: {
         id: user.userId,
@@ -40,13 +40,13 @@ export class EmpruntsService {
     if (!etudiant) {
       throw new NotFoundException('Utilisateur introuvable.');
     }
-    
 
-  if (etudiant.statut === StatutUtilisateur.BLOQUE) {
-    throw new ForbiddenException(
-      "Votre compte est actuellement bloqué suite à des pénalités."
-    );
-  }
+
+    if (etudiant.statut === StatutUtilisateur.BLOQUE) {
+      throw new ForbiddenException(
+        "Votre compte est actuellement bloqué suite à des pénalités."
+      );
+    }
 
     const niveauEtudiant = etudiant.niveau ?? 0;
 
@@ -141,8 +141,8 @@ export class EmpruntsService {
         utilisateurId: user.userId,
         statut: {
           in: [
-            StatutEmprunt.EN_COURS, 
-            StatutEmprunt.EN_ATTENTE, 
+            StatutEmprunt.EN_COURS,
+            StatutEmprunt.EN_ATTENTE,
             StatutEmprunt.EN_RETARD,
             StatutEmprunt.EN_ATTENTE_RETOUR
           ]
@@ -154,14 +154,14 @@ export class EmpruntsService {
         `Limite atteinte : ${limiteEmprunts} livre(s) maximum avec votre niveau/bonus actuels.`,
       );
     }
-   const empruntExistant = await this.prisma.emprunt.findFirst({
+    const empruntExistant = await this.prisma.emprunt.findFirst({
       where: {
         utilisateurId: user.userId,
         livreId: data.livreId,
         statut: {
           in: [
-            StatutEmprunt.EN_COURS, 
-            StatutEmprunt.EN_ATTENTE, 
+            StatutEmprunt.EN_COURS,
+            StatutEmprunt.EN_ATTENTE,
             StatutEmprunt.EN_RETARD,
             StatutEmprunt.EN_ATTENTE_RETOUR
           ]
@@ -210,7 +210,7 @@ export class EmpruntsService {
   }
 
   // VALIDER LA RÉCUPÉRATION (Admin -> EN_COURS)
- async validerEmprunt(empruntId: number) {
+  async validerEmprunt(empruntId: number) {
     const emprunt = await this.prisma.emprunt.findUnique({
       where: { id: empruntId },
     });
@@ -232,10 +232,10 @@ export class EmpruntsService {
 
     const empruntMisAJour = await this.prisma.emprunt.update({
       where: { id: empruntId },
-      data: { 
+      data: {
         statut: StatutEmprunt.EN_COURS,
-        dateEmprunt: dateAujourdhui,    
-        dateEcheance: nouvelleDateEcheance 
+        dateEmprunt: dateAujourdhui,
+        dateEcheance: nouvelleDateEcheance
       },
     });
 
@@ -280,7 +280,7 @@ export class EmpruntsService {
       where: { utilisateurId: user.userId },
       include: {
         livre: { select: { id: true, titre: true, auteur: true, image: true } },
-        utilisateur:true,
+        utilisateur: true,
       },
       orderBy: { id: 'desc' },
     });
@@ -341,7 +341,7 @@ export class EmpruntsService {
       };
     });
   }
-//get emprunts en retard
+  //get emprunts en retard
   async getEmpruntsEnRetard() {
     return this.prisma.emprunt.findMany({
       where: { statut: StatutEmprunt.EN_RETARD },
@@ -504,11 +504,21 @@ export class EmpruntsService {
             niveau: this.calculerNiveau(nouvelXpTotal),
           },
         });
+
+        await tx.historiquePoints.create({
+          data: {
+            utilisateurId: etudiantId,
+            montant: pointsGagnes,
+            type: TypeMouvementPoints.GAIN_EMPRUNT,
+            description: `Retour à temps — livre retourné avec succès`,
+          },
+        });
+
         message += ` +${pointsGagnes} Points et +${xpGagne} XP !`;
       } else {
         const joursRetard = Math.ceil(
           (dateFinReel.getTime() - emprunt.dateEcheance.getTime()) /
-            (1000 * 3600 * 24),
+          (1000 * 3600 * 24),
         );
 
         if (bonusApplique) {
@@ -532,6 +542,16 @@ export class EmpruntsService {
               dureeBlocage: joursRetard,
             },
           });
+
+          await tx.historiquePoints.create({
+            data: {
+              utilisateurId: etudiantId,
+              montant: -penalite,
+              type: TypeMouvementPoints.PERTE_RETARD,
+              description: `Retard de ${joursRetard} jour(s) — pénalité appliquée`,
+            },
+          });
+
           message += ` Pénalité de -${penalite} points et compte bloqué.`;
         }
       }

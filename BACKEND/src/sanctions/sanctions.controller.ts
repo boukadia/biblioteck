@@ -9,6 +9,11 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 @Controller('sanctions')
 export class SanctionsController {
   constructor(private readonly sanctionsService: SanctionsService) {}
+  @Get()
+  // @Roles("ADMIN")
+  findAll(@Request() req: any) {
+    return this.sanctionsService.findAll(req.user);
+  }
 
   @Post()
   @Roles("ADMIN")
