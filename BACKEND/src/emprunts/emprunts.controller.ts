@@ -6,6 +6,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
 import { DeclarerRetourDto } from './dto/declarer.retour.dto';
+import { ProlongerEmpruntDto } from './dto/prolonger-emprunt.dto';
 
 
 @UseGuards(JwtAuthGuard,RolesGuard)
@@ -84,6 +85,16 @@ export class EmpruntsController {
   // @Roles('ETUDIANT')
   findMesEmprunts(@Request() req) {
     return this.empruntsService.findMesEmprunts(req.user);
+  }
+
+  @Patch(':id/prolonger')
+  // @Roles('ETUDIANT')
+  prolonger(
+    @Param('id') id: number,
+    @Request() req: any,
+    @Body() prolongerDto: ProlongerEmpruntDto,
+  ) {
+    return this.empruntsService.prolongerEmprunt(req.user, id, prolongerDto.bonusPossedeId);
   }
 
 }

@@ -475,7 +475,9 @@ export class EmpruntsService {
       where: {
         empruntId: emprunt.id,
         recompense: { type: TypeRecompense.PROTECTION },
+        estConsomme: true,
       },
+      include: { recompense: true }
     });
 
     // 1. L-Transaction l-assassiya (Ktab + XP + Sanctions)
@@ -576,6 +578,74 @@ export class EmpruntsService {
     }
 
     return resultatTransaction;
+  }
+
+  // PROLONGER UN EMPRUNT (Étudiant -> Utilise un bonus PROLONGATION)
+  async prolongerEmprunt(user: JwtUser, empruntId: number, bonusPossedeId: number) {
+    const emprunt = await this.prisma.emprunt.findUnique({
+      where: { id: empruntId },
+    });
+
+    if (!emprunt) {
+      throw new NotFoundException('Emprunt introuvable.');
+    }
+    if (emprunt.utilisateurId !== user.userId) {
+      throw new ForbiddenException("Ce n'est pas votre emprunt.");
+    }
+    if (emprunt.statut !== StatutEmprunt.EN_COURS) {
+      throw new BadRequestException(
+        "Vous ne pouvez prolonger que les emprunts en cours.",
+      );
+    }
+
+    const bonus = await this.prisma.bonusPossede.findUnique({
+      where: { id: bonusPossedeId },
+      include: { recompense: true },
+    });
+
+    if (!bonus || bonus.utilisateurId !== user.userId) {
+      throw new BadRequestException('Ce bonus ne vous appartient pas.');
+    }
+    if (bonus.estConsomme) {
+      throw new BadRequestException('Ce bonus a déjà été utilisé.');
+    }
+    if (bonus.dateExpiration && new Date() > bonus.dateExpiration) {
+      throw new BadRequestException('Ce bonus a expiré.');
+    }
+    if (bonus.recompense.type !== TypeRecompense.PROLONGATION) {
+      throw new BadRequestException(
+        "Ce n'est pas un bonus de PROLONGATION.",
+      );
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      // 1. Consommer le bonus
+      await tx.bonusPossede.update({
+        where: { id: bonusPossedeId },
+        data: {
+          estConsomme: true,
+          dateUtilisation: new Date(),
+          empruntId: emprunt.id,
+        },
+      });
+
+      // 2. Mettre à jour la date d'échéance (+7 jours)
+      const nouvelleDateEcheance = new Date(emprunt.dateEcheance);
+      nouvelleDateEcheance.setDate(nouvelleDateEcheance.getDate() + 7);
+
+      const empruntMisAJour = await tx.emprunt.update({
+        where: { id: empruntId },
+        data: {
+          dateEcheance: nouvelleDateEcheance,
+        },
+      });
+
+      return {
+        message: 'L\'emprunt a été prolongé de 7 jours avec succès !',
+        emprunt: empruntMisAJour,
+        nouvelleEcheance: nouvelleDateEcheance.toLocaleDateString(),
+      };
+    });
   }
 
   // OUTIL : CALCUL DU NIVEAU
