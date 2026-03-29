@@ -1,16 +1,10 @@
-import {
-  BadGatewayException,
-  BadRequestException,
-  Injectable,
-  Logger,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { log } from 'console';
 import { LoginDto } from './dto/Login.dto';
+import { JwtUser } from './interfaces/jwt-user.interface';
 
 @Injectable()
 export class AuthService {
@@ -28,31 +22,46 @@ export class AuthService {
     if (user) {
       throw new BadRequestException('email already exists');
     }
-    const initials = data.nom.charAt(0).toUpperCase() + data.prenom.charAt(0).toUpperCase();
+    const initials =
+      data.nom.charAt(0).toUpperCase() + data.prenom.charAt(0).toUpperCase();
     const hashedPassword = await bcrypt.hash(data.motDePasse, 10);
     const newUser = await this.prisma.utilisateur.create({
       data: {
         nom: data.nom,
         prenom: data.prenom,
         email: data.email,
-        initials:initials,
+        initials: initials,
         motDePasse: hashedPassword,
       },
     });
-const { motDePasse, ...safeUser } = newUser;
+
     const payload = {
       sub: newUser.id,
       email: newUser.email,
       role: newUser.role,
     };
+    const userSansMotDePasse = {
+      ...newUser,
+      motDePasse: undefined,
+    };
 
     const access_token = await this.jwtService.signAsync(payload);
-    return { token: access_token, user: safeUser };
+    return { token: access_token, user: userSansMotDePasse };
   }
-  async login(data: LoginDto ) {
+  async login(data: LoginDto) {
     const user = await this.prisma.utilisateur.findUnique({
       where: {
         email: data.email,
+      },
+      select: {
+        id: true,
+        nom: true,
+        prenom: true,
+        email: true,
+        role: true,
+        pointsActuels: true,
+        niveau: true,
+        motDePasse: true,
       },
     });
     if (!user) {
@@ -68,20 +77,32 @@ const { motDePasse, ...safeUser } = newUser;
       role: user.role,
     };
     const access_token = await this.jwtService.signAsync(payload);
-    const { motDePasse, ...safeUser } = user;
-    return { token: access_token, user: safeUser };
+    const userSansMotDePasse = {
+      ...user,
+      motDePasse: undefined,
+    };
+
+    return { token: access_token, user: userSansMotDePasse };
   }
 
-  async getProfile(userId: number) {
-    const user = await this.prisma.utilisateur.findUnique({
+  async getProfile(user: JwtUser) {
+    const connectedUser = await this.prisma.utilisateur.findUnique({
       where: {
-        id: userId,
+        id: user.userId,
+      },
+      select: {
+        id: true,
+        nom: true,
+        prenom: true,
+        email: true,
+        role: true,
+        pointsActuels: true,
+        niveau: true,
       },
     });
-    if (!user) {
+    if (!connectedUser) {
       throw new BadRequestException('User not found');
     }
-    const { motDePasse, ...safeUser } = user;
-    return safeUser;
+    return connectedUser;
   }
 }

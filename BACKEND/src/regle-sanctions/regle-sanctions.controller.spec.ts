@@ -9,7 +9,9 @@ describe('RegleSanctionsController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RegleSanctionsController],
       providers: [RegleSanctionsService],
-    }).compile();
+    })
+      .useMocker(() => ({}))
+      .compile();
 
     controller = module.get<RegleSanctionsController>(RegleSanctionsController);
   });

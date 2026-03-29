@@ -7,7 +7,9 @@ describe('RegleSanctionsService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [RegleSanctionsService],
-    }).compile();
+    })
+      .useMocker(() => ({}))
+      .compile();
 
     service = module.get<RegleSanctionsService>(RegleSanctionsService);
   });

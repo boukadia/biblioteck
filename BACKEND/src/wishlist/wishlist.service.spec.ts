@@ -7,7 +7,9 @@ describe('WishlistService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [WishlistService],
-    }).compile();
+    })
+      .useMocker(() => ({}))
+      .compile();
 
     service = module.get<WishlistService>(WishlistService);
   });

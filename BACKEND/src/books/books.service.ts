@@ -1,31 +1,38 @@
-import { BadRequestException, Injectable, NotFoundException, ForbiddenException, Search } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { RoleUtilisateur } from '@prisma/client';
-import { User } from 'src/users/entities/user.entity';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { changeStockDto } from './dto/change-stocke.dto';
+import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
 
 @Injectable()
 export class BooksService {
-  constructor(private readonly prisma: PrismaService){}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateBookDto, user: any) {
-    // if (user.role !== RoleUtilisateur.ADMIN) {
-    //   throw new ForbiddenException("Vous n'avez pas le droit d'ajouter un livre");
-    // }
-   
+  async create(data: CreateBookDto, user: JwtUser) {
+    if (user.role !== RoleUtilisateur.ADMIN) {
+      throw new ForbiddenException(
+        "Vous n'avez pas le droit d'ajouter un livre",
+      );
+    }
+
     const existingBook = await this.prisma.livre.findUnique({
-      where: { isbn: data.isbn }
+      where: { isbn: data.isbn },
     });
 
     if (existingBook) {
-      throw new BadRequestException("Un livre avec cet ISBN existe déjà");
+      throw new BadRequestException('Un livre avec cet ISBN existe déjà');
     }
 
     // Vérifier que la catégorie existe
     const category = await this.prisma.category.findUnique({
-      where: { id: data.categoryId }
+      where: { id: data.categoryId },
     });
 
     if (!category) {
@@ -43,7 +50,7 @@ export class BooksService {
       },
       include: {
         category: true,
-      }
+      },
     });
 
     return book;
@@ -53,7 +60,7 @@ export class BooksService {
     return await this.prisma.livre.findMany({
       include: {
         category: true,
-      }
+      },
     });
   }
 
@@ -62,7 +69,7 @@ export class BooksService {
       where: { id: id },
       include: {
         category: true,
-      }
+      },
     });
 
     if (!book) {
@@ -72,13 +79,15 @@ export class BooksService {
     return book;
   }
 
-  async update(id: number, data: UpdateBookDto, user: any) {
+  async update(id: number, data: UpdateBookDto, user: JwtUser) {
     if (user.role !== RoleUtilisateur.ADMIN) {
-      throw new ForbiddenException("Vous n'avez pas le droit de modifier un livre");
+      throw new ForbiddenException(
+        "Vous n'avez pas le droit de modifier un livre",
+      );
     }
 
     const book = await this.prisma.livre.findUnique({
-      where: { id: id }
+      where: { id: id },
     });
 
     if (!book) {
@@ -88,7 +97,7 @@ export class BooksService {
     // Si categoryId est fourni, vérifier qu'elle existe
     if (data.categoryId) {
       const category = await this.prisma.category.findUnique({
-        where: { id: data.categoryId }
+        where: { id: data.categoryId },
       });
 
       if (!category) {
@@ -99,45 +108,45 @@ export class BooksService {
     const updatedBook = await this.prisma.livre.update({
       where: { id: id },
       data: {
-        ...data
+        ...data,
       },
       include: {
         category: true,
-      }
+      },
     });
 
     return updatedBook;
   }
 
-
-  async stock(id:number,dto:changeStockDto) {
-    const book= await this.prisma.livre.findUnique({
-      where:{
-        id:id
-      }
-    })
+  async stock(id: number, dto: changeStockDto) {
+    const book = await this.prisma.livre.findUnique({
+      where: {
+        id: id,
+      },
+    });
     if (!book) {
       throw new NotFoundException('Livre introuvable');
     }
-    const updatedLivreStock=await this.prisma.livre.update({
-      where:{
-        id:id
+    const updatedLivreStock = await this.prisma.livre.update({
+      where: {
+        id: id,
       },
       data: {
-        stock:{increment:dto.quantity}
-      }
-    })
-    return updatedLivreStock
+        stock: { increment: dto.quantity },
+      },
+    });
+    return updatedLivreStock;
   }
 
-
-  async remove(id: number, user: any) {
+  async remove(id: number, user: JwtUser) {
     if (user.role !== RoleUtilisateur.ADMIN) {
-      throw new ForbiddenException("Vous n'avez pas le droit de supprimer un livre");
+      throw new ForbiddenException(
+        "Vous n'avez pas le droit de supprimer un livre",
+      );
     }
 
     const book = await this.prisma.livre.findUnique({
-      where: { id: id }
+      where: { id: id },
     });
 
     if (!book) {
@@ -145,45 +154,42 @@ export class BooksService {
     }
 
     await this.prisma.livre.delete({
-      where: { id: id }
+      where: { id: id },
     });
 
     return { message: `Livre "${book.titre}" supprimé avec succès` };
   }
 
-  async recherche(mots:string){
-    if(!mots || !mots.trim()){
-       throw new BadRequestException("Le terme de recherche ne peut pas être vide")
+  async recherche(mots: string) {
+    if (!mots || !mots.trim()) {
+      throw new BadRequestException(
+        'Le terme de recherche ne peut pas être vide',
+      );
     }
-  const books =await this.prisma.livre.findMany({
-    where:{
-      OR:[
-        {
-          titre:{
-            contains:mots.trim(),
-          }
-
-        },
-        {
-          auteur:{
-            contains:mots.trim(),
-          }
-        }
-      ]
-
-    },
-    include:{
-      category:true
-    },
-    orderBy:[
-      {titre:'asc'},
-      {auteur:'asc'}
-    ]
-  });
-   return {
-    mots,
-    totalResults: books.length,
-    books
-  };
+    const books = await this.prisma.livre.findMany({
+      where: {
+        OR: [
+          {
+            titre: {
+              contains: mots.trim(),
+            },
+          },
+          {
+            auteur: {
+              contains: mots.trim(),
+            },
+          },
+        ],
+      },
+      include: {
+        category: true,
+      },
+      orderBy: [{ titre: 'asc' }, { auteur: 'asc' }],
+    });
+    return {
+      mots,
+      totalResults: books.length,
+      books,
+    };
   }
 }

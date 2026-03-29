@@ -6,14 +6,27 @@ import {
 } from '@nestjs/common';
 import { CreateBadgeDto } from './dto/create-badge.dto';
 import { UpdateBadgeDto } from './dto/update-badge.dto';
-import { RoleUtilisateur, StatutEmprunt } from '@prisma/client';
+import { RoleUtilisateur } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
+interface BadgeAttribue {
+  id: number;
+  utilisateurId: number;
+  badgeId: number;
+  dateObtention: Date;
+  badge: {
+    id: number;
+    nom: string;
+    image: string | null;
+    description: string;
+    conditionXP: number;
+  };
+}
 
 @Injectable()
 export class BadgesService {
   constructor(private readonly prisma: PrismaService) {}
-  async create(data: CreateBadgeDto, user) {
+  async create(data: CreateBadgeDto, user: JwtUser) {
     if (user.role !== RoleUtilisateur.ADMIN) {
       throw new ForbiddenException(
         "Vous n'avez pas le droit d'ajouter un Badge",
@@ -34,7 +47,7 @@ export class BadgesService {
     return await this.prisma.badge.findMany();
   }
 
-  async findOne(id: number, user) {
+  async findOne(id: number, user: JwtUser) {
     if (user.role !== RoleUtilisateur.ADMIN) {
       throw new ForbiddenException(
         "Vous n'avez pas le droit d'ajouter un Badge",
@@ -51,7 +64,7 @@ export class BadgesService {
     return badge;
   }
 
-  async update(id: number, data: UpdateBadgeDto, user) {
+  async update(id: number, data: UpdateBadgeDto, user: JwtUser) {
     if (user.role !== RoleUtilisateur.ADMIN) {
       throw new ForbiddenException(
         "Vous n'avez pas le droit d'ajouter un Badge",
@@ -75,7 +88,7 @@ export class BadgesService {
     return updatedBadge;
   }
 
-  async remove(id: number, user) {
+  async remove(id: number, user: JwtUser) {
     if (user.role !== RoleUtilisateur.ADMIN) {
       throw new ForbiddenException(
         "Vous n'avez pas le droit d'ajouter un Badge",
@@ -100,7 +113,6 @@ export class BadgesService {
   }
 
   async getMesBadges(user: JwtUser) {
-   
     return this.prisma.badgeEtudiant.findMany({
       where: { utilisateurId: user.userId },
       include: {
@@ -111,7 +123,9 @@ export class BadgesService {
   }
 
   // SYSTÈME : Vérifier et attribuer les badges automatiquement
-  async verifierEtAttribuerBadges(utilisateurId: number) {
+  async verifierEtAttribuerBadges(
+    utilisateurId: number,
+  ): Promise<{ nouveauxBadges: BadgeAttribue[] }> {
     const utilisateur = await this.prisma.utilisateur.findUnique({
       where: { id: utilisateurId },
       select: { xp: true },
@@ -138,7 +152,7 @@ export class BadgesService {
       (badge) => !idsPossedes.includes(badge.id),
     );
 
-    const badgesAttribues: any[] = [];
+    const badgesAttribues: BadgeAttribue[] = [];
     for (const badge of nouveauxBadges) {
       const nouveauBadgeEtudiant = await this.prisma.badgeEtudiant.create({
         data: {

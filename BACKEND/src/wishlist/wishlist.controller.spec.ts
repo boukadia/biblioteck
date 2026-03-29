@@ -9,7 +9,9 @@ describe('WishlistController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [WishlistController],
       providers: [WishlistService],
-    }).compile();
+    })
+      .useMocker(() => ({}))
+      .compile();
 
     controller = module.get<WishlistController>(WishlistController);
   });

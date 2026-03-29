@@ -14,7 +14,6 @@ function Livres() {
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
@@ -170,7 +169,7 @@ function Livres() {
 
         {/* Books Section */}
         <div className="section-card" style={{ marginTop: '2rem' }}>
-          {/* Header with filters and view toggle */}
+          {/* Header with filters */}
           <div className="books-header">
             <div className="books-filters">
               <input
@@ -201,21 +200,6 @@ function Livres() {
               </select>
             </div>
 
-            <div className="view-toggle">
-              <button 
-                className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                onClick={() => setViewMode('grid')}
-              >
-                <i className="fas fa-th-large"></i>
-              </button>
-              <button 
-                className={`view-btn ${viewMode === 'table' ? 'active' : ''}`}
-                onClick={() => setViewMode('table')}
-              >
-                <i className="fas fa-list"></i>
-              </button>
-            </div>
-
             <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
               <i className="fas fa-plus"></i> Ajouter un livre
             </button>
@@ -234,124 +218,61 @@ function Livres() {
             </div>
           ) : (
             <>
-              {/* Grid View */}
-              {viewMode === 'grid' && (
-                <div className="books-grid">
-                  {filteredBooks.map(book => {
-                    const status = getBookStatus(book.stock);
-                    return (
-                      <div key={book.id} className="book-card">
-                        <div className="book-cover">
-                          {book.image ? (
-                            <img src={book.image} alt={book.titre} />
-                          ) : (
-                            <div className="book-placeholder">
-                              <i className="fas fa-book"></i>
-                            </div>
-                          )}
-                          <span className={`book-status-badge ${status.color}`}>
-                            {status.label}
-                          </span>
-                          <div className="book-actions-overlay">
-                            <button 
-                              className="action-btn view-btn"
-                              onClick={() => openViewModal(book)}
-                              title="Voir les détails"
-                            >
-                              <i className="fas fa-eye"></i>
-                            </button>
-                            <button 
-                              className="action-btn edit-btn"
-                              onClick={() => openEditModal(book)}
-                              title="Modifier"
-                            >
-                              <i className="fas fa-edit"></i>
-                            </button>
-                            <button 
-                              className="action-btn delete-btn"
-                              onClick={() => openDeleteModal(book)}
-                              title="Supprimer"
-                            >
-                              <i className="fas fa-trash"></i>
-                            </button>
+              {/* Grid View Only */}
+              <div className="books-grid">
+                {filteredBooks.map(book => {
+                  const status = getBookStatus(book.stock);
+                  return (
+                    <div key={book.id} className="book-card">
+                      <div className="book-cover">
+                        {book.image ? (
+                          <img src={book.image} alt={book.titre} />
+                        ) : (
+                          <div className="book-placeholder">
+                            <i className="fas fa-book"></i>
                           </div>
-                        </div>
-                        <div className="book-info">
-                          <h4>{book.titre}</h4>
-                          <p className="author">{book.auteur}</p>
-                          <div className="book-meta">
-                            <span className="category">{getCategoryName(book.categoryId)}</span>
-                            <span className="copies">
-                              <i className="fas fa-copy"></i> {book.stock} copie{book.stock !== 1 ? 's' : ''}
-                            </span>
-                          </div>
+                        )}
+                        <span className={`book-status-badge ${status.color}`}>
+                          {status.label}
+                        </span>
+                        <div className="book-actions-overlay">
+                          <button 
+                            className="action-btn view-btn"
+                            onClick={() => openViewModal(book)}
+                            title="Voir les détails"
+                          >
+                            <i className="fas fa-eye"></i>
+                          </button>
+                          <button 
+                            className="action-btn edit-btn"
+                            onClick={() => openEditModal(book)}
+                            title="Modifier"
+                          >
+                            <i className="fas fa-edit"></i>
+                          </button>
+                          <button 
+                            className="action-btn delete-btn"
+                            onClick={() => openDeleteModal(book)}
+                            title="Supprimer"
+                          >
+                            <i className="fas fa-trash"></i>
+                          </button>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Table View */}
-              {viewMode === 'table' && (
-                <div className="books-table-wrapper">
-                  <table className="books-table">
-                    <thead>
-                      <tr>
-                        <th>Titre</th>
-                        <th>Auteur</th>
-                        <th>ISBN</th>
-                        <th>Catégorie</th>
-                        <th>Stock</th>
-                        <th>Statut</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredBooks.map(book => {
-                        const status = getBookStatus(book.stock);
-                        return (
-                          <tr key={book.id}>
-                            <td className="title-cell">{book.titre}</td>
-                            <td>{book.auteur}</td>
-                            <td className="isbn-cell">{book.isbn || '-'}</td>
-                            <td>{getCategoryName(book.categoryId)}</td>
-                            <td className="stock-cell">{book.stock}</td>
-                            <td>
-                              <span className={`status-badge ${status.color}`}>
-                                {status.label}
-                              </span>
-                            </td>
-                            <td className="actions-cell">
-                              <button 
-                                className="action-icon view"
-                                onClick={() => openViewModal(book)}
-                                title="Voir"
-                              >
-                                <i className="fas fa-eye"></i>
-                              </button>
-                              <button 
-                                className="action-icon edit"
-                                onClick={() => openEditModal(book)}
-                                title="Modifier"
-                              >
-                                <i className="fas fa-edit"></i>
-                              </button>
-                              <button 
-                                className="action-icon delete"
-                                onClick={() => openDeleteModal(book)}
-                                title="Supprimer"
-                              >
-                                <i className="fas fa-trash"></i>
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                      <div className="book-info">
+                        <h4>{book.titre}</h4>
+                        <p className="author">{book.auteur}</p>
+                        <div className="book-meta">
+                          <span className="category">{getCategoryName(book.categoryId)}</span>
+                          <span className="copies">
+                            <i className="fas fa-copy"></i> {book.stock} copie{book.stock !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
 
               {/* Stats */}
               <div className="books-stats">

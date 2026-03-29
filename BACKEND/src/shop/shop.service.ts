@@ -73,7 +73,9 @@ export class ShopService {
       select: { id: true, pointsActuels: true },
     });
 
-    if (!etudiant) {throw new NotFoundException('Utilisateur introuvable.');}
+    if (!etudiant) {
+      throw new NotFoundException('Utilisateur introuvable.');
+    }
 
     if ((etudiant.pointsActuels ?? 0) < recompense.cout) {
       throw new BadRequestException(
@@ -89,7 +91,9 @@ export class ShopService {
       });
 
       const dateExpiration = new Date();
-      dateExpiration.setDate(dateExpiration.getDate() + (recompense.dureeValiditeJours || 60));
+      dateExpiration.setDate(
+        dateExpiration.getDate() + (recompense.dureeValiditeJours || 60),
+      );
 
       const nouveauBonus = await tx.bonusPossede.create({
         data: {

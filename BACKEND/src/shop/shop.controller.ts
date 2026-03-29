@@ -1,10 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { ShopService } from './shop.service';
 import { CreateRecompenseDto } from './dto/create-shop.dto';
 import { UpdateRecompenseDto } from './dto/update-shop.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
+import { Request as ExpressRequest } from 'express';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('shop')
@@ -13,7 +25,10 @@ export class ShopController {
 
   @Post()
   @Roles('ADMIN')
-  create(@Body() createShopDto: CreateRecompenseDto, @Request() req: any) {
+  create(
+    @Body() createShopDto: CreateRecompenseDto,
+    @Request() req: ExpressRequest & { user: JwtUser },
+  ) {
     return this.shopService.create(createShopDto, req.user);
   }
 
@@ -24,13 +39,16 @@ export class ShopController {
 
   @Get('mes-bonus')
   @Roles('ETUDIANT')
-  getMesBonus(@Request() req: any) {
+  getMesBonus(@Request() req: ExpressRequest & { user: JwtUser }) {
     return this.shopService.getMesBonus(req.user);
   }
 
   @Post(':id/acheter')
   @Roles('ETUDIANT')
-  acheterRecompense(@Param('id') id: string, @Request() req: any) {
+  acheterRecompense(
+    @Param('id') id: string,
+    @Request() req: ExpressRequest & { user: JwtUser },
+  ) {
     return this.shopService.acheterRecompense(+id, req.user);
   }
 
@@ -42,13 +60,20 @@ export class ShopController {
 
   @Patch(':id')
   @Roles('ADMIN')
-  update(@Param('id') id: string, @Body() updateShopDto: UpdateRecompenseDto, @Request() req: any) {
+  update(
+    @Param('id') id: string,
+    @Body() updateShopDto: UpdateRecompenseDto,
+    @Request() req: ExpressRequest & { user: JwtUser },
+  ) {
     return this.shopService.update(+id, updateShopDto, req.user);
   }
 
   @Delete(':id')
   @Roles('ADMIN')
-  remove(@Param('id') id: string, @Request() req: any) {
+  remove(
+    @Param('id') id: string,
+    @Request() req: ExpressRequest & { user: JwtUser },
+  ) {
     return this.shopService.remove(+id, req.user);
   }
 }

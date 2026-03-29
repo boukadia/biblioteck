@@ -4,7 +4,7 @@ import { EmpruntsController } from './emprunts.controller';
 import { BadgesModule } from 'src/badges/badges.module';
 
 @Module({
-  imports:[BadgesModule],
+  imports: [BadgesModule],
   controllers: [EmpruntsController],
   providers: [EmpruntsService],
 })

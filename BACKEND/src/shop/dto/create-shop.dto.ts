@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsEnum, Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsNumber,
+  IsEnum,
+  Min,
+} from 'class-validator';
 import { TypeRecompense } from '@prisma/client';
 
 export class CreateRecompenseDto {
@@ -14,11 +21,13 @@ export class CreateRecompenseDto {
   @Min(0, { message: 'Le coût en points ne peut pas être négatif.' })
   cout: number;
 
-  @IsEnum(TypeRecompense, { message: 'Le type de récompense n\'est pas valide.' })
+  @IsEnum(TypeRecompense, {
+    message: "Le type de récompense n'est pas valide.",
+  })
   type: TypeRecompense;
 
   @IsNumber()
   @Min(1)
   @IsOptional()
-  dureeValiditeJours?: number; 
+  dureeValiditeJours?: number;
 }
