@@ -131,7 +131,7 @@ function Boutique() {
             }}>
               <i className="fas fa-coins" style={{ color: '#f59e0b', fontSize: '1.25rem' }}></i>
               <div>
-                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f59e0b' }}>{user.points || 0}</div>
+                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f59e0b' }}>{user.pointsActuels || 0}</div>
                 <div style={{ fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase' }}>Points disponibles</div>
               </div>
             </div>
