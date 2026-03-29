@@ -129,9 +129,7 @@ function Inventaire() {
             </div>
           </div>
           <div className="header-actions">
-            <button className="btn btn-outline">
-              <i className="fas fa-download"></i> Exporter
-            </button>
+           
             <button className="btn btn-primary" onClick={() => setShowAddStockModal({ show: true, selectedBookId: '' })}>
               <i className="fas fa-plus"></i> Ajouter Stock
             </button>
@@ -250,9 +248,6 @@ function Inventaire() {
                           <div style={{ display: 'flex', gap: '0.5rem' }}>
                             <button className="btn btn-sm btn-outline" title="Ajouter du stock" onClick={() => setShowAddStockModal({ show: true, selectedBookId: book.id })}>
                               <i className="fas fa-plus"></i>
-                            </button>
-                            <button className="btn btn-sm btn-outline" title="Historique (Bientôt disponible)">
-                              <i className="fas fa-history"></i>
                             </button>
                           </div>
                         </td>
