@@ -179,9 +179,6 @@ function Categories() {
           </div>
         </header>
 
-        <div className="stats-grid">
-            <StatsCard stats={stats} />
-        </div>
 
         <div className="section-card">
           <div className="section-header">
