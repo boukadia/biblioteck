@@ -33,7 +33,6 @@ export async function validerEmprunt(id) {
  export async function annule(id) {
     const response = await api.patch(`/emprunts/${id}/annuler`);
     return response.data;
-
  }
 
 export async function retournerLivre(id) {
@@ -44,6 +43,13 @@ export async function retournerLivre(id) {
 export async function declarerRetour(id, bonusId) {
     const response = await api.patch(`/emprunts/${id}/declarer-retour`, { 
         bonusProtectionId: bonusId 
+    });
+    return response.data;
+}
+
+export async function prolongerEmprunt(id, bonusId) {
+    const response = await api.patch(`/emprunts/${id}/prolonger`, { 
+        bonusPossedeId: bonusId 
     });
     return response.data;
 }
