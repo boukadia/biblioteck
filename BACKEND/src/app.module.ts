@@ -19,7 +19,24 @@ import { TasksModule } from './tasks/tasks.module';
 import { StatsModule } from './stats/stats.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, BooksModule, ShopModule, BadgesModule, SanctionsModule, WishlistModule, NotesModule, PrismaModule, EmpruntsModule, CategoriesModule, RegleSanctionsModule, HistoriquesModule,ScheduleModule.forRoot(), TasksModule, StatsModule],
+  imports: [
+    AuthModule,
+    UsersModule,
+    BooksModule,
+    ShopModule,
+    BadgesModule,
+    SanctionsModule,
+    WishlistModule,
+    NotesModule,
+    PrismaModule,
+    EmpruntsModule,
+    CategoriesModule,
+    RegleSanctionsModule,
+    HistoriquesModule,
+    ScheduleModule.forRoot(),
+    TasksModule,
+    StatsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

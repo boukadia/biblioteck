@@ -1,37 +1,36 @@
 import {
-    IsInt,
-    IsISBN,
-    IsNotEmpty,
-    IsOptional,
-    IsPositive,
-    IsString,
-    Min,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsPositive,
+  IsString,
+  Min,
 } from 'class-validator';
 
 export class CreateBookDto {
-    @IsNotEmpty()
-    @IsString()
-    titre: string;
+  @IsNotEmpty()
+  @IsString()
+  titre: string;
 
-    @IsNotEmpty()
-    @IsString()
-    auteur: string;
+  @IsNotEmpty()
+  @IsString()
+  auteur: string;
 
-    @IsNotEmpty()
-    @IsString()
-    isbn: string;
+  @IsNotEmpty()
+  @IsString()
+  isbn: string;
 
-    @IsOptional()
-    @IsString()
-    image: string;
+  @IsOptional()
+  @IsString()
+  image: string;
 
-    @IsOptional()
-    @IsInt()
-    @Min(0)
-    stock?: number;
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  stock?: number;
 
-    @IsNotEmpty()
-    @IsInt()
-    @IsPositive()
-    categoryId: number;
+  @IsNotEmpty()
+  @IsInt()
+  @IsPositive()
+  categoryId: number;
 }

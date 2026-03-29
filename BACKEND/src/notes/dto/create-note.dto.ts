@@ -1,33 +1,33 @@
 import {
-    IsBoolean,
-    IsDateString,
-    IsInt,
-    IsNotEmpty,
-    IsOptional,
-    IsPositive,
+  IsBoolean,
+  IsDateString,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsPositive,
 } from 'class-validator';
 
 export class CreateNoteDto {
-    @IsNotEmpty()
-    @IsInt()
-    @IsPositive()
-    utilisateurId: number;
+  @IsNotEmpty()
+  @IsInt()
+  @IsPositive()
+  utilisateurId: number;
 
-    @IsNotEmpty()
-    @IsInt()
-    @IsPositive()
-    recompenseId: number;
+  @IsNotEmpty()
+  @IsInt()
+  @IsPositive()
+  recompenseId: number;
 
-    @IsOptional()
-    @IsBoolean()
-    estConsomme?: boolean;
+  @IsOptional()
+  @IsBoolean()
+  estConsomme?: boolean;
 
-    @IsOptional()
-    @IsDateString()
-    dateExpiration?: string;
+  @IsOptional()
+  @IsDateString()
+  dateExpiration?: string;
 
-    @IsOptional()
-    @IsInt()
-    @IsPositive()
-    empruntId?: number;
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  empruntId?: number;
 }

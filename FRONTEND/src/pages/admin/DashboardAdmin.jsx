@@ -84,7 +84,6 @@ function DashboardAdmin() {
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
         <StatsGrid stats={stats} />
-        <QuickActions onAddBook={() => setShowModal(true)} />
 
         <div className="dashboard-grid">
           <PendingLoans empruntsEnAttente={empruntsEnAttente} />

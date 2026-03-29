@@ -6,7 +6,12 @@ import {
 } from '@nestjs/common';
 import { CreateEmpruntDto } from './dto/create-emprunt.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { StatutEmprunt, StatutUtilisateur, TypeRecompense, TypeMouvementPoints, Utilisateur } from '@prisma/client';
+import {
+  StatutEmprunt,
+  StatutUtilisateur,
+  TypeRecompense,
+  TypeMouvementPoints,
+} from '@prisma/client';
 import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
 import { BadgesService } from '../badges/badges.service';
 
@@ -15,7 +20,7 @@ export class EmpruntsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly badgesService: BadgesService,
-  ) { }
+  ) {}
 
   // EMPRUNTER UN LIVRE (Étudiant -> EN_ATTENTE)
   async emprunterLivre(data: CreateEmpruntDto, user: JwtUser) {
@@ -28,7 +33,7 @@ export class EmpruntsService {
 
     if (empruntEnRetard) {
       throw new ForbiddenException(
-        "Accès refusé. Vous avez un livre en retard. Veuillez le rendre avant de pouvoir effectuer un nouvel emprunt."
+        'Accès refusé. Vous avez un livre en retard. Veuillez le rendre avant de pouvoir effectuer un nouvel emprunt.',
       );
     }
 
@@ -41,10 +46,9 @@ export class EmpruntsService {
       throw new NotFoundException('Utilisateur introuvable.');
     }
 
-
     if (etudiant.statut === StatutUtilisateur.BLOQUE) {
       throw new ForbiddenException(
-        "Votre compte est actuellement bloqué suite à des pénalités."
+        'Votre compte est actuellement bloqué suite à des pénalités.',
       );
     }
 
@@ -144,9 +148,9 @@ export class EmpruntsService {
             StatutEmprunt.EN_COURS,
             StatutEmprunt.EN_ATTENTE,
             StatutEmprunt.EN_RETARD,
-            StatutEmprunt.EN_ATTENTE_RETOUR
-          ]
-        }
+            StatutEmprunt.EN_ATTENTE_RETOUR,
+          ],
+        },
       },
     });
     if (empruntesEnCours >= limiteEmprunts) {
@@ -163,9 +167,9 @@ export class EmpruntsService {
             StatutEmprunt.EN_COURS,
             StatutEmprunt.EN_ATTENTE,
             StatutEmprunt.EN_RETARD,
-            StatutEmprunt.EN_ATTENTE_RETOUR
-          ]
-        }
+            StatutEmprunt.EN_ATTENTE_RETOUR,
+          ],
+        },
       },
     });
     if (empruntExistant) {
@@ -224,23 +228,27 @@ export class EmpruntsService {
     const dateAujourdhui = new Date();
 
     const dureeInitialeEnJours = Math.round(
-      (emprunt.dateEcheance.getTime() - emprunt.dateEmprunt.getTime()) / (1000 * 3600 * 24)
+      (emprunt.dateEcheance.getTime() - emprunt.dateEmprunt.getTime()) /
+        (1000 * 3600 * 24),
     );
 
     const nouvelleDateEcheance = new Date(dateAujourdhui);
-    nouvelleDateEcheance.setDate(nouvelleDateEcheance.getDate() + dureeInitialeEnJours);
+    nouvelleDateEcheance.setDate(
+      nouvelleDateEcheance.getDate() + dureeInitialeEnJours,
+    );
 
     const empruntMisAJour = await this.prisma.emprunt.update({
       where: { id: empruntId },
       data: {
         statut: StatutEmprunt.EN_COURS,
         dateEmprunt: dateAujourdhui,
-        dateEcheance: nouvelleDateEcheance
+        dateEcheance: nouvelleDateEcheance,
       },
     });
 
     return {
-      message: "Livre remis à l'étudiant (Statut: EN_COURS). La date d'échéance a été mise à jour.",
+      message:
+        "Livre remis à l'étudiant (Statut: EN_COURS). La date d'échéance a été mise à jour.",
       emprunt: empruntMisAJour,
     };
   }
@@ -253,7 +261,13 @@ export class EmpruntsService {
       },
       include: {
         utilisateur: {
-          select: { id: true, nom: true, email: true, niveau: true, initials: true },
+          select: {
+            id: true,
+            nom: true,
+            email: true,
+            niveau: true,
+            initials: true,
+          },
         },
         livre: {
           select: { id: true, titre: true, auteur: true, image: true },
@@ -268,7 +282,9 @@ export class EmpruntsService {
   async findAll() {
     return this.prisma.emprunt.findMany({
       include: {
-        utilisateur: { select: { id: true, nom: true, email: true, initials: true } },
+        utilisateur: {
+          select: { id: true, nom: true, email: true, initials: true },
+        },
         livre: { select: { id: true, titre: true, auteur: true } },
       },
       orderBy: { dateEmprunt: 'desc' },
@@ -291,7 +307,13 @@ export class EmpruntsService {
       where: { statut: StatutEmprunt.EN_COURS },
       include: {
         utilisateur: {
-          select: { id: true, nom: true, email: true, niveau: true, initials: true },
+          select: {
+            id: true,
+            nom: true,
+            email: true,
+            niveau: true,
+            initials: true,
+          },
         },
         livre: { select: { id: true, titre: true, auteur: true } },
       },
@@ -347,7 +369,13 @@ export class EmpruntsService {
       where: { statut: StatutEmprunt.EN_RETARD },
       include: {
         utilisateur: {
-          select: { id: true, nom: true, email: true, niveau: true, initials: true },
+          select: {
+            id: true,
+            nom: true,
+            email: true,
+            niveau: true,
+            initials: true,
+          },
         },
         livre: { select: { id: true, titre: true, auteur: true } },
       },
@@ -360,7 +388,13 @@ export class EmpruntsService {
       where: { statut: StatutEmprunt.EN_ATTENTE_RETOUR },
       include: {
         utilisateur: {
-          select: { id: true, nom: true, email: true, niveau: true, initials: true },
+          select: {
+            id: true,
+            nom: true,
+            email: true,
+            niveau: true,
+            initials: true,
+          },
         },
         livre: { select: { id: true, titre: true, auteur: true } },
       },
@@ -384,7 +418,10 @@ export class EmpruntsService {
     if (emprunt.utilisateurId !== user.userId) {
       throw new ForbiddenException("Ce n'est pas votre emprunt.");
     }
-    if (emprunt.statut !== StatutEmprunt.EN_COURS && emprunt.statut !== StatutEmprunt.EN_RETARD) {
+    if (
+      emprunt.statut !== StatutEmprunt.EN_COURS &&
+      emprunt.statut !== StatutEmprunt.EN_RETARD
+    ) {
       throw new BadRequestException(
         'Vous ne pouvez déclarer un retour que pour un livre EN_COURS.',
       );
@@ -461,7 +498,8 @@ export class EmpruntsService {
 
     if (
       emprunt.statut !== StatutEmprunt.EN_COURS &&
-      emprunt.statut !== StatutEmprunt.EN_ATTENTE_RETOUR && emprunt.statut !== StatutEmprunt.EN_RETARD
+      emprunt.statut !== StatutEmprunt.EN_ATTENTE_RETOUR &&
+      emprunt.statut !== StatutEmprunt.EN_RETARD
     ) {
       throw new BadRequestException(
         `Impossible de retourner ce livre (Statut actuel: ${emprunt.statut}).`,
@@ -477,7 +515,7 @@ export class EmpruntsService {
         recompense: { type: TypeRecompense.PROTECTION },
         estConsomme: true,
       },
-      include: { recompense: true }
+      include: { recompense: true },
     });
 
     // 1. L-Transaction l-assassiya (Ktab + XP + Sanctions)
@@ -520,7 +558,7 @@ export class EmpruntsService {
       } else {
         const joursRetard = Math.ceil(
           (dateFinReel.getTime() - emprunt.dateEcheance.getTime()) /
-          (1000 * 3600 * 24),
+            (1000 * 3600 * 24),
         );
 
         if (bonusApplique) {
@@ -581,7 +619,11 @@ export class EmpruntsService {
   }
 
   // PROLONGER UN EMPRUNT (Étudiant -> Utilise un bonus PROLONGATION)
-  async prolongerEmprunt(user: JwtUser, empruntId: number, bonusPossedeId: number) {
+  async prolongerEmprunt(
+    user: JwtUser,
+    empruntId: number,
+    bonusPossedeId: number,
+  ) {
     const emprunt = await this.prisma.emprunt.findUnique({
       where: { id: empruntId },
     });
@@ -594,7 +636,7 @@ export class EmpruntsService {
     }
     if (emprunt.statut !== StatutEmprunt.EN_COURS) {
       throw new BadRequestException(
-        "Vous ne pouvez prolonger que les emprunts en cours.",
+        'Vous ne pouvez prolonger que les emprunts en cours.',
       );
     }
 
@@ -613,9 +655,7 @@ export class EmpruntsService {
       throw new BadRequestException('Ce bonus a expiré.');
     }
     if (bonus.recompense.type !== TypeRecompense.PROLONGATION) {
-      throw new BadRequestException(
-        "Ce n'est pas un bonus de PROLONGATION.",
-      );
+      throw new BadRequestException("Ce n'est pas un bonus de PROLONGATION.");
     }
 
     return this.prisma.$transaction(async (tx) => {
@@ -641,7 +681,7 @@ export class EmpruntsService {
       });
 
       return {
-        message: 'L\'emprunt a été prolongé de 7 jours avec succès !',
+        message: "L'emprunt a été prolongé de 7 jours avec succès !",
         emprunt: empruntMisAJour,
         nouvelleEcheance: nouvelleDateEcheance.toLocaleDateString(),
       };

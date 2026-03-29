@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
@@ -26,7 +30,9 @@ export class WishlistService {
     });
 
     if (existeDeja) {
-      throw new BadRequestException("Ce livre est déjà dans votre liste de souhaits.");
+      throw new BadRequestException(
+        'Ce livre est déjà dans votre liste de souhaits.',
+      );
     }
 
     const wishlistItem = await this.prisma.listeSouhaits.create({
@@ -36,13 +42,19 @@ export class WishlistService {
       },
       include: {
         livre: {
-          select: { id: true, titre: true, auteur: true, image: true, stock: true },
+          select: {
+            id: true,
+            titre: true,
+            auteur: true,
+            image: true,
+            stock: true,
+          },
         },
       },
     });
 
     return {
-      message: "Livre ajouté à votre liste de souhaits avec succès.",
+      message: 'Livre ajouté à votre liste de souhaits avec succès.',
       item: wishlistItem,
     };
   }
@@ -54,15 +66,20 @@ export class WishlistService {
       },
       include: {
         livre: {
-          select: { id: true, titre: true, auteur: true, image: true, stock: true },
+          select: {
+            id: true,
+            titre: true,
+            auteur: true,
+            image: true,
+            stock: true,
+          },
         },
       },
       orderBy: {
-        dateAjout: 'desc', 
+        dateAjout: 'desc',
       },
     });
   }
- 
 
   async retirerLivre(livreId: number, user: JwtUser) {
     const wishlistItem = await this.prisma.listeSouhaits.findFirst({
@@ -73,7 +90,9 @@ export class WishlistService {
     });
 
     if (!wishlistItem) {
-      throw new NotFoundException("Ce livre n'est pas dans votre liste de souhaits.");
+      throw new NotFoundException(
+        "Ce livre n'est pas dans votre liste de souhaits.",
+      );
     }
 
     await this.prisma.listeSouhaits.delete({
@@ -83,7 +102,7 @@ export class WishlistService {
     });
 
     return {
-      message: "Livre retiré de votre liste de souhaits.",
+      message: 'Livre retiré de votre liste de souhaits.',
     };
   }
 }

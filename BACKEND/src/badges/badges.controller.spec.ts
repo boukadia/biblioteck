@@ -9,7 +9,9 @@ describe('BadgesController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BadgesController],
       providers: [BadgesService],
-    }).compile();
+    })
+      .useMocker(() => ({}))
+      .compile();
 
     controller = module.get<BadgesController>(BadgesController);
   });

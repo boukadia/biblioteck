@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class StatsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
   async getDashboardStats() {
     const now = new Date();
 
@@ -27,14 +27,16 @@ export class StatsService {
         },
       }),
       this.prisma.utilisateur.count({ where: { role: 'ETUDIANT' } }),
-      this.prisma.emprunt.findMany({
-        where: {
-          statut: 'EN_RETARD',
-          dateEcheance: { lt: now },
-        },
-        select: { utilisateurId: true },
-        distinct: ['utilisateurId'],
-      }).then((rows) => rows.length),
+      this.prisma.emprunt
+        .findMany({
+          where: {
+            statut: 'EN_RETARD',
+            dateEcheance: { lt: now },
+          },
+          select: { utilisateurId: true },
+          distinct: ['utilisateurId'],
+        })
+        .then((rows) => rows.length),
     ]);
 
     return {

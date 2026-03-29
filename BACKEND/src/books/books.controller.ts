@@ -1,53 +1,63 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, UseGuards, Request, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  UseGuards,
+  Request,
+} from '@nestjs/common';
 import { BooksService } from './books.service';
 import { CreateBookDto } from './dto/create-book.dto';
 import { UpdateBookDto } from './dto/update-book.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
-import { changeStockDto } from './dto/change-stocke.dto';
+import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
+import { Request as ExpressRequest } from 'express';
 
-// @UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('books')
 export class BooksController {
-    constructor(private readonly bookService : BooksService){}
+  constructor(private readonly bookService: BooksService) {}
 
-    @Post('')
-    // @Roles('ADMIN')
-    create(@Body() data: CreateBookDto, @Request() req){
-        return this.bookService.create(data, req.user)
-    }
+  @Post('')
+  @Roles('ADMIN')
+  create(
+    @Body() data: CreateBookDto,
+    @Request() req: ExpressRequest & { user: JwtUser },
+  ) {
+    return this.bookService.create(data, req.user);
+  }
 
-    @Get('')
-    findAll(){
-        return this.bookService.findAll()
-    }
+  @Get('')
+  findAll() {
+    return this.bookService.findAll();
+  }
 
-    @Get('recherche')
-    recherche(@Query('q') mots:string){
-        return this.bookService.recherche(mots)
-    }
-    
-    @Get(':id')
-    findOne(@Param('id') id: string){
-        return this.bookService.findOne(+id)
-    }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.bookService.findOne(+id);
+  }
 
-    @Put(':id')
-    @Roles('ADMIN')
-    update(@Param('id') id: string, @Body() data: UpdateBookDto, @Request() req){
-        return this.bookService.update(+id, data, req.user)
-    }
+  @Put(':id')
+  @Roles('ADMIN')
+  update(
+    @Param('id') id: string,
+    @Body() data: UpdateBookDto,
+    @Request() req: ExpressRequest & { user: JwtUser },
+  ) {
+    return this.bookService.update(+id, data, req.user);
+  }
 
-    @Delete(':id')
-    @Roles('ADMIN')
-    remove(@Param('id') id: string, @Request() req){
-        return this.bookService.remove(+id, req.user)
-    }
-    
-    @Patch('stock/:id')
-    @Roles("ADMIN")
-    changerStock(@Param('id') id:string,@Body() body:changeStockDto){
-        return this.bookService.stock(+id,body)
-    }
+  @Delete(':id')
+  @Roles('ADMIN')
+  remove(
+    @Param('id') id: string,
+    @Request() req: ExpressRequest & { user: JwtUser },
+  ) {
+    return this.bookService.remove(+id, req.user);
+  }
 }
