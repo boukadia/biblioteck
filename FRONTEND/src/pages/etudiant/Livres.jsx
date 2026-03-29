@@ -40,6 +40,8 @@ function StudentLivres() {
   const [isBookInWishlist, setIsBookInWishlist] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
 
+  // Bonus Selection
+  const [selectedBonusId, setSelectedBonusId] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -72,6 +74,7 @@ function StudentLivres() {
     }
     setIsLoading(false);
   }
+
   // Search & Filter
   useEffect(() => {
     let result = books;
@@ -100,6 +103,7 @@ function StudentLivres() {
     setIsBookInWishlist(isInWishlist);
     setShowBookModal(true);
     setBorrowSuccess(false);
+    setSelectedBonusId(null);
   }
 
   // Borrow
@@ -109,7 +113,10 @@ function StudentLivres() {
     }
     setBorrowLoading(true);
     try {
-      await emprunter({ livreId: selectedBook.id });
+      await emprunter({ 
+        livreId: selectedBook.id,
+        bonusPossedeId: selectedBonusId || undefined 
+      });
       setBorrowSuccess(true);
       setShowBorrowConfirm(false);
       await loadData();
@@ -144,6 +151,10 @@ function StudentLivres() {
     setWishlistLoading(false);
   }
 
+  // Filter useful bonuses for borrow (only PROLONGATION available in this project)
+  const availableBorrowBonuses = user.bonusPossedes?.filter(b => 
+    b.recompense.type === 'PROLONGATION'
+  ) || [];
 
   return (
     <div className="app-wrapper">
@@ -326,29 +337,90 @@ function StudentLivres() {
       {/* Borrow Confirmation Modal */}
       {showBorrowConfirm && selectedBook && (
         <div className="modal-overlay active" onClick={() => setShowBorrowConfirm(false)}>
-          <div className="modal-dialog" onClick={e => e.stopPropagation()} style={{ maxWidth: '420px' }}>
+          <div className="modal-dialog" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px' }}>
             <div className="modal-header">
               <h2><i className="fas fa-hand-holding" style={{ color: '#10b981' }}></i> Confirmer l'emprunt</h2>
               <button className="close-modal" onClick={() => setShowBorrowConfirm(false)}>&times;</button>
             </div>
-            <div className="modal-body" style={{ textAlign: 'center' }}>
-              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', fontSize: '2rem', color: '#10b981' }}>
-                <i className="fas fa-check"></i>
+            <div className="modal-body">
+              <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', fontSize: '1.5rem', color: '#10b981' }}>
+                  <i className="fas fa-check"></i>
+                </div>
+                <h3 style={{ marginBottom: '0.25rem', color: '#f8fafc' }}>Confirmer la demande</h3>
+                <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+                   « {selectedBook.titre} »
+                </p>
               </div>
-              <h3 style={{ marginBottom: '0.5rem', color: '#f8fafc' }}>Confirmer la demande</h3>
-              <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
-                Voulez-vous emprunter « {selectedBook.titre} » ?
-              </p>
-              <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem' }}>
-                <p style={{ margin: 0, fontSize: '0.9rem', color: '#f8fafc' }}>
-                  <i className="fas fa-calendar" style={{ color: '#6366f1', marginRight: '0.5rem' }}></i> Durée : <strong>14 jours</strong>
+
+              {/* Bonus Selection Section */}
+              <div className="bonus-selection-borrow">
+                <label style={{ display: 'block', fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.75rem', fontWeight: 500 }}>
+                  <i className="fas fa-gift" style={{ color: '#f59e0b', marginRight: '0.5rem' }}></i> Appliquer un bonus (optionnel) :
+                </label>
+                
+                {availableBorrowBonuses.length === 0 ? (
+                  <div style={{ padding: '0.75rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', fontSize: '0.8rem', color: '#64748b', textAlign: 'center' }}>
+                    Aucun bonus éligible dans votre inventaire.
+                  </div>
+                ) : (
+                  <div className="bonus-mini-list" style={{ maxHeight: '180px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div 
+                      className={`bonus-mini-item ${selectedBonusId === null ? 'selected' : ''}`}
+                      onClick={() => setSelectedBonusId(null)}
+                      style={{
+                        padding: '0.6rem 0.8rem', borderRadius: '10px', background: selectedBonusId === null ? 'rgba(99, 102, 241, 0.15)' : 'rgba(255,255,255,0.03)',
+                        border: `1px solid ${selectedBonusId === null ? '#6366f1' : 'transparent'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem', transition: 'all 0.2s'
+                      }}
+                    >
+                      <i className="fas fa-times-circle" style={{ color: '#94a3b8' }}></i>
+                      <span style={{ fontSize: '0.85rem', color: selectedBonusId === null ? '#f8fafc' : '#94a3b8' }}>Aucun bonus</span>
+                    </div>
+
+                    {availableBorrowBonuses.map(bonus => {
+                      const isSelected = selectedBonusId === bonus.id;
+                      let icon = 'fa-gift';
+                      let color = '#f59e0b';
+                      let desc = '';
+
+                      if (bonus.recompense.type === 'PROLONGATION') { icon = 'fa-hourglass-start'; color = '#3b82f6'; desc = '+7 jours extra'; }
+                      else if (bonus.recompense.type === 'PREMIUM') { icon = 'fa-crown'; color = '#f59e0b'; desc = 'Limite 5 livres'; }
+                      else if (bonus.recompense.type === 'BONUS') { icon = 'fa-plus-circle'; color = '#10b981'; desc = '+1 livre en plus'; }
+
+                      return (
+                        <div 
+                          key={bonus.id}
+                          className={`bonus-mini-item ${isSelected ? 'selected' : ''}`}
+                          onClick={() => setSelectedBonusId(bonus.id)}
+                          style={{
+                            padding: '0.6rem 0.8rem', borderRadius: '10px', background: isSelected ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.03)',
+                            border: `1px solid ${isSelected ? '#10b981' : 'transparent'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem', transition: 'all 0.2s'
+                          }}
+                        >
+                          <i className={`fas ${icon}`} style={{ color: color }}></i>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: isSelected ? '#f8fafc' : '#cbd5e1' }}>{bonus.recompense.nom}</div>
+                            <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{desc}</div>
+                          </div>
+                          {isSelected && <i className="fas fa-check-circle" style={{ color: '#10b981' }}></i>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ background: 'rgba(99, 102, 241, 0.05)', padding: '0.75rem', borderRadius: '10px', marginTop: '1.5rem', marginBottom: '1rem' }}>
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#cbd5e1', textAlign: 'center' }}>
+                  <i className="fas fa-info-circle" style={{ color: '#6366f1', marginRight: '0.5rem' }}></i> 
+                  Durée standard : <strong>7 jours</strong> {selectedBonusId && availableBorrowBonuses.find(b => b.id === selectedBonusId)?.recompense.type === 'PROLONGATION' ? <span style={{ color: '#10b981' }}>(+7j bonus)</span> : ''}
                 </p>
               </div>
             </div>
             <div className="modal-footer" style={{ justifyContent: 'center' }}>
               <button className="btn btn-outline" onClick={() => setShowBorrowConfirm(false)}>Annuler</button>
               <button className="btn btn-success" onClick={handleBorrow} disabled={borrowLoading}>
-                {borrowLoading ? <i className="fas fa-spinner fa-spin"></i> : <><i className="fas fa-check"></i> Confirmer</>}
+                {borrowLoading ? <i className="fas fa-spinner fa-spin"></i> : <><i className="fas fa-check"></i> Confirmer l'emprunt</>}
               </button>
             </div>
           </div>

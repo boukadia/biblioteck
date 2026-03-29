@@ -94,6 +94,10 @@ export class UsersService {
         niveau: true,
         pointsActuels: true,
         badgesObtenus: { include: { badge: true } },
+        bonusPossedes: { 
+          where: { estConsomme: false },
+          include: { recompense: true } 
+        },
         emprunts: true,
       }
     })

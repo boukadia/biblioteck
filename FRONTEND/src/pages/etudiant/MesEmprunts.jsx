@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from '../../components/dashboard/etudiant/Sidebar';
 import '../../styles/dashboardAdmin.css';
 import '../../styles/studentPages.css';
-import { getMesEmprunts, declarerRetour, annule } from '../../services/emprunts.api';
+import { getMesEmprunts, declarerRetour, annule, prolongerEmprunt } from '../../services/emprunts.api';
 import { getUserById } from '../../services/users.api';
 
 const STATUS_MAP = {
@@ -30,6 +30,15 @@ function StudentEmprunts() {
   const [user, setUser] = useState({});
   const [actionLoading, setActionLoading] = useState(null);
   const [errorModal, setErrorModal] = useState({ show: false, message: '' });
+
+  // Modal Prolongation
+  const [showProlongModal, setShowProlongModal] = useState({ show: false, empruntId: null });
+  const [prolongMsg, setProlongMsg] = useState({ type: '', text: '' });
+
+  // Modal Déclarer Retour
+  const [showReturnModal, setShowReturnModal] = useState({ show: false, empruntId: null, isLate: false });
+  const [returnMsg, setReturnMsg] = useState({ type: '', text: '' });
+  const [selectedProtectionId, setSelectedProtectionId] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -102,15 +111,27 @@ function StudentEmprunts() {
   }
 
   // Actions
-  async function handleReturn(id) {
-    setActionLoading(id);
+  async function handleReturnClick(emprunt) {
+    const isLate = emprunt.statut === 'EN_RETARD';
+    setShowReturnModal({ show: true, empruntId: emprunt.id, isLate: isLate });
+    setSelectedProtectionId(null);
+    setReturnMsg({ type: '', text: '' });
+  }
+
+  async function handleConfirmReturn() {
+    setActionLoading(showReturnModal.empruntId);
+    setReturnMsg({ type: '', text: '' });
     try {
-      await declarerRetour(id);
-      await loadData();
+      await declarerRetour(showReturnModal.empruntId, selectedProtectionId);
+      setReturnMsg({ type: 'success', text: 'Succès ! Votre demande de retour a été envoyée.' });
+      setTimeout(() => {
+        setShowReturnModal({ show: false, empruntId: null });
+        loadData();
+      }, 2000);
     } catch (err) {
       console.error('Erreur déclaration retour:', err);
       const msg = err.response?.data?.message || err.message || 'Erreur lors de la déclaration de retour.';
-      setErrorModal({ show: true, message: Array.isArray(msg) ? msg.join(', ') : msg });
+      setReturnMsg({ type: 'danger', text: Array.isArray(msg) ? msg.join(', ') : msg });
     }
     setActionLoading(null);
   }
@@ -128,12 +149,33 @@ function StudentEmprunts() {
     setActionLoading(null);
   }
 
+  async function handleProlonger(bonusId) {
+    setActionLoading(showProlongModal.empruntId);
+    setProlongMsg({ type: '', text: '' });
+    try {
+      await prolongerEmprunt(showProlongModal.empruntId, bonusId);
+      setProlongMsg({ type: 'success', text: 'Prolongation effectuée avec succès ! (+7 jours)' });
+      setTimeout(() => {
+        setShowProlongModal({ show: false, empruntId: null });
+        loadData();
+      }, 2000);
+    } catch (err) {
+      console.error('Erreur prolongation:', err);
+      const msg = err.response?.data?.message || err.message || 'Erreur lors de la prolongation.';
+      setProlongMsg({ type: 'danger', text: Array.isArray(msg) ? msg.join(', ') : msg });
+    }
+    setActionLoading(null);
+  }
+
   const tabs = [
     { id: 'all', label: 'Tous', icon: 'fa-list' },
     { id: 'actifs', label: 'Actifs', icon: 'fa-book-reader' },
     { id: 'retards', label: 'En retard', icon: 'fa-exclamation-triangle' },
     { id: 'retournes', label: 'Retournés', icon: 'fa-check-circle' },
   ];
+
+  const prolongationBonuses = user.bonusPossedes?.filter(b => b.recompense.type === 'PROLONGATION') || [];
+  const protectionBonuses = user.bonusPossedes?.filter(b => b.recompense.type === 'PROTECTION') || [];
 
   return (
     <div className="app-wrapper">
@@ -275,10 +317,20 @@ function StudentEmprunts() {
                     )}
 
                     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
+                      {emprunt.statut === 'EN_COURS' && (
+                        <button
+                          className="emprunt-action-btn prolong-btn"
+                          onClick={() => setShowProlongModal({ show: true, empruntId: emprunt.id })}
+                          style={{ background: '#f59e0b', color: 'white' }}
+                          disabled={actionLoading === emprunt.id}
+                        >
+                          <i className="fas fa-hourglass-start"></i> Prolonger
+                        </button>
+                      )}
                       {['EN_COURS', 'EN_RETARD'].includes(emprunt.statut) && (
                         <button
                           className="emprunt-action-btn return-btn"
-                          onClick={() => handleReturn(emprunt.id)}
+                          onClick={() => handleReturnClick(emprunt)}
                           disabled={actionLoading === emprunt.id}
                         >
                           {actionLoading === emprunt.id ? <i className="fas fa-spinner fa-spin"></i> : <><i className="fas fa-undo"></i> Déclarer retour</>}
@@ -301,6 +353,125 @@ function StudentEmprunts() {
           </div>
         )}
       </main>
+
+      {/* Prolongation Modal */}
+      {showProlongModal.show && (
+        <div className="modal-overlay active" onClick={() => setShowProlongModal({ show: false, empruntId: null })}>
+          <div className="modal-dialog" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+            <div className="modal-header">
+              <h2><i className="fas fa-hourglass-start" style={{ color: '#f59e0b' }}></i> Prolongation de l'emprunt</h2>
+              <button className="close-modal" onClick={() => setShowProlongModal({ show: false, empruntId: null })}>&times;</button>
+            </div>
+            <div className="modal-body">
+              {prolongMsg.text && (
+                <div className={`alert alert-${prolongMsg.type}`} style={{ marginBottom: '1.5rem' }}>
+                  {prolongMsg.text}
+                </div>
+              )}
+              
+              <p style={{ color: '#94a3b8', marginBottom: '1.5rem' }}>
+                Utilisez un bonus de <strong>PROLONGATION</strong> pour ajouter 7 jours supplémentaires à votre délai de lecture.
+              </p>
+
+              <div className="bonus-selection-list">
+                {prolongationBonuses.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '1.5rem', background: 'rgba(239, 68, 68, 0.05)', borderRadius: '12px', border: '1px dashed #ef4444' }}>
+                    <p style={{ color: '#ef4444', marginBottom: '1rem' }}>Vous n'avez aucun bonus de prolongation disponible.</p>
+                    <button className="btn btn-primary btn-sm" onClick={() => window.location.href = '/boutique'}>
+                      Aller à la boutique
+                    </button>
+                  </div>
+                ) : (
+                  prolongationBonuses.map(bonus => (
+                    <div key={bonus.id} className="bonus-select-item" onClick={() => handleProlonger(bonus.id)} style={{
+                      display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem',
+                      background: 'rgba(245, 158, 11, 0.08)', borderRadius: '12px', cursor: 'pointer',
+                      border: '1px solid rgba(245, 158, 11, 0.2)', marginBottom: '0.75rem', transition: 'all 0.2s'
+                    }}>
+                      <div style={{ fontSize: '1.5rem', color: '#f59e0b' }}><i className="fas fa-hourglass-half"></i></div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 600, color: 'white' }}>{bonus.recompense.nom}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>+7 jours d'emprunt supplémentaire</div>
+                      </div>
+                      <button className="btn btn-primary btn-sm" disabled={actionLoading === showProlongModal.empruntId}>
+                        Utiliser
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Déclarer Retour Modal */}
+      {showReturnModal.show && (
+        <div className="modal-overlay active" onClick={() => setShowReturnModal({ show: false, empruntId: null })}>
+          <div className="modal-dialog" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+            <div className="modal-header">
+              <h2><i className="fas fa-undo" style={{ color: '#6366f1' }}></i> Déclarer le retour</h2>
+              <button className="close-modal" onClick={() => setShowReturnModal({ show: false, empruntId: null })}>&times;</button>
+            </div>
+            <div className="modal-body">
+              {returnMsg.text && (
+                <div className={`alert alert-${returnMsg.type}`} style={{ marginBottom: '1.5rem' }}>
+                  {returnMsg.text}
+                </div>
+              )}
+
+              {showReturnModal.isLate ? (
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', color: '#ef4444', padding: '1rem', borderRadius: '12px', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <i className="fas fa-exclamation-triangle" style={{ fontSize: '1.25rem' }}></i>
+                    <p style={{ margin: 0, fontWeight: 500 }}>Attention : Vous êtes en retard !</p>
+                  </div>
+                  <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+                    Une pénalité sera appliquée à votre compte sauf si vous utilisez un **BOUCLIER DE PROTECTION** :
+                  </p>
+
+                  <div className="bonus-mini-list" style={{ marginTop: '1rem' }}>
+                    {protectionBonuses.length === 0 ? (
+                      <div style={{ textAlign: 'center', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px dashed #475569' }}>
+                        <p style={{ color: '#64748b', fontSize: '0.8rem', margin: 0 }}>Aucun bouclier disponible dans votre inventaire.</p>
+                      </div>
+                    ) : (
+                      protectionBonuses.map(bonus => (
+                        <div 
+                          key={bonus.id} 
+                          className={`bonus-mini-item ${selectedProtectionId === bonus.id ? 'selected' : ''}`}
+                          onClick={() => setSelectedProtectionId(bonus.id)}
+                          style={{
+                            padding: '0.75rem', borderRadius: '10px', background: selectedProtectionId === bonus.id ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.03)',
+                            border: `1px solid ${selectedProtectionId === bonus.id ? '#10b981' : 'transparent'}`, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem', transition: 'all 0.2s'
+                          }}
+                        >
+                          <i className="fas fa-shield-alt" style={{ color: '#10b981' }}></i>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'white' }}>{bonus.recompense.nom}</div>
+                            <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Annule les pénalités de retard</div>
+                          </div>
+                          {selectedProtectionId === bonus.id && <i className="fas fa-check-circle" style={{ color: '#10b981' }}></i>}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <p style={{ color: '#94a3b8', marginBottom: '1.5rem' }}>
+                  Confirmez-vous avoir rendu le livre à la bibliothèque ? L'administrateur devra valider votre demande.
+                </p>
+              )}
+            </div>
+            <div className="modal-footer" style={{ justifyContent: 'center' }}>
+              <button className="btn btn-outline" onClick={() => setShowReturnModal({ show: false, empruntId: null })}>Annuler</button>
+              <button className="btn btn-primary" onClick={handleConfirmReturn} disabled={actionLoading === showReturnModal.empruntId}>
+                {actionLoading === showReturnModal.empruntId ? <i className="fas fa-spinner fa-spin"></i> : <><i className="fas fa-check"></i> Confirmer le retour</>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Error Modal */}
       {errorModal.show && (
