@@ -1,32 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import '../styles/home.css';
 import BookCard from '../components/ui/BookCard';
 import Footer from '../components/Footer';
 import Navbar from '../components/Navbar';
 import Leaderboard from '../components/Leaderboard';
-import {getAllBooks} from '../services/livres.api'
+import { getAllBooks } from '../services/livres.api'
 import { getLeaderboard } from '../services/users.api';
+import { Link } from 'react-router-dom';
+import { getCategories } from '../services/category.api';
 
 
 
 
 
 export default function Home() {
-  const [booksData,setBooksData]=useState([])
+  const [booksData, setBooksData] = useState([])
   const [topStudents, setTopStudents] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [categories, setCategories] = useState([])
+
 
   useEffect(
-    function() {
+    function () {
       async function loadAllData() {
         try {
-          const booksData = await getAllBooks(); 
+          const booksData = await getAllBooks();
           setBooksData(booksData);
         } catch (err) {
           console.error("error du l-API books:", err);
           setError(err.message || JSON.stringify(err));
+        }
+        try {
+          const cate = await getCategories()
+          setCategories(cate)
+
+        } catch (err) {
+          console.error("error du APi categories:", err);
+          setError(err.message || JSON.stringify(err));
+
         }
 
         try {
@@ -36,17 +48,17 @@ export default function Home() {
           console.error("error du l-API leaderboard:", err);
           setError(err.message || JSON.stringify(err));
         }
-        
+
         setIsLoading(false);
       }
       loadAllData();
-    }, 
-  []);
+    },
+    []);
 
   return (
     <div className="home-page-scope" style={{ backgroundColor: '#ffffff' }}>
       <Navbar />
-      
+
       {/* Hero Section */}
       <section className="hero" id="home">
         <div className="container">
@@ -62,9 +74,9 @@ export default function Home() {
               <a href="#books" className="btn btn-primary btn-lg me-2">
                 <i className="fas fa-book me-2"></i>Explorer
               </a>
-              <a  className="btn btn-outline-dark btn-lg">
+              <Link to="/register" className="btn btn-outline-dark btn-lg">
                 <i className="fas fa-user-plus me-2"></i>S'inscrire
-              </a>
+              </Link>
             </div>
             <div className="col-lg-6 text-center">
               <img
@@ -87,11 +99,10 @@ export default function Home() {
             </div>
             <div className="col-md-3">
               <select className="form-control">
-                <option value="">Toutes les catégories</option>
-                <option value="romans">Romans</option>
-                <option value="sciences">Sciences</option>
-                <option value="histoire">Histoire</option>
-                <option value="technologie">Technologie</option>
+                <option value="tous">Toutes les catégories</option>
+                {categories.map((cat) => (
+                  <option value={cat.name}>{cat.name}</option>
+                ))}
               </select>
             </div>
             <div className="col-md-3">

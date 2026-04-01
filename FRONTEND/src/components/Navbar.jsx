@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Navbar() {
   return (
@@ -20,18 +21,18 @@ export default function Navbar() {
             <li className="nav-item">
               <a className="nav-link" href="#home">Accueil</a>
             </li>
-           
+
             <li className="nav-item">
               <a className="nav-link" href="#books">Livres</a>
             </li>
-            
+
             <li className="nav-item">
               <a className="nav-link" href="#contact">Contact</a>
             </li>
           </ul>
-          <a href="login.html" className="btn btn-primary">
+          <Link to="./login"  className="btn btn-primary">
             <i className="fas fa-sign-in-alt me-2"></i>Connexion
-          </a>
+          </Link>
         </div>
       </div>
     </nav>
