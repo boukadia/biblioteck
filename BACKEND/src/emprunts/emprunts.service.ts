@@ -52,7 +52,7 @@ export class EmpruntsService {
       );
     }
 
-    const niveauEtudiant = etudiant.niveau ?? 0;
+    const niveauEtudiant = etudiant.niveau ?? 1;
 
     let limiteEmprunts;
     if (niveauEtudiant >= 5) {
@@ -85,23 +85,10 @@ export class EmpruntsService {
       }
 
       switch (bonus.recompense.type) {
-        case TypeRecompense.PREMIUM:
-          limiteEmprunts = 5;
-          messageBonus = ' (Bonus PREMIUM appliqué)';
-          break;
-        case TypeRecompense.BONUS:
-          limiteEmprunts += 1;
-          messageBonus = ' (Bonus Livre Extra appliqué)';
-          break;
         case TypeRecompense.PROLONGATION:
           joursEmprunt += 7;
           messageBonus = ' (Bonus Prolongation appliqué)';
           break;
-        case TypeRecompense.PROTECTION:
-        case TypeRecompense.REACTIVATION:
-          throw new BadRequestException(
-            `Le bonus de type ${bonus.recompense.type} ne peut pas être utilisé lors d'un emprunt.`,
-          );
         default:
           throw new BadRequestException('Type de bonus non reconnu.');
       }
@@ -691,15 +678,15 @@ export class EmpruntsService {
   // OUTIL : CALCUL DU NIVEAU
   private calculerNiveau(xpTotal: number): number {
     const PALIERS = [
-      { niveau: 10, xpMin: 4000 },
-      { niveau: 9, xpMin: 2500 },
-      { niveau: 8, xpMin: 1700 },
-      { niveau: 7, xpMin: 1200 },
-      { niveau: 6, xpMin: 800 },
-      { niveau: 5, xpMin: 500 },
-      { niveau: 4, xpMin: 300 },
-      { niveau: 3, xpMin: 150 },
-      { niveau: 2, xpMin: 50 },
+      { niveau: 10, xpMin: 6000 },
+      { niveau: 9, xpMin: 4500 },
+      { niveau: 8, xpMin: 3500 },
+      { niveau: 7, xpMin: 2500 },
+      { niveau: 6, xpMin: 1700 },
+      { niveau: 5, xpMin: 1000 },
+      { niveau: 4, xpMin: 700 },
+      { niveau: 3, xpMin: 300 },
+      { niveau: 2, xpMin: 150 },
       { niveau: 1, xpMin: 0 },
     ];
     const palier = PALIERS.find((p) => xpTotal >= p.xpMin);
