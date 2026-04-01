@@ -1,17 +1,22 @@
-version: '3.8'
-
 services:
   db:
     image: mariadb:10.11
     container_name: bibliotech-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: bibliotech
+      MARIADB_ROOT_PASSWORD: ""
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "yes"
+      MARIADB_DATABASE: bibliotech
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   backend:
     build:
@@ -20,10 +25,11 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: "mysql://root:root@db:3306/bibliotech"
+      DATABASE_URL: "mysql://root:@db:3306/bibliotech"
       JWT_SECRET: "votre_secret_jwt"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - ./BACKEND:/app
       - /app/node_modules
@@ -41,6 +47,18 @@ services:
     volumes:
       - ./FRONTEND:/app
       - /app/node_modules
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: bibliotech-phpmyadmin
+    restart: always
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_ARBITRARY: 1
+    depends_on:
+      - db
 
 volumes:
   db_data:
