@@ -20,12 +20,7 @@ function BookCard({ book }) {
             <i className="fas fa-user me-1"></i>{book.auteur}
           </p>
 
-          <div className="book-footer d-flex justify-content-between align-items-center pt-3 border-top">
-            <span className="book-rating text-warning small">
-              <i className="fas fa-star me-1"></i> 
-              {book.rating ? book.rating.toFixed(1) : "N/A"}
-            </span>
-            
+          <div className="book-footer d-flex justify-content-between align-items-center pt-3 border-top">    
             <span className={book.stock > 0 ? 'badge-available' : 'badge-unavailable'}>
               {book.stock > 0 ? 'Disponible' : 'Indisponible'}
             </span>

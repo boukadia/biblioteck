@@ -29,7 +29,7 @@ const navSections = [
     title: 'Administration',
     items: [
       { id: 'users', icon: 'fa-users-cog', label: 'Utilisateurs', path: '/admin/users' },
-      { id: 'etudiants', icon: 'fa-user-graduate', label: 'Étudiants', path: '/admin/etudiants' },
+      // { id: 'etudiants', icon: 'fa-user-graduate', label: 'Étudiants', path: '/admin/etudiants' },
       { id: 'sanctions', icon: 'fa-gavel', label: 'Sanctions', path: '/admin/sanctions' },
     ],
   },
@@ -37,6 +37,12 @@ const navSections = [
 
 function Sidebar({ activePage, isOpen, onClose }) {
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
 
   return (
     <>
@@ -74,6 +80,12 @@ function Sidebar({ activePage, isOpen, onClose }) {
               ))}
             </div>
           ))}
+          <div className="nav-section">
+            <div className="nav-item text-danger" onClick={handleLogout} style={{ marginTop: 'auto', cursor: 'pointer', color: 'var(--danger)' }}>
+              <i className="fas fa-sign-out-alt"></i>
+              <span>Déconnexion</span>
+            </div>
+          </div>
         </nav>
 
         <div className="sidebar-footer">

@@ -28,7 +28,7 @@ const navSections = [
     title: 'Profil',
     items: [
       { id: 'wishlist', icon: 'fa-heart', label: 'Liste de souhaits', path: '/wishlist' },
-      { id: 'parametres', icon: 'fa-cog', label: 'Paramètres', path: '/parametres' },
+      // { id: 'parametres', icon: 'fa-cog', label: 'Paramètres', path: '/parametres' },
     ],
   },
 ];
