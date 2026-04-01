@@ -18,12 +18,11 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
 import { Request as ExpressRequest } from 'express';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('books')
 export class BooksController {
   constructor(private readonly bookService: BooksService) {}
-
   @Post('')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   create(
     @Body() data: CreateBookDto,
@@ -43,6 +42,7 @@ export class BooksController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   update(
     @Param('id') id: string,
@@ -53,6 +53,7 @@ export class BooksController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   remove(
     @Param('id') id: string,

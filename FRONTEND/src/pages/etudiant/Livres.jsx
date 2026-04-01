@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from '../../components/dashboard/etudiant/Sidebar';
 import '../../styles/dashboardAdmin.css';
 import '../../styles/studentPages.css';
-import { getAllBooks, searchBooks, getBookById } from '../../services/livres.api';
+import { getAllBooks } from '../../services/livres.api';
 import { emprunter } from '../../services/emprunts.api';
 import { getUserById } from '../../services/users.api';
 import { getCategories } from '../../services/category.api';

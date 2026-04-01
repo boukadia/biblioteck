@@ -17,12 +17,13 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtUser } from 'src/auth/interfaces/jwt-user.interface';
 import { Request as ExpressRequest } from 'express';
-@UseGuards(JwtAuthGuard, RolesGuard)
+
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   create(
     @Body() createCategoryDto: CreateCategoryDto,
@@ -36,6 +37,7 @@ export class CategoriesController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   findOne(
     @Param('id') id: string,
@@ -45,6 +47,7 @@ export class CategoriesController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   update(
     @Param('id') id: string,
@@ -55,6 +58,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   remove(
     @Param('id') id: string,

@@ -17,18 +17,8 @@ function StudentDashboard() {
   const [shopItems, setShopItems] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  // console.log('====================================');
-  // console.log(user);
-  // console.log('====================================');
-
-  const fetchUser = async (userId) => {
-    try {
-      const fetchedUser = await getUserById(userId);
-      if (fetchedUser) setUser(fetchedUser);
-    } catch (error) {
-      console.error('Erreur fetch user:', error);
-    }
-  };
+  
+ 
 
   async function fetchWichList() {
     try {
@@ -71,9 +61,7 @@ function StudentDashboard() {
       console.error('Erreur fetch shop items:', error);
     }
   };
-  // console.log('====================================');
-  // console.log("badge",badges);
-  // console.log('====================================');
+ 
 
   useEffect(() => {
     async function loadData() {
@@ -108,9 +96,7 @@ function StudentDashboard() {
     }
     loadData();
   }, []);
-  // console.log('====================================');
-  // console.log(user);
-  // console.log('====================================');
+  
   const getLevelInfo = (niveau) => {
     const n = niveau || 1;
     if (n >= 8) return { name: 'Maître', icon: '👑', css: 'diamond' };
@@ -172,7 +158,7 @@ function StudentDashboard() {
             <div className="stat-header">
               <div className="stat-icon"><i className="fas fa-star"></i></div>
             </div>
-            <h3>{isLoading ? '...' : (user.xp || 3)}</h3>
+            <h3>{isLoading ? '...' : (user.xp || 0)}</h3>
             <p>Points d'Expérience (XP)</p>
           </div>
           <div className="stat-card green">

@@ -2,10 +2,10 @@ import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
-import Home from './pages/Home';
+import Home from './pages/home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
-import Livres from './pages/admin/Livres'
+import Livres from './pages/admin/livres'
 
 // Pages
 import StudentDashboard from './pages/etudiant/Dashboard';
@@ -28,6 +28,7 @@ import Users from './pages/admin/Users';
 import Etudiants from './pages/admin/Etudiants';
 import Inventaire from './pages/admin/Inventaire';
 import Sanctions from './pages/admin/Sanctions';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
@@ -42,27 +43,27 @@ export default function App() {
           <Route
             path="/Etudiant"
             element={
-              // <ProtectedRoute allowedRole="ETUDIANT">
+              <ProtectedRoute allowedRole="ETUDIANT">
               <StudentDashboard />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path="/livres"
             element={
-              // <ProtectedRoute allowedRole="ETUDIANT">
+              <ProtectedRoute allowedRole="ETUDIANT">
               <StudentLivres />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path="/mes-emprunts"
             element={
-              // <ProtectedRoute allowedRole="ETUDIANT">
+              <ProtectedRoute allowedRole="ETUDIANT">
               <StudentEmprunts />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
@@ -78,94 +79,95 @@ export default function App() {
           <Route
             path="/admin"
             element={
-              // <ProtectedRoute allowedRole="ADMIN">
+              <ProtectedRoute allowedRole="ADMIN">
               <DashboardAdmin />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
           <Route
             path="/admin/livres"
             element={
-              // <ProtectedRoute allowedRole="ADMIN">
+              <ProtectedRoute allowedRole="ADMIN">
               <Livres />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/admin/emprunts"
             element={
-              // <ProtectedRoute allowedRole="ADMIN">
+              <ProtectedRoute allowedRole="ADMIN">
               <Emprunts />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/admin/retards"
             element={
-              // <ProtectedRoute allowedRole="ADMIN">
+              <ProtectedRoute allowedRole="ADMIN">
               <EmpruntsEnRetard />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/admin/emprunts-en-attente-retour"
             element={
-              // <ProtectedRoute allowedRole="ADMIN">
+              <ProtectedRoute allowedRole="ADMIN">
               <EmpruntsEnAttenteRetour />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/admin/tous-les-emprunts"
             element={
-              // <ProtectedRoute allowedRole="ADMIN">
+              <ProtectedRoute allowedRole="ADMIN">
               <TousLesEmprunts />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/admin/categories"
             element={
-              // <ProtectedRoute allowedRole="ADMIN">
+              <ProtectedRoute allowedRole="ADMIN">
               <Categories />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/admin/users"
             element={
-              // <ProtectedRoute allowedRole="ADMIN">
+              <ProtectedRoute allowedRole="ADMIN">
               <Users />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/admin/etudiants"
             element={
-              // <ProtectedRoute allowedRole="ADMIN">
+              <ProtectedRoute allowedRole="ADMIN">
               <Etudiants />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
-          />
+          /> */}
           <Route
             path="/admin/inventaire"
             element={
-              // <ProtectedRoute allowedRole="ADMIN">
+              <ProtectedRoute allowedRole="ADMIN">
               <Inventaire />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
           <Route
             path="/admin/sanctions"
             element={
-              // <ProtectedRoute allowedRole="ADMIN">
+              <ProtectedRoute allowedRole="ADMIN">
               <Sanctions />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 
-
+          {/* Fallback 404 Route */}
+          <Route path="*" element={<NotFound />} />
 
         </Routes>
       </BrowserRouter>

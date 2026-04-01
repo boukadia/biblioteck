@@ -381,15 +381,19 @@
 .stat-card.purple::before {
   background: var(--primary);
 }
+
 .stat-card.orange::before {
   background: var(--secondary);
 }
+
 .stat-card.green::before {
   background: var(--accent);
 }
+
 .stat-card.red::before {
   background: var(--danger);
 }
+
 .stat-card.blue::before {
   background: var(--info);
 }
@@ -415,18 +419,22 @@
   background: rgba(99, 102, 241, 0.2);
   color: var(--primary);
 }
+
 .stat-card.orange .stat-icon {
   background: rgba(245, 158, 11, 0.2);
   color: var(--secondary);
 }
+
 .stat-card.green .stat-icon {
   background: rgba(16, 185, 129, 0.2);
   color: var(--accent);
 }
+
 .stat-card.red .stat-icon {
   background: rgba(239, 68, 68, 0.2);
   color: var(--danger);
 }
+
 .stat-card.blue .stat-icon {
   background: rgba(59, 130, 246, 0.2);
   color: var(--info);
@@ -500,14 +508,17 @@
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(99, 102, 241, 0.1));
   color: var(--primary);
 }
+
 .action-card.approve .action-icon {
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
   color: var(--accent);
 }
+
 .action-card.returns .action-icon {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
   color: var(--info);
 }
+
 .action-card.alerts .action-icon {
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
   color: var(--danger);
@@ -688,38 +699,47 @@
   background: rgba(16, 185, 129, 0.2);
   color: var(--accent);
 }
+
 .action-btn.approve:hover {
   background: var(--accent);
   color: white;
 }
+
 .action-btn.reject {
   background: rgba(239, 68, 68, 0.2);
   color: var(--danger);
 }
+
 .action-btn.reject:hover {
   background: var(--danger);
   color: white;
 }
+
 .action-btn.view {
   background: rgba(59, 130, 246, 0.2);
   color: var(--info);
 }
+
 .action-btn.view:hover {
   background: var(--info);
   color: white;
 }
+
 .action-btn.edit {
   background: rgba(245, 158, 11, 0.2);
   color: var(--secondary);
 }
+
 .action-btn.edit:hover {
   background: var(--secondary);
   color: white;
 }
+
 .action-btn.delete {
   background: rgba(239, 68, 68, 0.2);
   color: var(--danger);
 }
+
 .action-btn.delete:hover {
   background: var(--danger);
   color: white;
@@ -899,12 +919,15 @@
 .timeline-item.borrow::before {
   background: var(--primary);
 }
+
 .timeline-item.return::before {
   background: var(--accent);
 }
+
 .timeline-item.overdue::before {
   background: var(--danger);
 }
+
 .timeline-item.register::before {
   background: var(--info);
 }
@@ -956,6 +979,7 @@
     opacity: 0;
     transform: scale(0.9) translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -1097,6 +1121,7 @@
   .app-wrapper .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
   .app-wrapper .dashboard-grid {
     grid-template-columns: 1fr;
   }
@@ -1106,32 +1131,41 @@
   .app-wrapper .sidebar {
     transform: translateX(-100%);
   }
+
   .app-wrapper .sidebar.active {
     transform: translateX(0);
   }
+
   .app-wrapper .main-content {
     margin-left: 0;
     padding: 1rem;
     width: 100%;
   }
+
   .app-wrapper .stats-grid {
     grid-template-columns: 1fr;
   }
+
   .app-wrapper .quick-actions {
     flex-direction: column;
   }
+
   .app-wrapper .action-card {
     min-width: 100%;
   }
+
   .app-wrapper .form-row {
     grid-template-columns: 1fr;
   }
+
   .app-wrapper .header-actions {
     width: 100%;
   }
+
   .app-wrapper .search-box {
     flex: 1;
   }
+
   .app-wrapper .search-box input {
     width: 100%;
   }
