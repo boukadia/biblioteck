@@ -1,0 +1,27 @@
+ M BACKEND/Dockerfile
+ M BACKEND/src/auth/auth.service.spec.ts
+ M BACKEND/src/badges/badges.service.spec.ts
+ M BACKEND/src/books/books.controller.ts
+ M BACKEND/src/books/books.service.spec.ts
+ M BACKEND/src/categories/categories.controller.ts
+ M BACKEND/src/emprunts/emprunts.service.ts
+ M BACKEND/src/sanctions/sanctions.service.spec.ts
+ M BACKEND/src/shop/shop.service.spec.ts
+ M BACKEND/src/stats/stats.service.spec.ts
+ M BACKEND/src/users/users.service.spec.ts
+ M FRONTEND/Dockerfile
+ M FRONTEND/src/App.jsx
+ M FRONTEND/src/components/Navbar.jsx
+ M FRONTEND/src/components/dashboard/admin/Sidebar.jsx
+ M FRONTEND/src/components/dashboard/etudiant/Sidebar.jsx
+ M FRONTEND/src/components/ui/BookCard.jsx
+ M FRONTEND/src/pages/etudiant/Dashboard.jsx
+ M FRONTEND/src/pages/etudiant/Livres.jsx
+ M FRONTEND/src/pages/home.jsx
+ M FRONTEND/src/styles/dashboardAdmin.css
+ M docker-compose.yml
+?? FRONTEND/src/pages/NotFound.jsx
+?? FRONTEND/src/pages/person.jsx
+?? FRONTEND/src/pages/users.jsx
+?? status.txt
+?? status_ascii.txt
